@@ -1,0 +1,28 @@
+[package]
+name = "elder-scrobs-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum.workspace = true
+axum-extra.workspace = true
+tokio.workspace = true
+
+axum-macros.workspace = true
+tower-http.workspace = true
+elder-scrobz-db.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+tracing-subscriber.workspace = true
+tracing.workspace = true
+serde.workspace = true
+futures-util.workspace = true
+config.workspace = true
+
+[dev-dependencies]
+http-body-util.workspace = true
+tower.workspace = true
+
+[[test]]
+name = "api_tests"
+path = "tests/api_tests.rs"
