@@ -48,7 +48,6 @@
                 :style="{ width: `${(track.playCount / artist.topTracks[0].playCount) * 100}%` }"
               ></div>
             </div>
-            <span class="progress-value">{{ Math.round((track.playCount / artist.topTracks[0].playCount) * 100) }}%</span>
           </div>
         </div>
       </div>
@@ -399,7 +398,7 @@ onMounted(async () => {
 .track-progress {
   display: table-cell;
   padding: 12px;
-  width: 200px;
+  width: 300px;
   vertical-align: middle;
 }
 
