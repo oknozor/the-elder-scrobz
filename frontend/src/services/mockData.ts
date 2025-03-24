@@ -1,4 +1,4 @@
-import { MusicStats, TimeRange, RecentTrack, ArtistDetails, ApiKey, User, AlbumDetails } from '@/types/music';
+import { MusicStats, TimeRange, RecentTrack, ArtistDetails, ApiKey, User, AlbumDetails, PulseTimeRange, PulseData } from '@/types/music';
 import type { Artist, Album, Track } from '@/types/music'
 
 export const mockArtists: Artist[] = [
@@ -146,13 +146,65 @@ const generateMoreTracks = (): RecentTrack[] => {
   return tracks
 }
 
-export const fetchMusicStats = async (timeRange: TimeRange): Promise<MusicStats> => {
+export const fetchMusicStats = async (timeRange: TimeRange, pulseRange: PulseTimeRange = '12months'): Promise<MusicStats> => {
   const allRecentTracks = [...recentTracks, ...generateMoreTracks()]
   
   // Sort tracks by lastPlayed in descending order (newest first)
   const sortedRecentTracks = allRecentTracks.sort((a, b) => 
     new Date(b.lastPlayed).getTime() - new Date(a.lastPlayed).getTime()
   )
+
+  // Generate pulse data based on the selected range
+  const generatePulseData = () => {
+    const now = new Date();
+    const data: PulseData[] = [];
+    let count = 12;
+
+    switch (pulseRange) {
+      case '12days':
+        for (let i = 0; i < count; i++) {
+          const date = new Date(now);
+          date.setDate(date.getDate() - i);
+          data.unshift({
+            period: date.toLocaleString('default', { month: 'short', day: 'numeric' }),
+            playCount: Math.floor(Math.random() * 1000) + 100
+          });
+        }
+        break;
+      case '12weeks':
+        for (let i = 0; i < count; i++) {
+          const date = new Date(now);
+          date.setDate(date.getDate() - (i * 7));
+          data.unshift({
+            period: `Week ${count - i}`,
+            playCount: Math.floor(Math.random() * 1000) + 100
+          });
+        }
+        break;
+      case '12months':
+        for (let i = 0; i < count; i++) {
+          const date = new Date(now);
+          date.setMonth(date.getMonth() - i);
+          data.unshift({
+            period: date.toLocaleString('default', { month: 'short', year: 'numeric' }),
+            playCount: Math.floor(Math.random() * 1000) + 100
+          });
+        }
+        break;
+      case '12years':
+        for (let i = 0; i < count; i++) {
+          const date = new Date(now);
+          date.setFullYear(date.getFullYear() - i);
+          data.unshift({
+            period: date.getFullYear().toString(),
+            playCount: Math.floor(Math.random() * 1000) + 100
+          });
+        }
+        break;
+    }
+
+    return data;
+  };
 
   return {
     topArtists: mockArtists,
@@ -165,7 +217,8 @@ export const fetchMusicStats = async (timeRange: TimeRange): Promise<MusicStats>
       month: { playCount: 199, duration: 1320 },
       year: { playCount: 199, duration: 1320 },
       all: { playCount: 199, duration: 1320 }
-    }
+    },
+    pulseData: generatePulseData()
   }
 }
 

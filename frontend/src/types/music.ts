@@ -1,4 +1,5 @@
 export type TimeRange = 'today' | 'week' | 'month' | 'year' | 'all';
+export type PulseTimeRange = '12days' | '12weeks' | '12months' | '12years';
 
 export interface Artist {
   id: string;
@@ -50,6 +51,11 @@ export interface TimePeriodStats {
   duration: number; // in minutes
 }
 
+export interface PulseData {
+  period: string;
+  playCount: number;
+}
+
 export interface MusicStats {
   topArtists: Artist[];
   topTracks: Track[];
@@ -62,6 +68,7 @@ export interface MusicStats {
     year: TimePeriodStats;
     all: TimePeriodStats;
   };
+  pulseData: PulseData[];
 }
 
 export interface ApiKey {

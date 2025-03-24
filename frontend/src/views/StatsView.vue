@@ -97,6 +97,47 @@
       <div class="section-header">
         <h2>
           <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4"/>
+            <path d="M12 18v4"/>
+            <path d="M4.93 4.93l2.83 2.83"/>
+            <path d="M16.24 16.24l2.83 2.83"/>
+            <path d="M2 12h4"/>
+            <path d="M18 12h4"/>
+            <path d="M4.93 19.07l2.83-2.83"/>
+            <path d="M16.24 7.76l2.83-2.83"/>
+          </svg>
+          Pulse
+        </h2>
+        <div class="pulse-filters">
+          <button
+            v-for="range in pulseTimeRanges"
+            :key="range"
+            class="pulse-filter-btn"
+            :class="{ active: selectedPulseRange === range }"
+            @click="selectedPulseRange = range"
+          >
+            {{ range.replace(/(\d+)(\w+)/, '$1 $2') }}
+          </button>
+        </div>
+      </div>
+      <div class="pulse-table">
+        <div v-for="data in stats.pulseData" :key="data.period" class="pulse-row">
+          <div class="pulse-period">{{ data.period }}</div>
+          <div class="pulse-count">{{ data.playCount }} plays</div>
+          <div class="pulse-bar-container">
+            <div 
+              class="pulse-bar"
+              :style="{ width: `${(data.playCount / Math.max(...stats.pulseData.map(d => d.playCount))) * 100}%` }"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <div class="section-header">
+        <h2>
+          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
           Recent Tracks
@@ -182,8 +223,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { TimeRange, MusicStats, User } from '@/types/music'
+import { ref, onMounted, computed, watch } from 'vue'
+import { TimeRange, MusicStats, User, PulseTimeRange } from '@/types/music'
 import { fetchMusicStats } from '@/services/mockData'
 import { fetchUsers } from '@/services/mockUsers'
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue'
@@ -218,7 +259,8 @@ const stats = ref<MusicStats>({
     month: { playCount: 0, duration: 0 },
     year: { playCount: 0, duration: 0 },
     all: { playCount: 0, duration: 0 }
-  }
+  },
+  pulseData: []
 })
 
 const users = ref<User[]>([])
@@ -239,12 +281,15 @@ const paginatedTracks = computed(() => {
 
 const showDuration = ref(false)
 
+const pulseTimeRanges: PulseTimeRange[] = ['12days', '12weeks', '12months', '12years']
+const selectedPulseRange = ref<PulseTimeRange>('12months')
+
 const router = useRouter()
 
 const fetchStats = async () => {
   try {
     const [statsData, usersData] = await Promise.all([
-      fetchMusicStats(timeRanges.value.artists),
+      fetchMusicStats(timeRanges.value.artists, selectedPulseRange.value),
       fetchUsers()
     ])
     stats.value = statsData
@@ -254,6 +299,11 @@ const fetchStats = async () => {
     console.error('Error fetching data:', error)
   }
 }
+
+// Watch for changes in the pulse range
+watch(selectedPulseRange, () => {
+  fetchStats()
+})
 
 const formatTimeAgo = (timestamp: string): string => {
   const date = new Date(timestamp)
@@ -605,5 +655,79 @@ h2 {
 .icon {
   width: 20px;
   height: 20px;
+}
+
+.pulse-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.pulse-filter-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--card-background);
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+
+.pulse-filter-btn:hover {
+  background: var(--background-color);
+}
+
+.pulse-filter-btn.active {
+  background: var(--primary-color);
+  color: var(--background-color);
+  border-color: var(--primary-color);
+}
+
+.pulse-table {
+  background: var(--card-background);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  border: 1px solid var(--border-color);
+}
+
+.pulse-row {
+  display: grid;
+  grid-template-columns: 150px 120px 1fr;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.pulse-row:last-child {
+  border-bottom: none;
+}
+
+.pulse-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pulse-period {
+  color: var(--text-color);
+  font-size: 0.9em;
+}
+
+.pulse-count {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.pulse-bar-container {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.pulse-bar {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.3s ease;
 }
 </style> 
