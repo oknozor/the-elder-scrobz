@@ -97,47 +97,6 @@
       <div class="section-header">
         <h2>
           <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2v4"/>
-            <path d="M12 18v4"/>
-            <path d="M4.93 4.93l2.83 2.83"/>
-            <path d="M16.24 16.24l2.83 2.83"/>
-            <path d="M2 12h4"/>
-            <path d="M18 12h4"/>
-            <path d="M4.93 19.07l2.83-2.83"/>
-            <path d="M16.24 7.76l2.83-2.83"/>
-          </svg>
-          Pulse
-        </h2>
-        <div class="pulse-filters">
-          <button
-            v-for="range in pulseTimeRanges"
-            :key="range"
-            class="pulse-filter-btn"
-            :class="{ active: selectedPulseRange === range }"
-            @click="selectedPulseRange = range"
-          >
-            {{ range.replace(/(\d+)(\w+)/, '$1 $2') }}
-          </button>
-        </div>
-      </div>
-      <div class="pulse-table">
-        <div v-for="data in stats.pulseData" :key="data.period" class="pulse-row">
-          <div class="pulse-period">{{ data.period }}</div>
-          <div class="pulse-count">{{ data.playCount }} plays</div>
-          <div class="pulse-bar-container">
-            <div 
-              class="pulse-bar"
-              :style="{ width: `${(data.playCount / Math.max(...stats.pulseData.map(d => d.playCount))) * 100}%` }"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="stats-section">
-      <div class="section-header">
-        <h2>
-          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
           Recent Tracks
@@ -217,6 +176,47 @@
         >
           Next
         </button>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <div class="section-header">
+        <h2>
+          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4"/>
+            <path d="M12 18v4"/>
+            <path d="M4.93 4.93l2.83 2.83"/>
+            <path d="M16.24 16.24l2.83 2.83"/>
+            <path d="M2 12h4"/>
+            <path d="M18 12h4"/>
+            <path d="M4.93 19.07l2.83-2.83"/>
+            <path d="M16.24 7.76l2.83-2.83"/>
+          </svg>
+          Pulse
+        </h2>
+        <div class="pulse-filters">
+          <button
+            v-for="range in pulseTimeRanges"
+            :key="range"
+            class="pulse-filter-btn"
+            :class="{ active: selectedPulseRange === range }"
+            @click="selectedPulseRange = range"
+          >
+            {{ range.replace(/(\d+)(\w+)/, '$1 $2') }}
+          </button>
+        </div>
+      </div>
+      <div class="pulse-table">
+        <div v-for="data in stats.pulseData" :key="data.period" class="pulse-row">
+          <div class="pulse-period">{{ data.period }}</div>
+          <div class="pulse-count">{{ data.playCount }} plays</div>
+          <div class="pulse-bar-container">
+            <div 
+              class="pulse-bar"
+              :style="{ width: `${(data.playCount / Math.max(...stats.pulseData.map(d => d.playCount))) * 100}%` }"
+            ></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
