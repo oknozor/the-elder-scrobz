@@ -473,7 +473,7 @@ h2 {
   left: 0;
   right: 0;
   padding: 8px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  background: rgba(0, 0, 0, 0.7);
   color: white;
   opacity: 0;
   transform: translateY(100%);
