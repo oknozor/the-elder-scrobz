@@ -2,36 +2,36 @@ use crate::PgPool;
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
 use sqlx::types::{Json, Uuid};
+use sqlx::types::chrono::{DateTime, Utc};
 use utoipa::ToSchema;
 
 #[derive(sqlx::FromRow, Debug)]
 struct Scrobble {
-    data: Json<Listen>,
+    source_id: String,
+    listened_at: DateTime<Utc>,
+    track_id: String,
+    user_id: String,
 }
 
-pub async fn fetch_scrobbles_for_user(pool: &PgPool, user_id: &str) -> Result<Vec<Listen>, Error> {
-    let rows = sqlx::query!(
-    r#"
-    SELECT DISTINCT data->'payload'->'track_metadata'->'mbid_mapping'->>'recording_mbid' AS recording_mbid,
-           data
-    FROM scrobbles
-    WHERE user_id = $1
-    GROUP BY recording_mbid, data;
-    "#,
-    user_id,
-    )
-    .fetch_all(pool)
-    .await?;
+impl Scrobble {
+    pub async fn save(&self, pool: &PgPool) -> Result<(), Error> {
+        sqlx::query!(
+            r#"
+            INSERT INTO scrobbles (source_id, listened_at, track_id, user_id)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (source_id) DO NOTHING"#,
+            self.source_id,
+            self.listened_at,
+            self.track_id,
+            self.user_id
+        )
+            .execute(pool)
+            .await?;
 
-    let listens = rows
-        .into_iter()
-        .filter_map(|row| {
-            serde_json::from_value::<Listen>(row.data).ok() // Manually handle JSON deserialization
-        })
-        .collect::<Vec<Listen>>();
-
-    Ok(listens)
+        Ok(())
+    }
 }
+
 
 #[derive(sqlx::FromRow, sqlx::Type, Debug)]
 pub struct CreateScrobble {
@@ -52,25 +52,47 @@ impl From<SubmitListens> for Vec<Listen> {
     }
 }
 
-impl CreateScrobble {
-    pub async fn batch_insert(
-        scrobbles: Vec<CreateScrobble>,
-        pool: &PgPool,
-    ) -> Result<(), sqlx::Error> {
-        let mut tx = pool.begin().await?;
+#[derive(sqlx::FromRow, sqlx::Type, Debug)]
+pub struct RawScrobble {
+    pub id: String,
+    pub user_id: String,
+    pub data: Json<Listen>,
+}
 
+impl RawScrobble {
+    pub async fn get_by_id(pool: &PgPool, scrobble_id: &str) -> Result<Option<RawScrobble>, Error> {
+        let query = r#"
+            SELECT id, user_id, data
+            FROM scrobbles_raw
+            WHERE id = $1
+        "#;
+
+        sqlx::query_as::<_, RawScrobble>(query)
+            .bind(scrobble_id) // Bind the input parameter
+            .fetch_optional(pool) // Use `fetch_optional` since it may or may not exist
+            .await
+    }
+}
+
+impl CreateScrobble {
+    pub async fn batch_insert(scrobbles: Vec<CreateScrobble>, pool: &PgPool) -> Result<Vec<String>, Error> {
+        let mut tx = pool.begin().await?;
+        let mut uuids = Vec::with_capacity(scrobbles.len());
         for scrobble in scrobbles {
-            sqlx::query("INSERT INTO scrobbles (user_id, id, data) VALUES ($1, $2, $3)")
+            let uuid = Uuid::new_v4().to_string();
+            sqlx::query("INSERT INTO scrobbles_raw (user_id, id, data) VALUES ($1, $2, $3)")
                 .bind(scrobble.user_id)
-                .bind(Uuid::new_v4().to_string())
+                .bind(&uuid)
                 .bind(&scrobble.data)
                 .execute(&mut *tx)
                 .await?;
+
+            uuids.push(uuid);
         }
 
         tx.commit().await?;
 
-        Ok(())
+        Ok(uuids)
     }
 }
 
@@ -226,4 +248,8 @@ mod test {
 
         serde_json::from_str::<SubmitListensPayload>(json).unwrap();
     }
+}
+
+pub async fn top_tracks(p0: &PgPool, p1: &String) -> Result<Vec<Scrobble>, Error> {
+    todo!()
 }

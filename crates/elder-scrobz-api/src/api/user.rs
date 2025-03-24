@@ -51,7 +51,38 @@ pub async fn top_tracks(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
 ) -> AppResult<Json<TracksStat>> {
-    let scrobbles = scrobble::fetch_scrobbles_for_user(&state.pool, &user_id).await?;
+    todo!()
+}
 
-    Ok(Json(TracksStat { user_id, scrobbles }))
+
+#[debug_handler]
+#[utoipa::path(
+    get,
+    path = "/users/{id}/stats/tracks",
+    responses(
+        (status = 200, description = "Top album for user", body = TracksStat),
+        (status = 404, description = "User not found", body = AppError)
+    )
+)]
+pub async fn top_albums(
+    State(state): State<AppState>,
+    Path(user_id): Path<String>,
+) -> AppResult<Json<TracksStat>> {
+    todo!()
+}
+
+#[debug_handler]
+#[utoipa::path(
+    get,
+    path = "/users/{id}/stats/tracks",
+    responses(
+        (status = 200, description = "Top artists for user", body = TracksStat),
+        (status = 404, description = "User not found", body = AppError)
+    )
+)]
+pub async fn top_artists(
+    State(state): State<AppState>,
+    Path(user_id): Path<String>,
+) -> AppResult<Json<TracksStat>> {
+    todo!()
 }

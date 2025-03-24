@@ -9,11 +9,12 @@ use axum_extra::headers::authorization::Credentials;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
-use elder_scrobz_db::scrobble::{
-    CreateScrobble, Listen, ListenType, SubmitListens, SubmitListensPayload,
-};
+use elder_scrobz_db::scrobble::{RawScrobble, Listen, ListenType, SubmitListens, SubmitListensPayload, CreateScrobble};
 use elder_scrobz_db::user::User;
 use futures_util::stream::StreamExt;
+use tracing::error;
+use uuid::Uuid;
+use elder_scrobz_resolver::populate_scrobbles;
 
 #[debug_handler]
 #[utoipa::path(
@@ -46,7 +47,17 @@ pub async fn submit_listens(
         })
         .collect();
 
-    CreateScrobble::batch_insert(scrobbles, &state.pool).await?;
+    let uuids = CreateScrobble::batch_insert(scrobbles, &state.pool).await?;
+
+    for scrobble_id in uuids {
+        let pool = state.pool.clone();
+        tokio::spawn(async  move {
+            if let Err(err) = populate_scrobbles(&pool, scrobble_id).await {
+                error!("{err}");
+            }
+        });
+    }
+
     Ok(())
 }
 
@@ -102,7 +113,17 @@ async fn save_listens(
         })
         .collect();
 
-    CreateScrobble::batch_insert(chunk, &state.pool).await?;
+    let uuids = CreateScrobble::batch_insert(chunk, &state.pool).await?;
+
+    for scrobble_id in uuids {
+        let pool = state.pool.clone();
+        tokio::spawn(async  move {
+            if let Err(err) = populate_scrobbles(&pool, scrobble_id).await {
+                error!("{err}");
+            }
+        });
+    }
+
     Ok(())
 }
 

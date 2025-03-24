@@ -1,0 +1,12 @@
+[package]
+name = "elder-scrobz-resolver"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+elder-scrobz-db.workspace = true
+tokio.workspace = true
+musicbrainz_rs.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+log = "0.4.24"

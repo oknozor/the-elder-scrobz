@@ -11,8 +11,8 @@ use tower_http::trace::TraceLayer;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use utoipa::{Modify, OpenApi};
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
+use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -65,7 +65,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
             std::env::var("RUST_LOG").unwrap_or_else(|_| {
-                "tower_http=debug,axum=debug,elder_scrobz_api=debug,elder_scrobz_api=debug".into()
+                "tower_http=debug,axum=debug,elder_scrobz_api=debug,elder_scrobz_api=debug,elder_scrobz_resolver=debug".into()
             }),
         ))
         .with(tracing_subscriber::fmt::layer())
@@ -84,9 +84,8 @@ async fn main() -> anyhow::Result<()> {
         .nest("/api/v1/", app)
         .split_for_parts();
 
-    let router = router
-        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
-
+    let router =
+        router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
 
     axum::serve(listener, router).await?;
     Ok(())

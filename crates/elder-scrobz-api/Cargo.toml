@@ -14,6 +14,7 @@ tokio.workspace = true
 axum-macros.workspace = true
 tower-http.workspace = true
 elder-scrobz-db.workspace = true
+elder-scrobz-resolver.workspace = true
 anyhow.workspace = true
 serde_json.workspace = true
 tracing-subscriber.workspace = true
@@ -21,6 +22,7 @@ tracing.workspace = true
 serde.workspace = true
 futures-util.workspace = true
 config.workspace = true
+uuid = { version = "1.16.0", features = ["v4"] }
 
 # see: https://github.com/juhaku/utoipa/issues/1341
 [build-dependencies]

@@ -31,8 +31,11 @@ base64 = "0.22.1"
 sha2 = "0.10.8"
 
 elder-scrobz-db = { path = "crates/elder-scrobz-db", version = "0.1.0" }
+elder-scrobz-resolver = { path = "crates/elder-scrobz-resolver", version = "0.1.0" }
 
 http-body-util = "0.1.2"
 tower = "0.5.2"
 testcontainers-modules = { version = "0.11.6", features = ["postgres"] }
 speculoos = "0.12.0"
+
+musicbrainz_rs = "0.9.1"
