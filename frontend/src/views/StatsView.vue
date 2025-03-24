@@ -15,7 +15,13 @@
 
     <div class="stats-section">
       <div class="section-header">
-        <h2>Artists Chart</h2>
+        <h2>
+          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Artists Chart
+        </h2>
         <TimeRangeSelector v-model="timeRanges.artists" @update:modelValue="fetchStats" />
       </div>
       <div class="grid-container">
@@ -34,7 +40,14 @@
 
     <div class="stats-section">
       <div class="section-header">
-        <h2>Tracks Chart</h2>
+        <h2>
+          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+          </svg>
+          Tracks Chart
+        </h2>
         <TimeRangeSelector v-model="timeRanges.tracks" @update:modelValue="fetchStats" />
       </div>
       <div class="grid-container">
@@ -52,7 +65,17 @@
 
     <div class="stats-section">
       <div class="section-header">
-        <h2>Albums Chart</h2>
+        <h2>
+          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 2v4"/>
+            <path d="M12 18v4"/>
+            <path d="M2 12h4"/>
+            <path d="M18 12h4"/>
+          </svg>
+          Albums Chart
+        </h2>
         <TimeRangeSelector v-model="timeRanges.albums" @update:modelValue="fetchStats" />
       </div>
       <div class="grid-container">
@@ -72,7 +95,12 @@
 
     <div class="stats-section">
       <div class="section-header">
-        <h2>Recent Tracks</h2>
+        <h2>
+          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Recent Tracks
+        </h2>
         <div class="view-toggle">
           <button 
             class="toggle-btn" 
@@ -171,10 +199,10 @@ interface TimeRanges {
 }
 
 const timeRanges = ref<TimeRanges>({
-  artists: 'all',
-  tracks: 'all',
-  albums: 'all',
-  recent: 'all'
+  artists: 'week',
+  tracks: 'week',
+  albums: 'week',
+  recent: 'week'
 })
 
 const selectedUsers = ref<string[]>(['all'])
@@ -270,7 +298,14 @@ const currentUser = ref<User | null>({
   name: 'John Doe',
   imageUrl: 'https://picsum.photos/32/32?random=1',
   lastActive: new Date().toISOString(),
-  apiKeys: []
+  apiKeys: [],
+  stats: {
+    totalPlays: 0,
+    totalDuration: 0,
+    topArtists: [],
+    topAlbums: [],
+    topTracks: []
+  }
 })
 
 const handleLogout = () => {
@@ -335,6 +370,15 @@ onMounted(async () => {
 h2 {
   color: var(--text-color);
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--primary-color);
 }
 
 .grid-container {
