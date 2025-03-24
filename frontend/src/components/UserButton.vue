@@ -7,11 +7,17 @@
       </svg>
     </div>
     <div v-if="isOpen" class="user-dropdown">
-      <div class="user-option" @click="handleLogout">
-        <span class="option-text">Logout</span>
-      </div>
       <div class="user-option" @click="handleProfile">
         <span class="option-text">Profile</span>
+      </div>
+      <div class="user-option" @click="handleImport">
+        <span class="option-text">Import</span>
+      </div>
+      <div class="user-option" @click="handleUsers">
+        <span class="option-text">Users</span>
+      </div>
+      <div class="user-option" @click="handleLogout">
+        <span class="option-text">Logout</span>
       </div>
     </div>
   </div>
@@ -19,8 +25,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import type { User } from '@/types/music'
 
+const router = useRouter()
 const props = defineProps<{
   currentUser: User | null
 }>()
@@ -54,6 +62,16 @@ const handleLogout = () => {
 
 const handleProfile = () => {
   emit('profile')
+  isOpen.value = false
+}
+
+const handleImport = () => {
+  router.push({ name: 'import' })
+  isOpen.value = false
+}
+
+const handleUsers = () => {
+  router.push({ name: 'users' })
   isOpen.value = false
 }
 </script>
