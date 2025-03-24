@@ -72,6 +72,7 @@ export const mockTracks: Track[] = [
 ];
 
 const recentTracks: RecentTrack[] = [
+  // Queen tracks
   {
     id: '1',
     title: 'Bohemian Rhapsody',
@@ -82,65 +83,313 @@ const recentTracks: RecentTrack[] = [
   },
   {
     id: '2',
-    title: 'Stairway to Heaven',
-    artist: 'Led Zeppelin',
-    imageUrl: 'https://picsum.photos/200/200?random=2',
-    lastPlayed: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
+    title: 'We Will Rock You',
+    artist: 'Queen',
+    imageUrl: 'https://picsum.photos/200/200?random=7',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 minutes ago
     user: 'jane_smith'
   },
   {
     id: '3',
-    title: 'Hotel California',
-    artist: 'Eagles',
-    imageUrl: 'https://picsum.photos/200/200?random=3',
-    lastPlayed: new Date(Date.now() - 1000 * 60 * 120).toISOString(), // 2 hours ago
-    user: 'john_doe'
+    title: 'Don\'t Stop Me Now',
+    artist: 'Queen',
+    imageUrl: 'https://picsum.photos/200/200?random=8',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 90).toISOString(), // 1.5 hours ago
+    user: 'bob_wilson'
   },
+
+  // Led Zeppelin tracks
   {
     id: '4',
-    title: 'Sweet Caroline',
-    artist: 'Neil Diamond',
-    imageUrl: 'https://picsum.photos/200/200?random=4',
-    lastPlayed: new Date(Date.now() - 1000 * 60 * 180).toISOString(), // 3 hours ago
+    title: 'Stairway to Heaven',
+    artist: 'Led Zeppelin',
+    imageUrl: 'https://picsum.photos/200/200?random=16',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
     user: 'jane_smith'
   },
   {
     id: '5',
-    title: 'Piano Man',
-    artist: 'Billy Joel',
-    imageUrl: 'https://picsum.photos/200/200?random=5',
-    lastPlayed: new Date(Date.now() - 1000 * 60 * 240).toISOString(), // 4 hours ago
+    title: 'Black Dog',
+    artist: 'Led Zeppelin',
+    imageUrl: 'https://picsum.photos/200/200?random=17',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 75).toISOString(), // 1.25 hours ago
+    user: 'alice_brown'
+  },
+  {
+    id: '6',
+    title: 'Kashmir',
+    artist: 'Led Zeppelin',
+    imageUrl: 'https://picsum.photos/200/200?random=21',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 110).toISOString(), // 1.83 hours ago
     user: 'john_doe'
+  },
+
+  // The Elder Scrolls tracks
+  {
+    id: '7',
+    title: 'Dragonborn',
+    artist: 'The Elder Scrolls',
+    imageUrl: 'https://picsum.photos/200/200?random=3',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 minutes ago
+    user: 'charlie_davis'
+  },
+  {
+    id: '8',
+    title: 'Ancient Stones',
+    artist: 'The Elder Scrolls',
+    imageUrl: 'https://picsum.photos/200/200?random=31',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 50).toISOString(), // 50 minutes ago
+    user: 'john_doe'
+  },
+  {
+    id: '9',
+    title: 'Secunda',
+    artist: 'The Elder Scrolls',
+    imageUrl: 'https://picsum.photos/200/200?random=32',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 120).toISOString(), // 2 hours ago
+    user: 'jane_smith'
+  },
+
+  // Pink Floyd tracks
+  {
+    id: '10',
+    title: 'Comfortably Numb',
+    artist: 'Pink Floyd',
+    imageUrl: 'https://picsum.photos/200/200?random=33',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 40).toISOString(), // 40 minutes ago
+    user: 'bob_wilson'
+  },
+  {
+    id: '11',
+    title: 'Wish You Were Here',
+    artist: 'Pink Floyd',
+    imageUrl: 'https://picsum.photos/200/200?random=34',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 85).toISOString(), // 1.42 hours ago
+    user: 'alice_brown'
+  },
+
+  // David Bowie tracks
+  {
+    id: '12',
+    title: 'Space Oddity',
+    artist: 'David Bowie',
+    imageUrl: 'https://picsum.photos/200/200?random=35',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 55).toISOString(), // 55 minutes ago
+    user: 'charlie_davis'
+  },
+  {
+    id: '13',
+    title: 'Heroes',
+    artist: 'David Bowie',
+    imageUrl: 'https://picsum.photos/200/200?random=36',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 130).toISOString(), // 2.17 hours ago
+    user: 'john_doe'
+  },
+
+  // The Rolling Stones tracks
+  {
+    id: '14',
+    title: 'Paint It Black',
+    artist: 'The Rolling Stones',
+    imageUrl: 'https://picsum.photos/200/200?random=37',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 70).toISOString(), // 1.17 hours ago
+    user: 'jane_smith'
+  },
+  {
+    id: '15',
+    title: 'Sympathy for the Devil',
+    artist: 'The Rolling Stones',
+    imageUrl: 'https://picsum.photos/200/200?random=38',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 140).toISOString(), // 2.33 hours ago
+    user: 'bob_wilson'
+  },
+
+  // Nirvana tracks
+  {
+    id: '16',
+    title: 'Smells Like Teen Spirit',
+    artist: 'Nirvana',
+    imageUrl: 'https://picsum.photos/200/200?random=39',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 65).toISOString(), // 1.08 hours ago
+    user: 'alice_brown'
+  },
+  {
+    id: '17',
+    title: 'Come As You Are',
+    artist: 'Nirvana',
+    imageUrl: 'https://picsum.photos/200/200?random=40',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 150).toISOString(), // 2.5 hours ago
+    user: 'charlie_davis'
+  },
+
+  // Radiohead tracks
+  {
+    id: '18',
+    title: 'Creep',
+    artist: 'Radiohead',
+    imageUrl: 'https://picsum.photos/200/200?random=41',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 80).toISOString(), // 1.33 hours ago
+    user: 'john_doe'
+  },
+  {
+    id: '19',
+    title: 'Karma Police',
+    artist: 'Radiohead',
+    imageUrl: 'https://picsum.photos/200/200?random=42',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 160).toISOString(), // 2.67 hours ago
+    user: 'jane_smith'
+  },
+
+  // Arctic Monkeys tracks
+  {
+    id: '20',
+    title: 'Do I Wanna Know?',
+    artist: 'Arctic Monkeys',
+    imageUrl: 'https://picsum.photos/200/200?random=43',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 95).toISOString(), // 1.58 hours ago
+    user: 'bob_wilson'
+  },
+  {
+    id: '21',
+    title: '505',
+    artist: 'Arctic Monkeys',
+    imageUrl: 'https://picsum.photos/200/200?random=44',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 170).toISOString(), // 2.83 hours ago
+    user: 'alice_brown'
+  },
+
+  // Tame Impala tracks
+  {
+    id: '22',
+    title: 'The Less I Know The Better',
+    artist: 'Tame Impala',
+    imageUrl: 'https://picsum.photos/200/200?random=45',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 105).toISOString(), // 1.75 hours ago
+    user: 'charlie_davis'
+  },
+  {
+    id: '23',
+    title: 'Let It Happen',
+    artist: 'Tame Impala',
+    imageUrl: 'https://picsum.photos/200/200?random=46',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 180).toISOString(), // 3 hours ago
+    user: 'john_doe'
+  },
+
+  // Other artists
+  {
+    id: '24',
+    title: 'Hotel California',
+    artist: 'Eagles',
+    imageUrl: 'https://picsum.photos/200/200?random=47',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 125).toISOString(), // 2.08 hours ago
+    user: 'jane_smith'
+  },
+  {
+    id: '25',
+    title: 'Sweet Caroline',
+    artist: 'Neil Diamond',
+    imageUrl: 'https://picsum.photos/200/200?random=48',
+    lastPlayed: new Date(Date.now() - 1000 * 60 * 190).toISOString(), // 3.17 hours ago
+    user: 'bob_wilson'
   }
 ]
 
-// Generate 95 more recent tracks with random data
+// Generate 75 more recent tracks with data for artists in mockArtists
 const generateMoreTracks = (): RecentTrack[] => {
   const tracks: RecentTrack[] = []
   const users = ['john_doe', 'jane_smith', 'bob_wilson', 'alice_brown', 'charlie_davis']
-  const artists = [
-    'The Beatles', 'Pink Floyd', 'David Bowie', 'The Rolling Stones', 'Fleetwood Mac',
-    'The Doors', 'Jimi Hendrix', 'Bob Dylan', 'The Who', 'Creedence Clearwater Revival'
-  ]
-  const titles = [
-    'Hey Jude', 'Comfortably Numb', 'Space Oddity', 'Paint It Black', 'Go Your Own Way',
-    'Light My Fire', 'Purple Haze', 'Like a Rolling Stone', 'My Generation', 'Fortunate Son'
-  ]
 
-  for (let i = 6; i <= 100; i++) {
-    const randomUser = users[Math.floor(Math.random() * users.length)]
-    const randomArtist = artists[Math.floor(Math.random() * artists.length)]
-    const randomTitle = titles[Math.floor(Math.random() * titles.length)]
-    const hoursAgo = Math.floor(Math.random() * 72) // Random time up to 3 days ago
+  // Get artist names from mockArtists
+  const artistNames = mockArtists.map(artist => artist.name)
 
-    tracks.push({
-      id: i.toString(),
-      title: randomTitle,
-      artist: randomArtist,
-      imageUrl: `https://picsum.photos/200/200?random=${i}`,
-      lastPlayed: new Date(Date.now() - 1000 * 60 * 60 * hoursAgo).toISOString(),
-      user: randomUser
-    })
+  // Track titles for each artist
+  const artistTracks: Record<string, string[]> = {
+    'The Elder Scrolls': [
+      'Far Horizons', 'Streets of Whiterun', 'Awake', 'From Past to Present', 
+      'The City Gates', 'Wind Guide You', 'Skyrim Atmospheres', 'Standing Stones',
+      'Journey\'s End', 'Frostfall', 'Tundra', 'Unbroken Road'
+    ],
+    'Pink Floyd': [
+      'Another Brick in the Wall', 'Money', 'Time', 'Breathe', 
+      'The Great Gig in the Sky', 'Us and Them', 'Brain Damage', 'Eclipse',
+      'Hey You', 'Shine On You Crazy Diamond', 'Have a Cigar', 'Welcome to the Machine'
+    ],
+    'Led Zeppelin': [
+      'Communication Breakdown', 'Dazed and Confused', 'Babe I\'m Gonna Leave You', 
+      'Good Times Bad Times', 'Ramble On', 'Whole Lotta Love', 'Immigrant Song',
+      'Going to California', 'When the Levee Breaks', 'The Ocean', 'Over the Hills and Far Away'
+    ],
+    'David Bowie': [
+      'Life on Mars?', 'Starman', 'Ziggy Stardust', 'Rebel Rebel', 
+      'Let\'s Dance', 'Modern Love', 'Ashes to Ashes', 'Changes',
+      'The Man Who Sold the World', 'Fame', 'Young Americans', 'China Girl'
+    ],
+    'Queen': [
+      'Another One Bites the Dust', 'Radio Ga Ga', 'I Want to Break Free', 
+      'Somebody to Love', 'Under Pressure', 'Killer Queen', 'Crazy Little Thing Called Love',
+      'You\'re My Best Friend', 'Fat Bottomed Girls', 'Bicycle Race', 'The Show Must Go On'
+    ],
+    'The Rolling Stones': [
+      'Gimme Shelter', 'Start Me Up', 'Brown Sugar', 'Jumpin\' Jack Flash', 
+      'Wild Horses', 'Angie', 'Ruby Tuesday', '(I Can\'t Get No) Satisfaction',
+      'Honky Tonk Women', 'Miss You', 'Beast of Burden', 'Emotional Rescue'
+    ],
+    'Nirvana': [
+      'Lithium', 'In Bloom', 'Heart-Shaped Box', 'All Apologies', 
+      'About a Girl', 'Polly', 'Something in the Way', 'Drain You',
+      'On a Plain', 'Breed', 'Lounge Act', 'Territorial Pissings'
+    ],
+    'Radiohead': [
+      'Paranoid Android', 'No Surprises', 'Fake Plastic Trees', 'High and Dry', 
+      'Street Spirit (Fade Out)', 'Idioteque', 'Everything in Its Right Place', 'Pyramid Song',
+      'There There', 'Weird Fishes/Arpeggi', 'Lotus Flower', '15 Step'
+    ],
+    'Arctic Monkeys': [
+      'R U Mine?', 'Why\'d You Only Call Me When You\'re High?', 'Arabella', 'Fluorescent Adolescent', 
+      'I Bet You Look Good on the Dancefloor', 'When the Sun Goes Down', 'Brianstorm', 'Crying Lightning',
+      'Cornerstone', 'Snap Out of It', 'Four Out of Five', 'Tranquility Base Hotel & Casino'
+    ],
+    'Tame Impala': [
+      'Feels Like We Only Go Backwards', 'Elephant', 'Borderline', 'Lost in Yesterday', 
+      'New Person, Same Old Mistakes', 'Eventually', 'Yes I\'m Changing', 'Posthumous Forgiveness',
+      'Breathe Deeper', 'Is It True', 'One More Year', 'It Might Be Time'
+    ]
+  }
+
+  // Starting ID (after the hardcoded tracks)
+  let nextId = 26
+
+  // Generate tracks for each artist
+  for (const artist of artistNames) {
+    // Get track titles for this artist
+    const artistTrackTitles = artistTracks[artist] || []
+
+    // Generate 7-8 tracks for each artist (75-80 tracks total for 10 artists)
+    const tracksToGenerate = 7 + Math.floor(Math.random() * 2) // 7 or 8 tracks
+
+    for (let i = 0; i < tracksToGenerate; i++) {
+      // Get a random track title for this artist, or use a generic one if none are defined
+      let trackTitle = 'Unknown Track'
+      if (artistTrackTitles.length > 0) {
+        trackTitle = artistTrackTitles[Math.floor(Math.random() * artistTrackTitles.length)]
+      }
+
+      const randomUser = users[Math.floor(Math.random() * users.length)]
+      // Random time between 3 hours and 7 days ago
+      const hoursAgo = 3 + Math.floor(Math.random() * (24 * 7 - 3))
+
+      tracks.push({
+        id: nextId.toString(),
+        title: trackTitle,
+        artist: artist,
+        imageUrl: `https://picsum.photos/200/200?random=${nextId + 50}`, // Offset to avoid duplicates
+        lastPlayed: new Date(Date.now() - 1000 * 60 * 60 * hoursAgo).toISOString(),
+        user: randomUser
+      })
+
+      nextId++
+    }
   }
 
   return tracks
@@ -148,7 +397,7 @@ const generateMoreTracks = (): RecentTrack[] => {
 
 export const fetchMusicStats = async (timeRange: TimeRange, pulseRange: PulseTimeRange = '12months'): Promise<MusicStats> => {
   const allRecentTracks = [...recentTracks, ...generateMoreTracks()]
-  
+
   // Sort tracks by lastPlayed in descending order (newest first)
   const sortedRecentTracks = allRecentTracks.sort((a, b) => 
     new Date(b.lastPlayed).getTime() - new Date(a.lastPlayed).getTime()
@@ -240,10 +489,18 @@ export const fetchArtistDetails = async (artistId: string): Promise<ArtistDetail
     .filter(a => a.artist === artist.name)
     .sort((a, b) => b.playCount - a.playCount)
 
+  // Get recent listens for this artist
+  const allRecentTracks = [...recentTracks, ...generateMoreTracks()]
+  const artistRecentListens = allRecentTracks
+    .filter(t => t.artist === artist.name)
+    .sort((a, b) => new Date(b.lastPlayed).getTime() - new Date(a.lastPlayed).getTime())
+    .slice(0, 20) // Limit to 20 recent listens
+
   return {
     ...artist,
     topTracks: artistTracks,
-    albums: artistAlbums
+    albums: artistAlbums,
+    recentListens: artistRecentListens
   }
 }
 

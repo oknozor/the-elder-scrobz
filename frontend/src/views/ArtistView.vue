@@ -58,12 +58,39 @@
       <h2>Albums</h2>
       <div class="albums-grid">
         <div v-for="album in artist.albums" :key="album.id" class="album-card">
-          <img :src="album.imageUrl" :alt="album.title" class="album-image" />
+          <router-link :to="{ name: 'album', params: { id: album.id }}">
+            <img :src="album.imageUrl" :alt="album.title" class="album-image" />
+          </router-link>
           <div class="album-info">
             <h3>{{ album.title }}</h3>
             <p>{{ album.playCount }} plays / {{ formatDuration(album.duration) }}</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2>Recent Listens</h2>
+      <div class="recent-listens-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Track</th>
+              <th>Last Played</th>
+              <th>User</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="track in artist.recentListens" :key="track.id">
+              <td class="track-cell">
+                <img :src="track.imageUrl" :alt="track.title" class="track-thumbnail" />
+                <span>{{ track.title }}</span>
+              </td>
+              <td>{{ formatTimeAgo(track.lastPlayed) }}</td>
+              <td>{{ track.user }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -117,6 +144,34 @@ const formatDuration = (minutes: number): string => {
     const hours = Math.floor(minutes / 60)
     const remainingMinutes = minutes % 60
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
+  }
+}
+
+const formatTimeAgo = (timestamp: string): string => {
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+  if (diffInSeconds < 60) {
+    return 'just now'
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60)
+    return `${minutes}m ago`
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600)
+    return `${hours}h ago`
+  } else if (diffInSeconds < 604800) {
+    const days = Math.floor(diffInSeconds / 86400)
+    return `${days}d ago`
+  } else if (diffInSeconds < 2592000) {
+    const weeks = Math.floor(diffInSeconds / 604800)
+    return `${weeks}w ago`
+  } else if (diffInSeconds < 31536000) {
+    const months = Math.floor(diffInSeconds / 2592000)
+    return `${months}mo ago`
+  } else {
+    const years = Math.floor(diffInSeconds / 31536000)
+    return `${years}y ago`
   }
 }
 
@@ -429,5 +484,56 @@ onMounted(async () => {
 
 :deep(.username-selector select:hover) {
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* Recent Listens Table Styles */
+.recent-listens-table {
+  background: var(--card-background);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  border: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.recent-listens-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-listens-table th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.9em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recent-listens-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.recent-listens-table tr:last-child td {
+  border-bottom: none;
+}
+
+.recent-listens-table tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.track-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.track-cell img {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
 }
 </style> 
