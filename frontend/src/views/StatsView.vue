@@ -475,6 +475,14 @@ h2 {
   padding: 8px;
   background: linear-gradient(transparent, rgba(0,0,0,0.8));
   color: white;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.2s ease;
+}
+
+.card:hover .card-content {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .card-content h3 {
