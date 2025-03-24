@@ -17,7 +17,7 @@
     <div class="import-section">
       <h1>Import Listening History</h1>
       <p class="description">Upload your listening history file to import your data.</p>
-      
+
       <div class="format-selector">
         <label class="format-label">Import Format:</label>
         <div class="format-options">
@@ -60,7 +60,32 @@
           <span class="file-name">{{ selectedFile.name }}</span>
           <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
         </div>
-        <button class="import-btn" @click="handleImport">Import</button>
+        <button v-if="!isImportSuccessful" class="import-btn" @click="handleImport" :disabled="isLoading">
+          <span v-if="!isLoading">Import</span>
+          <div v-else class="loader"></div>
+        </button>
+        <div v-else class="success-container">
+          <div class="success-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="importHistory.length > 0" class="import-history">
+        <h2>Import History</h2>
+        <div class="history-list">
+          <div v-for="(item, index) in importHistory" :key="index" class="history-item">
+            <div class="history-item-info">
+              <span class="history-item-name">{{ item.name }}</span>
+              <span class="history-item-details">
+                {{ formatFileSize(item.size) }} • {{ item.format }} • {{ formatDate(item.timestamp) }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -71,12 +96,23 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import UserButton from '@/components/UserButton.vue'
 import type { User } from '@/types/music'
+import { importUserData } from '@/services/mockData'
+
+interface ImportHistoryItem {
+  name: string
+  size: number
+  format: string
+  timestamp: string
+}
 
 const router = useRouter()
 const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFile = ref<File | null>(null)
 const isDragging = ref(false)
 const selectedFormat = ref('lastfm')
+const isLoading = ref(false)
+const isImportSuccessful = ref(false)
+const importHistory = ref<ImportHistoryItem[]>([])
 
 interface ImportFormat {
   id: string
@@ -154,11 +190,49 @@ const handleDrop = (event: DragEvent) => {
 
 const handleImport = async () => {
   if (!selectedFile.value) return
-  
-  // TODO: Implement file import logic based on selectedFormat.value
-  console.log('Importing file:', selectedFile.value, 'Format:', selectedFormat.value)
-  // After successful import, redirect to stats page
-  router.push({ name: 'stats' })
+
+  try {
+    isLoading.value = true
+    isImportSuccessful.value = false
+    console.log('Importing file:', selectedFile.value, 'Format:', selectedFormat.value)
+
+    // Call the mock import function with a delay
+    const success = await importUserData(selectedFile.value, selectedFormat.value)
+
+    if (success) {
+      // After successful import, show success state
+      isImportSuccessful.value = true
+
+      // Add to import history
+      importHistory.value.unshift({
+        name: selectedFile.value.name,
+        size: selectedFile.value.size,
+        format: selectedFormatInfo.value.name,
+        timestamp: new Date().toISOString()
+      })
+
+      // Clear selected file after a short delay to show success state
+      setTimeout(() => {
+        selectedFile.value = null
+        isImportSuccessful.value = false
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('Error importing file:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const formatDate = (timestamp: string): string => {
+  const date = new Date(timestamp)
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 const formatFileSize = (bytes: number): string => {
@@ -355,5 +429,89 @@ h1 {
 
 .import-btn:hover {
   opacity: 0.9;
+}
+
+.import-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.success-check {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4CAF50;
+  color: white;
+}
+
+.success-check svg {
+  width: 24px;
+  height: 24px;
+}
+
+.import-history {
+  margin-top: 32px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 24px;
+}
+
+.import-history h2 {
+  color: var(--text-color);
+  font-size: 1.4em;
+  margin: 0 0 16px 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+}
+
+.history-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-item-name {
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: 0.95em;
+}
+
+.history-item-details {
+  color: var(--text-secondary);
+  font-size: 0.85em;
 }
 </style> 

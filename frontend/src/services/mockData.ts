@@ -396,7 +396,25 @@ const generateMoreTracks = (): RecentTrack[] => {
 }
 
 export const fetchMusicStats = async (timeRange: TimeRange, pulseRange: PulseTimeRange = '12months'): Promise<MusicStats> => {
-  const allRecentTracks = [...recentTracks, ...generateMoreTracks()]
+  const allRecentTracks = [...recentTracks, ...generateMoreTracks()].filter(track => {
+    if (timeRange === 'today') {
+      const today = new Date().toDateString();
+      return new Date(track.lastPlayed).toDateString() === today;
+    } else if (timeRange === 'week') {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return new Date(track.lastPlayed) >= weekAgo;
+    } else if (timeRange === 'month') {
+      const monthAgo = new Date();
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      return new Date(track.lastPlayed) >= monthAgo;
+    } else if (timeRange === 'year') {
+      const yearAgo = new Date();
+      yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+      return new Date(track.lastPlayed) >= yearAgo;
+    }
+    return true;
+  });
 
   // Sort tracks by lastPlayed in descending order (newest first)
   const sortedRecentTracks = allRecentTracks.sort((a, b) => 
@@ -519,7 +537,7 @@ export const createApiKey = async (userId: string, label: string): Promise<ApiKe
 
   const newApiKey: ApiKey = {
     id: Math.random().toString(36).substring(7),
-    label,
+    label: `${label}-${userId}`,
     key: generateApiKey(),
     createdAt: new Date().toISOString()
   };
@@ -580,3 +598,16 @@ export const fetchAlbumDetails = async (albumId: string): Promise<AlbumDetails> 
     topTracks: albumTracks
   }
 } 
+
+// Simulate import process with a delay
+export const importUserData = async (file: File, format: string): Promise<boolean> => {
+  // Simulate processing time (2-4 seconds)
+  const processingTime = 2000 + Math.random() * 2000;
+  await new Promise(resolve => setTimeout(resolve, processingTime));
+
+  // Use the file parameter to suppress unused variable warning
+  console.log(`Importing file: ${file.name} in ${format} format`);
+
+  // Always return success in mock implementation
+  return true;
+}
