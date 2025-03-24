@@ -3,6 +3,7 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use utoipa::ToSchema;
 
 pub type AppResult<T> = Result<T, AppError>;
 
@@ -11,14 +12,17 @@ where
     E: Into<anyhow::Error>,
 {
     fn from(err: E) -> Self {
-        Self::Internal(err.into())
+        Self::Internal(err.into().to_string())
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, ToSchema)]
 pub enum AppError {
-    Internal(anyhow::Error),
+    #[schema(example = "Internal error")]
+    Internal(String),
+    #[schema(example = "User not found")]
     UserNotFound { id: String },
+    #[schema(example = "Operation not allowed")]
     Unauthorized(String),
 }
 

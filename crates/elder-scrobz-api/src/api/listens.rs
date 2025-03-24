@@ -16,6 +16,14 @@ use elder_scrobz_db::user::User;
 use futures_util::stream::StreamExt;
 
 #[debug_handler]
+#[utoipa::path(
+    post,
+    path = "/1/submit-listens",
+    responses(
+        (status = 200, description = "Top tracks for user", body = ()),
+        (status = 404, description = "User not found", body = AppError)
+    )
+)]
 pub async fn submit_listens(
     State(state): State<AppState>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
@@ -43,6 +51,14 @@ pub async fn submit_listens(
 }
 
 #[debug_handler]
+#[utoipa::path(
+    post,
+    path = "/users/{id}/import",
+    responses(
+        (status = 200, description = "Top tracks for user", body = ()),
+        (status = 404, description = "User not found", body = AppError)
+    )
+)]
 pub async fn import_listens(
     State(state): State<AppState>,
     Path(user_id): Path<String>,

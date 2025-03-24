@@ -2,6 +2,7 @@ use crate::PgPool;
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
 use sqlx::types::{Json, Uuid};
+use utoipa::ToSchema;
 
 #[derive(sqlx::FromRow, Debug)]
 struct Scrobble {
@@ -73,19 +74,19 @@ impl CreateScrobble {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct SubmitListens {
     pub listen_type: ListenType,
     pub payload: Vec<SubmitListensPayload>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct Listen {
     pub listen_type: ListenType,
     pub payload: SubmitListensPayload,
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[derive(Serialize, Deserialize, ToSchema, Debug, Copy, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum ListenType {
     Single,
@@ -93,7 +94,7 @@ pub enum ListenType {
     Import,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct SubmitListensPayload {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub listened_at: Option<i32>,
@@ -101,7 +102,7 @@ pub struct SubmitListensPayload {
     pub track_metadata: Option<Box<TrackMetadata>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct TrackMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub additional_info: Option<AdditionalInfo>,
@@ -115,7 +116,7 @@ pub struct TrackMetadata {
     pub track_name: Option<String>,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct AdditionalInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub media_player: Option<String>,
@@ -132,13 +133,13 @@ pub struct AdditionalInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub origin_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_mbid: Option<Uuid>,
+    pub release_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_mbids: Option<Vec<Uuid>>,
+    pub artist_mbids: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recording_mbid: Option<Uuid>,
+    pub recording_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recording_msid: Option<Uuid>,
+    pub recording_msid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -148,11 +149,11 @@ pub struct AdditionalInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracknumber: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_group_mbid: Option<Uuid>,
+    pub release_group_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub track_mbid: Option<Uuid>,
+    pub track_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_mbids: Option<Vec<Uuid>>,
+    pub work_mbids: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub isrc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -187,30 +188,30 @@ pub struct AdditionalInfo {
     pub track_number: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct MbidMapping {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_mbids: Option<Vec<Uuid>>,
+    pub artist_mbids: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artists: Option<Vec<TopReleasesForUserPayloadReleasesInnerArtistsInner>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caa_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub caa_release_mbid: Option<Uuid>,
+    pub caa_release_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recording_mbid: Option<Uuid>,
+    pub recording_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recording_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_mbid: Option<Uuid>,
+    pub release_mbid: Option<String>,
 }
 
-#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct TopReleasesForUserPayloadReleasesInnerArtistsInner {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artist_credit_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_mbid: Option<Uuid>,
+    pub artist_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub join_phrase: Option<String>,
 }

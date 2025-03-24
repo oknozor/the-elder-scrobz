@@ -11,6 +11,10 @@ use tower_http::trace::TraceLayer;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
+use utoipa::{Modify, OpenApi};
+use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
+use utoipa_axum::router::OpenApiRouter;
+use utoipa_swagger_ui::SwaggerUi;
 
 mod api;
 mod error;
@@ -34,6 +38,28 @@ impl AppState {
     }
 }
 
+#[derive(OpenApi)]
+#[openapi(
+    modifiers(&SecurityAddon),
+    tags(
+            (name = "scrobz", description = "The Elder Scrobz")
+    )
+)]
+struct ApiDoc;
+
+struct SecurityAddon;
+
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        if let Some(components) = openapi.components.as_mut() {
+            components.add_security_scheme(
+                "api_key",
+                SecurityScheme::ApiKey(ApiKey::Header(ApiKeyValue::new("todo_apikey"))),
+            )
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
@@ -50,11 +76,19 @@ async fn main() -> anyhow::Result<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], state.settings.port));
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
-    info!("listening on {}", listener.local_addr().unwrap());
+    info!("listening on {}", listener.local_addr()?);
 
     let app = app().layer(TraceLayer::new_for_http()).with_state(state);
 
-    axum::serve(listener, app).await?;
+    let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
+        .nest("/api/v1/", app)
+        .split_for_parts();
+
+    let router = router
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
+
+
+    axum::serve(listener, router).await?;
     Ok(())
 }
 

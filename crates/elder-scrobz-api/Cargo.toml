@@ -6,6 +6,9 @@ edition = "2021"
 [dependencies]
 axum.workspace = true
 axum-extra.workspace = true
+utoipa-axum.workspace = true
+utoipa-swagger-ui.workspace = true
+utoipa.workspace = true
 tokio.workspace = true
 
 axum-macros.workspace = true
@@ -19,9 +22,13 @@ serde.workspace = true
 futures-util.workspace = true
 config.workspace = true
 
+# see: https://github.com/juhaku/utoipa/issues/1341
+[build-dependencies]
+zip = "=2.4.2"
+
+
 [dev-dependencies]
 http-body-util.workspace = true
 tower.workspace = true
 testcontainers-modules.workspace = true
-sqlx.workspace = true
 speculoos.workspace = true

@@ -6,13 +6,22 @@ use axum_macros::debug_handler;
 use elder_scrobz_db::api_key::{generate_api_key, CreateApiKey};
 use elder_scrobz_db::user::User;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, ToSchema)]
 pub struct ApiKeyCreated {
     pub api_key: String,
 }
 
 #[debug_handler]
+#[utoipa::path(
+    post,
+    path = "/users/{id}/api-key/create",
+    responses(
+        (status = 200, description = "Create a new user ApiKey", body = ApiKeyCreated),
+        (status = 404, description = "User not found", body = AppError)
+    )
+)]
 pub async fn create_api_key(
     State(state): State<AppState>,
     Path(user_id): Path<String>,

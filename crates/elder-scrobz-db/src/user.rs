@@ -3,8 +3,9 @@ use crate::api_key::{key_sha, verify_api_key};
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
 use sqlx::types::Uuid;
+use utoipa::ToSchema;
 
-#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize)]
+#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateUser {
     pub username: String,
     pub email: String,
