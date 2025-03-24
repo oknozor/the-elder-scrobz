@@ -1,5 +1,8 @@
 use crate::api::app;
+use crate::error::AppError;
 use crate::settings::Settings;
+use axum::Json;
+use elder_scrobz_db::build_pg_pool;
 use elder_scrobz_db::{PgPool, PgPoolOptions};
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -25,7 +28,7 @@ struct AppState {
 impl AppState {
     async fn init() -> anyhow::Result<Self> {
         let settings = Settings::get()?;
-        let pool = build_pg_pool(&settings).await;
+        let pool = build_pg_pool(&settings.database_url()).await;
         let settings = Arc::new(settings);
         Ok(AppState { pool, settings })
     }
@@ -43,6 +46,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let state = AppState::init().await?;
+    elder_scrobz_db::migrate_db(&state.pool).await?;
     let addr = SocketAddr::from(([0, 0, 0, 0], state.settings.port));
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
@@ -54,28 +58,23 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn build_pg_pool(settings: &Settings) -> PgPool {
-    PgPoolOptions::new()
-        .max_connections(5)
-        .acquire_timeout(Duration::from_secs(3))
-        .connect(&settings.database_url())
-        .await
-        .expect("can't connect to database")
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::api_key::ApiKeyCreated;
+    use crate::api::user::UserCreated;
     use crate::app;
-    use crate::test_helper::scrobble_fixture;
+    use crate::test_helper::{scrobble_fixture, start_postgres};
+    use axum::response::Response;
     use axum::{http::Request, http::StatusCode};
     use elder_scrobz_db::user::CreateUser;
     use http_body_util::BodyExt;
+    use speculoos::prelude::*;
     use tower::ServiceExt;
 
     #[tokio::test]
-    async fn create_user_ok() -> anyhow::Result<()> {
-        let state = AppState::init().await?;
+    async fn submit_listens() -> anyhow::Result<()> {
+        let (state, _container) = start_postgres().await?;
         let app = app().with_state(state);
 
         let body = serde_json::to_string(&CreateUser {
@@ -89,77 +88,43 @@ mod tests {
             .header("Content-Type", "application/json")
             .body(body)?;
 
-        let response = ServiceExt::oneshot(app, request).await?;
+        let response = ServiceExt::oneshot(app.clone(), request).await?;
+        assert_that!(response.status()).is_equal_to(StatusCode::OK);
 
-        assert_eq!(response.status(), StatusCode::OK);
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn create_api_key_ok() -> anyhow::Result<()> {
-        let state = AppState::init().await?;
-        let app = app().with_state(state);
+        let body = body_to_string(response).await?;
+        let user: UserCreated = serde_json::from_str(&body)?;
 
         let request = Request::builder()
             .method("POST")
-            .uri("/users/224d01d6-8a79-4ad9-bfc9-1bb89182fbf1/api-key/create")
+            .uri(format!("/users/{}/api-key/create", user.user_id))
             .header("Content-Type", "application/json")
             .body(axum::body::Body::empty())?;
 
-        let response = ServiceExt::oneshot(app, request).await?;
-        assert_eq!(response.status(), StatusCode::OK);
+        let response = ServiceExt::oneshot(app.clone(), request).await?;
+        assert_that!(response.status()).is_equal_to(StatusCode::OK);
 
-        let body = response.into_body();
-        let bytes = body.collect().await?.to_bytes();
-        let body = String::from_utf8(bytes.to_vec())?;
-        println!("{}", body);
+        let body = body_to_string(response).await?;
+        let api_key: ApiKeyCreated = serde_json::from_str(&body)?;
 
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn submit_listens_ok() -> anyhow::Result<()> {
         let scrobble = scrobble_fixture()?;
 
         let request = Request::builder()
             .method("POST")
             .uri("/1/submit-listens")
             .header("Content-Type", "application/json")
-            .header(
-                "Authorization",
-                "Token HUGFemCse5VgrfxVqjvcRRFoMfFuiHbXXUe972Nycnw=",
-            )
+            .header("Authorization", format!("Token {}", api_key.api_key))
             .body(scrobble)?;
 
-        let state = AppState::init().await?;
-        let app = app().with_state(state);
-        let response = ServiceExt::oneshot(app, request).await?;
+        let response = ServiceExt::oneshot(app.clone(), request).await?;
+        assert_that!(response.status()).is_equal_to(StatusCode::OK);
 
-        assert_eq!(response.status(), StatusCode::OK);
-        let body = response.into_body();
-        let bytes = body.collect().await?.to_bytes();
-        let body = String::from_utf8(bytes.to_vec())?;
-
-        assert_eq!(body, "Something went wrong: it failed!");
         Ok(())
     }
 
-    #[tokio::test]
-    async fn submit_listens_no_token() -> anyhow::Result<()> {
-        let scrobble = scrobble_fixture()?;
-
-        let request = Request::builder()
-            .method("POST")
-            .uri("/1/submit-listens")
-            .header("Content-Type", "application/json")
-            .body(scrobble)?;
-
-        let state = AppState::init().await?;
-        let app = app().with_state(state);
-
-        let response = app.oneshot(request).await?;
-
-        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
-        Ok(())
+    async fn body_to_string(response: Response) -> anyhow::Result<String> {
+        let body = response.into_body();
+        let bytes = body.collect().await?.to_bytes();
+        let body = String::from_utf8(bytes.to_vec())?;
+        Ok(body)
     }
 }

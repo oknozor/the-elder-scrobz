@@ -7,15 +7,16 @@ resolver = "2"
 axum = "0.8.1"
 axum-extra = { version = "0.10.0", features = ["typed-header", "json-lines"] }
 axum-macros = "0.5.0"
-tower-http = { version = "0.6.2", features = ["trace"] }
+tower-http = { version = "0.6.2", features = ["trace", "fs"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 tracing = "0.1.41"
 
 tokio = { version = "1", features = ["full"] }
 futures-util = "0.3.31"
-sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "json", "uuid", "chrono"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "json", "uuid", "chrono", "migrate"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
 anyhow = "1.0.97"
 config = "0.15.11"
 
@@ -30,4 +31,5 @@ elder-scrobz-db = { path = "crates/elder-scrobz-db", version = "0.1.0" }
 
 http-body-util = "0.1.2"
 tower = "0.5.2"
-
+testcontainers-modules = { version = "0.11.6", features = ["postgres"] }
+speculoos = "0.12.0"

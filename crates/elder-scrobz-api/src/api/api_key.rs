@@ -5,10 +5,10 @@ use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::api_key::{generate_api_key, CreateApiKey};
 use elder_scrobz_db::user::User;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
-pub struct ApiKey {
+#[derive(Serialize, Deserialize)]
+pub struct ApiKeyCreated {
     pub api_key: String,
 }
 
@@ -16,7 +16,7 @@ pub struct ApiKey {
 pub async fn create_api_key(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
-) -> AppResult<Json<ApiKey>> {
+) -> AppResult<Json<ApiKeyCreated>> {
     let Some(user) = User::get_by_id(&state.pool, &user_id).await? else {
         return Err(AppError::UserNotFound { id: user_id });
     };
@@ -30,5 +30,5 @@ pub async fn create_api_key(
     .insert(&state.pool)
     .await?;
 
-    Ok(Json(ApiKey { api_key: key.key }))
+    Ok(Json(ApiKeyCreated { api_key: key.key }))
 }

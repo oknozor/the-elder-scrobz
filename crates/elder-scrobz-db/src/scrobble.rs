@@ -8,20 +8,16 @@ struct Scrobble {
     data: Json<Listen>,
 }
 
-pub async fn fetch_scrobbles_by_user_and_mbid(
-    pool: &PgPool,
-    user_id: &str,
-    recording_mbid: &str,
-) -> Result<Vec<Listen>, Error> {
+pub async fn fetch_scrobbles_for_user(pool: &PgPool, user_id: &str) -> Result<Vec<Listen>, Error> {
     let rows = sqlx::query!(
-        r#"
-        SELECT data
-        FROM scrobbles
-        WHERE user_id = $1
-          AND data->'payload'->'track_metadata'->'mbid_mapping'->>'recording_mbid' = $2;
-        "#,
-        user_id,
-        recording_mbid,
+    r#"
+    SELECT DISTINCT data->'payload'->'track_metadata'->'mbid_mapping'->>'recording_mbid' AS recording_mbid,
+           data
+    FROM scrobbles
+    WHERE user_id = $1
+    GROUP BY recording_mbid, data;
+    "#,
+    user_id,
     )
     .fetch_all(pool)
     .await?;
@@ -136,13 +132,13 @@ pub struct AdditionalInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub origin_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_mbid: Option<uuid::Uuid>,
+    pub release_mbid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_mbids: Option<Vec<uuid::Uuid>>,
+    pub artist_mbids: Option<Vec<Uuid>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recording_mbid: Option<uuid::Uuid>,
+    pub recording_mbid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recording_msid: Option<uuid::Uuid>,
+    pub recording_msid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -152,11 +148,11 @@ pub struct AdditionalInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracknumber: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_group_mbid: Option<uuid::Uuid>,
+    pub release_group_mbid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub track_mbid: Option<uuid::Uuid>,
+    pub track_mbid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_mbids: Option<Vec<uuid::Uuid>>,
+    pub work_mbids: Option<Vec<Uuid>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub isrc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -194,19 +190,19 @@ pub struct AdditionalInfo {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MbidMapping {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_mbids: Option<Vec<uuid::Uuid>>,
+    pub artist_mbids: Option<Vec<Uuid>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artists: Option<Vec<TopReleasesForUserPayloadReleasesInnerArtistsInner>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caa_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub caa_release_mbid: Option<uuid::Uuid>,
+    pub caa_release_mbid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub recording_mbid: Option<uuid::Uuid>,
+    pub recording_mbid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recording_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_mbid: Option<uuid::Uuid>,
+    pub release_mbid: Option<Uuid>,
 }
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
@@ -214,7 +210,7 @@ pub struct TopReleasesForUserPayloadReleasesInnerArtistsInner {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artist_credit_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_mbid: Option<uuid::Uuid>,
+    pub artist_mbid: Option<Uuid>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub join_phrase: Option<String>,
 }

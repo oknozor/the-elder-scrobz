@@ -1,5 +1,5 @@
 [package]
-name = "elder-scrobs-api"
+name = "elder-scrobz-api"
 version = "0.1.0"
 edition = "2021"
 
@@ -22,7 +22,6 @@ config.workspace = true
 [dev-dependencies]
 http-body-util.workspace = true
 tower.workspace = true
-
-[[test]]
-name = "api_tests"
-path = "tests/api_tests.rs"
+testcontainers-modules.workspace = true
+sqlx.workspace = true
+speculoos.workspace = true

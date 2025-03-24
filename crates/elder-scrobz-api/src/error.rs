@@ -1,6 +1,7 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 pub type AppResult<T> = Result<T, AppError>;
@@ -14,6 +15,7 @@ where
     }
 }
 
+#[derive(Debug)]
 pub enum AppError {
     Internal(anyhow::Error),
     UserNotFound { id: String },
@@ -49,10 +51,11 @@ impl IntoResponse for AppError {
 #[cfg(test)]
 mod tests {
     use crate::test_helper::scrobble_fixture;
-    use crate::{app, build_pg_pool, AppState};
+    use crate::{app, AppState};
     use axum::{http::Request, http::StatusCode};
     use http_body_util::BodyExt;
     use tower::ServiceExt;
+    use tower_http::services::ServeDir;
 
     #[tokio::test]
     async fn test_main_page() -> anyhow::Result<()> {
@@ -64,10 +67,10 @@ mod tests {
             .header("Content-Type", "application/json")
             .body(scrobble)?;
 
-        let state = AppState {
-            pool: build_pg_pool().await,
-        };
-        let app = app().with_state(state);
+        let state = AppState::init().await?;
+        let app = app()
+            .nest_service("/front", ServeDir::new("dist"))
+            .with_state(state);
 
         let response = app.oneshot(request).await?;
 

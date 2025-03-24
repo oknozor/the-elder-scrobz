@@ -2,7 +2,7 @@ use config::{Config, Environment, File};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Settings {
     pub debug: bool,
     pub domain: String,
@@ -11,16 +11,16 @@ pub struct Settings {
     pub database: DbSettings,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct DbSettings {
     pub database: String,
     pub host: String,
-    pub port: u32,
+    pub port: u16,
     pub user: String,
     pub password: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct AuthSettings {
     pub client_id: String,
     pub client_secret: String,
