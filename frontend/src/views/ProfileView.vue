@@ -42,26 +42,36 @@
         <div class="top-section">
           <h3>Top Artists</h3>
           <div class="items-grid">
-            <div v-for="artist in currentUser?.stats?.topArtists?.slice(0, 5)" :key="artist.id" class="item-card">
+            <router-link 
+              v-for="artist in currentUser?.stats?.topArtists?.slice(0, 5)" 
+              :key="artist.id" 
+              :to="{ name: 'artist', params: { id: artist.id }}"
+              class="item-card"
+            >
               <img :src="artist.imageUrl" :alt="artist.name" class="item-image" />
               <div class="item-info">
                 <h4>{{ artist.name }}</h4>
                 <p>{{ artist.playCount }} plays / {{ formatDuration(artist.duration) }}</p>
               </div>
-            </div>
+            </router-link>
           </div>
         </div>
 
         <div class="top-section">
           <h3>Top Albums</h3>
           <div class="items-grid">
-            <div v-for="album in currentUser?.stats?.topAlbums?.slice(0, 5)" :key="album.id" class="item-card">
+            <router-link 
+              v-for="album in currentUser?.stats?.topAlbums?.slice(0, 5)" 
+              :key="album.id" 
+              :to="{ name: 'album', params: { id: album.id }}"
+              class="item-card"
+            >
               <img :src="album.imageUrl" :alt="album.title" class="item-image" />
               <div class="item-info">
                 <h4>{{ album.title }}</h4>
                 <p>{{ album.playCount }} plays / {{ formatDuration(album.duration) }}</p>
               </div>
-            </div>
+            </router-link>
           </div>
         </div>
 
@@ -562,6 +572,8 @@ h3 {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
   transition: transform 0.2s;
+  text-decoration: none;
+  color: inherit;
 }
 
 .item-card:hover {
