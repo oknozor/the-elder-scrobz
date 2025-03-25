@@ -18,6 +18,7 @@
       <img :src="artist.imageUrl" :alt="artist.name" class="artist-image" />
       <div class="artist-info">
         <h1>{{ artist.name }}</h1>
+        <p v-if="artist.description" class="artist-description">{{ artist.description }}</p>
         <div class="artist-stats">
           <div class="stat">
             <span class="stat-value">{{ artist.playCount }}</span>
@@ -252,8 +253,16 @@ onMounted(async () => {
 
 .artist-info h1 {
   color: var(--text-color);
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
   font-size: 2em;
+}
+
+.artist-description {
+  color: var(--text-secondary);
+  margin: 0 0 20px 0;
+  font-size: 1em;
+  line-height: 1.5;
+  max-width: 800px;
 }
 
 .artist-stats {
