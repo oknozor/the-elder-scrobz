@@ -514,11 +514,26 @@ export const fetchArtistDetails = async (artistId: string): Promise<ArtistDetail
     .sort((a, b) => new Date(b.lastPlayed).getTime() - new Date(a.lastPlayed).getTime())
     .slice(0, 20) // Limit to 20 recent listens
 
+  // Artist descriptions
+  const artistDescriptions: Record<string, string> = {
+    '1': 'The Elder Scrolls is a series of action role-playing video games developed by Bethesda Game Studios. The soundtrack, composed by Jeremy Soule, is known for its atmospheric and immersive orchestral pieces that enhance the fantasy world of the games.',
+    '2': 'Pink Floyd were an English rock band formed in London in 1965. Gaining an early following as one of the first British psychedelic groups, they were distinguished by their extended compositions, sonic experimentation, philosophical lyrics and elaborate live shows.',
+    '3': 'Led Zeppelin were an English rock band formed in London in 1968. With their heavy, guitar-driven sound, they are regularly cited as one of the progenitors of heavy metal, although their style drew from a variety of influences, including blues and folk music.',
+    '4': 'David Bowie was an English singer-songwriter and actor. He was a leading figure in the music industry and is regarded as one of the most influential musicians of the 20th century. Known for his innovative work during the 1970s, Bowie is famous for his distinctive voice and the intellectual depth of his work.',
+    '5': 'Queen are a British rock band formed in London in 1970. Their classic line-up was Freddie Mercury, Brian May, Roger Taylor and John Deacon. Their earliest works were influenced by progressive rock, hard rock and heavy metal, but the band gradually ventured into more conventional and radio-friendly works.',
+    '6': 'The Rolling Stones are an English rock band formed in London in 1962. Diverging from the pop rock of the early 1960s, the Rolling Stones pioneered the gritty, heavier-driven sound that came to define hard rock. Their first stable line-up was vocalist Mick Jagger, multi-instrumentalist Brian Jones, guitarist Keith Richards, drummer Charlie Watts, and bassist Bill Wyman.',
+    '7': 'Nirvana was an American rock band formed in Aberdeen, Washington in 1987. Founded by lead singer and guitarist Kurt Cobain and bassist Krist Novoselic, the band went through a succession of drummers, most notably Dave Grohl, who joined in 1990. Nirvana\'s success popularized alternative rock, and they were often referenced as the figurehead band of Generation X.',
+    '8': 'Radiohead are an English rock band formed in Abingdon, Oxfordshire, in 1985. The band consists of Thom Yorke, brothers Jonny Greenwood and Colin Greenwood, Ed O\'Brien and Philip Selway. They have worked with producer Nigel Godrich and cover artist Stanley Donwood since 1994.',
+    '9': 'Arctic Monkeys are an English rock band formed in Sheffield in 2002. The group consists of Alex Turner, Jamie Cook, Nick O\'Malley, and Matt Helders. Former band member Andy Nicholson left the band in 2006 shortly after their debut album was released.',
+    '10': 'Tame Impala is the psychedelic music project of Australian multi-instrumentalist Kevin Parker. In the recording studio, Parker writes, records, performs, and produces all of the project\'s music. As a touring act, Tame Impala consists of Parker, Dominic Simper, Jay Watson, Cam Avery, and Julien Barbagallo.'
+  };
+
   return {
     ...artist,
     topTracks: artistTracks,
     albums: artistAlbums,
-    recentListens: artistRecentListens
+    recentListens: artistRecentListens,
+    description: artistDescriptions[artistId] || 'No description available.'
   }
 }
 

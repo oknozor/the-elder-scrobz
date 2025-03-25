@@ -13,6 +13,7 @@ export interface ArtistDetails extends Artist {
   topTracks: Track[];
   albums: Album[];
   recentListens: RecentTrack[];
+  description?: string;
 }
 
 export interface Track {
