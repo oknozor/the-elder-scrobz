@@ -45,6 +45,7 @@ jobs:
 
     env:
       SQLX_OFFLINE: true
+      SQLX_OFFLINE_DIR: ".sqlx"
 
     steps:
       - uses: actions/checkout@v4
