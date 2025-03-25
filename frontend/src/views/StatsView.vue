@@ -173,28 +173,8 @@
 					</div>
 				</template>
 			</SectionHeader>
-			<div class="pulse-table">
-				<div
-					v-for="(data, index) in stats.pulseData"
-					:key="index"
-					class="pulse-row"
-				>
-					<transition name="fade" mode="out-in">
-						<div :key="data.period" class="pulse-period">
-							{{ data.period }}
-						</div>
-					</transition>
-					<transition name="fade" mode="out-in">
-						<div :key="data.playCount" class="pulse-count">
-							{{ data.playCount }} plays
-						</div>
-					</transition>
-					<PulseBar
-						:key="index"
-						:playCount="data.playCount"
-						:maxPlayCount="maxPlayCount"
-					/>
-				</div>
+			<div class="pulse-charts">
+				<PulseMixedChart :pulseData="stats.pulseData" />
 			</div>
 		</div>
 
@@ -277,11 +257,11 @@ import { fetchUsers } from '@/services/mockUsers';
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
 import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
-import PulseBar from '@/components/stats/PulseBar.vue';
-import { formatTimeAgo, formatDuration } from '@/utils/formatter';
+import { formatDuration } from '@/utils/formatter';
 import StatItem from '@/components/stats/StatItem.vue';
 import RecentTracks from '@/components/stats/RecentTracks.vue';
 import OverviewCard from '@/components/stats/OverviewCard.vue';
+import PulseMixedChart from '@/components/stats/PulseMixedChart.vue';
 
 interface TimeRanges {
 	artists: TimeRange;
@@ -330,10 +310,6 @@ const totalPages = computed(() => {
 	return Math.ceil(stats.value.recentTracks.length / ITEMS_PER_PAGE);
 });
 
-const maxPlayCount = computed(() => {
-	return Math.max(...stats.value.pulseData.map((d) => d.playCount));
-});
-
 const paginatedTracks = computed(() => {
 	const start = (currentPage.value - 1) * ITEMS_PER_PAGE;
 	const end = start + ITEMS_PER_PAGE;
@@ -375,7 +351,10 @@ const getComparisonText = (currentRange: TimeRange): string => {
 };
 
 // Calculate percentage change between current and previous values
-const calculatePercentageChange = (current: number, previous: number): number => {
+const calculatePercentageChange = (
+	current: number,
+	previous: number
+): number => {
 	if (previous === 0) return 0;
 	return Math.round(((current - previous) / previous) * 100);
 };
@@ -394,14 +373,18 @@ const getPreviousPeriodData = (currentRange: TimeRange) => {
 		playCount: Math.round(currentPlayCount * randomFactor),
 		duration: Math.round(currentDuration * randomFactor),
 		// For artists count, we'll use a different random factor
-		artistsCount: Math.round((stats.value.topArtists.length * randomFactor) / 2)
+		artistsCount: Math.round(
+			(stats.value.topArtists.length * randomFactor) / 2
+		),
 	};
 };
 
 // Computed properties for the overview cards
 const currentTimeRange = computed(() => timeRanges.value.tracks);
 
-const songsListened = computed(() => stats.value.timeStats[currentTimeRange.value].playCount);
+const songsListened = computed(
+	() => stats.value.timeStats[currentTimeRange.value].playCount
+);
 
 const timeListened = computed(() => {
 	const minutes = stats.value.timeStats[currentTimeRange.value].duration;
@@ -419,15 +402,30 @@ const previousPeriodData = computed(() => {
 });
 
 const songsPercentageChange = computed(() => {
-	return currentTimeRange.value === 'all' ? null : calculatePercentageChange(songsListened.value, previousPeriodData.value.playCount);
+	return currentTimeRange.value === 'all'
+		? null
+		: calculatePercentageChange(
+				songsListened.value,
+				previousPeriodData.value.playCount
+		  );
 });
 
 const timePercentageChange = computed(() => {
-	return currentTimeRange.value === 'all' ? null : calculatePercentageChange(timeListened.value, previousPeriodData.value.duration);
+	return currentTimeRange.value === 'all'
+		? null
+		: calculatePercentageChange(
+				timeListened.value,
+				previousPeriodData.value.duration
+		  );
 });
 
 const artistsPercentageChange = computed(() => {
-	return currentTimeRange.value === 'all' ? null : calculatePercentageChange(artistsListened.value, previousPeriodData.value.artistsCount);
+	return currentTimeRange.value === 'all'
+		? null
+		: calculatePercentageChange(
+				artistsListened.value,
+				previousPeriodData.value.artistsCount
+		  );
 });
 
 const comparisonText = computed(() => {
@@ -602,54 +600,10 @@ onMounted(async () => {
 	border-color: var(--primary-color);
 }
 
-.pulse-table {
-	background: var(--card-background);
-	border-radius: 8px;
-	overflow: hidden;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	border: 1px solid var(--border-color);
-}
-
-.pulse-row {
-	display: grid;
-	grid-template-columns: 150px 120px 1fr;
-	padding: 12px;
-	border-bottom: 1px solid var(--border-color);
+.pulse-charts {
+	display: flex;
+	justify-content: space-between;
 	align-items: center;
-}
-
-.pulse-row:last-child {
-	border-bottom: none;
-}
-
-.pulse-row:hover {
-	background: rgba(255, 255, 255, 0.05);
-}
-
-.pulse-period {
-	color: var(--text-color);
-	font-size: 0.9em;
-}
-
-.pulse-count {
-	color: var(--text-secondary);
-	font-size: 0.9em;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.25s, transform 0.25s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
-	transform: translateY(-5px);
-}
-
-.fade-enter-to,
-.fade-leave-from {
-	opacity: 1;
-	transform: translateY(0);
+	gap: 20px;
 }
 </style>
