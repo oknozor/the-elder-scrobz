@@ -31,7 +31,7 @@ pub async fn create_user(
     }))
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, ToSchema, Debug)]
 pub struct ChartQuery {
     period: Period,
 }
@@ -40,6 +40,10 @@ pub struct ChartQuery {
 #[utoipa::path(
     get,
     path = "/users/{id}/charts/tracks",
+    params(
+        ("id" = String, Path, description = "ID of the user"),
+        ("period" = ChartQuery, description = "Chart period such as 'year', 'month', 'week', or 'today'")
+    ),
     responses(
         (status = 200, description = "Top tracks for user", body = Vec<TopTrack>),
         (status = 404, description = "User not found", body = AppError)
