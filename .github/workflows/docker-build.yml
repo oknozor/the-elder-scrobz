@@ -35,9 +35,6 @@ jobs:
             target: aarch64-apple-darwin
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            windows: true
           - os: ubuntu-latest
             target: armv7-unknown-linux-musleabihf
           - os: ubuntu-latest
@@ -60,30 +57,17 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
 
-      - if: ${{ matrix.windows }}
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --target ${{ matrix.target }} --release --locked
-
-      - if: ${{ ! matrix.windows }}
-        uses: actions-rs/cargo@v1
+      - uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
           args: --target ${{ matrix.target }} --release --locked
 
-      - if: ${{ ! matrix.windows }}
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
           path: target/${{ matrix.target }}/release/scrobz
 
-      - if: ${{ matrix.windows }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/scrobz.exe
 
   upload_to_release:
     needs: [build, upload_license]
@@ -116,12 +100,6 @@ jobs:
           cp -r /home/runner/artifacts/LICENSE/LICENSE aarch64-unknown-linux-gnu/
           tar -czf scrobz-unknown-linux-gnu.tar.gz aarch64-unknown-linux-gnu/*
 
-          mkdir x86_64-pc-windows-msvc
-          cp -r /home/runner/artifacts/x86_64-pc-windows-msvc/scrobz.exe x86_64-pc-windows-msvc/scrobz.exe
-          chmod +x -R  x86_64-pc-windows-msvc/scrobz.exe
-          cp -r /home/runner/artifacts/LICENSE/LICENSE x86_64-pc-windows-msvc/
-          tar -czf scrobz-pc-windows-msvc.tar.gz x86_64-pc-windows-msvc/*
-
           mkdir x86_64-apple-darwin
           cp -r /home/runner/artifacts/x86_64-apple-darwin/scrobz x86_64-apple-darwin/scrobz
           chmod +x -R  x86_64-apple-darwin/scrobz
@@ -145,23 +123,16 @@ jobs:
       - uses: svenstaro/upload-release-action@v1-release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: oknozor-the-elder-scrobz-unknown-linux-gnu.tar.gz
+          file: the-elder-scrobz-unknown-linux-gnu.tar.gz
           tag: ${{ github.ref_name }}
-          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-aarch64-unknown-linux-gnu.tar.gz
+          asset_name: the-elder-scrobz{{ github.ref_name }}-aarch64-unknown-linux-gnu.tar.gz
 
       - uses: svenstaro/upload-release-action@v1-release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: oknozor-the-elder-scrobz-pc-windows-msvc.tar.gz
+          file: the-elder-scrobz-apple-darwin.tar.gz
           tag: ${{ github.ref_name }}
-          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-x86_64-pc-windows-msvc.tar.gz
-
-      - uses: svenstaro/upload-release-action@v1-release
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: oknozor-the-elder-scrobz-apple-darwin.tar.gz
-          tag: ${{ github.ref_name }}
-          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-x86_64-apple-darwin.tar.gz
+          asset_name: the-elder-scrobz{{ github.ref_name }}-x86_64-apple-darwin.tar.gz
 
   docker:
     needs: [build]
