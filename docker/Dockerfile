@@ -1,11 +1,11 @@
 FROM alpine as arm-builder
-COPY ./target/armv7-unknown-linux-musleabihf/release/manucure /manucure
+COPY ./target/armv7-unknown-linux-musleabihf/release/scrobz /scrobz
 
 FROM alpine as arm64-builder
-COPY ./target/aarch64-unknown-linux-musl/release/manucure /manucure
+COPY ./target/aarch64-unknown-linux-musl/release/scrobz /scrobz
 
 FROM alpine as amd64-builder
-COPY ./target/x86_64-unknown-linux-musl/release/manucure /manucure
+COPY ./target/x86_64-unknown-linux-musl/release/scrobz /scrobz
 
 FROM ${TARGETARCH}-builder AS builder
 
