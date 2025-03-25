@@ -5,6 +5,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import AlbumView from '@/views/AlbumView.vue'
 import ImportView from '@/views/ImportView.vue'
 import UsersView from '@/views/UsersView.vue'
+import ApiKeysView from '@/views/ApiKeysView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/users',
       name: 'users',
       component: UsersView
+    },
+    {
+      path: '/api-keys',
+      name: 'apiKeys',
+      component: ApiKeysView
     }
   ]
 })

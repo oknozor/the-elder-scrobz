@@ -16,6 +16,9 @@
       <div class="user-option" @click="handleUsers">
         <span class="option-text">Users</span>
       </div>
+      <div class="user-option" @click="handleApiKeys">
+        <span class="option-text">API Keys</span>
+      </div>
       <div class="user-option" @click="handleLogout">
         <span class="option-text">Logout</span>
       </div>
@@ -72,6 +75,11 @@ const handleImport = () => {
 
 const handleUsers = () => {
   router.push({ name: 'users' })
+  isOpen.value = false
+}
+
+const handleApiKeys = () => {
+  router.push({ name: 'apiKeys' })
   isOpen.value = false
 }
 </script>
