@@ -190,9 +190,6 @@
             <img :src="track.imageUrl" :alt="track.title" class="track-thumbnail" />
             <div class="track-info-container">
               {{ track.artist }} - {{ track.title }}
-              <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
             </div>
           </div>
         </div>
@@ -224,7 +221,6 @@ import { TimeRange, MusicStats, User, PulseTimeRange } from '@/types/music'
 import { fetchMusicStats } from '@/services/mockData'
 import { fetchUsers } from '@/services/mockUsers'
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue'
-import UsernameSelector from '@/components/UsernameSelector.vue'
 import { useRouter } from 'vue-router'
 
 interface TimeRanges {
@@ -240,8 +236,6 @@ const timeRanges = ref<TimeRanges>({
   albums: 'week',
   recent: 'week'
 })
-
-const selectedUsers = ref<string[]>(['all'])
 
 const stats = ref<MusicStats>({
   topArtists: [],
@@ -278,8 +272,6 @@ const showDuration = ref(false)
 
 const pulseTimeRanges: PulseTimeRange[] = ['12days', '12weeks', '12months', '12years']
 const selectedPulseRange = ref<PulseTimeRange>('12months')
-
-const router = useRouter()
 
 const fetchStats = async () => {
   try {
@@ -365,11 +357,6 @@ onMounted(async () => {
   padding-top: 20px;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.controls {
-  display: flex;
-  gap: 20px;
 }
 
 .stats-section {
@@ -546,19 +533,6 @@ h2 {
   align-items: center;
   gap: 8px;
   flex: 1;
-}
-
-.play-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--primary-color);
-  opacity: 0;
-  transition: opacity 0.2s;
-  cursor: pointer;
-}
-
-.track-column:hover .play-icon {
-  opacity: 1;
 }
 
 .pagination {
