@@ -9,12 +9,13 @@ use axum_extra::headers::authorization::Credentials;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
-use elder_scrobz_db::scrobble::{RawScrobble, Listen, ListenType, SubmitListens, SubmitListensPayload, CreateScrobble};
+use elder_scrobz_db::listens::raw::{
+    CreateRawScrobble, Listen, ListenType, SubmitListens, SubmitListensPayload,
+};
 use elder_scrobz_db::user::User;
+use elder_scrobz_resolver::populate_scrobbles;
 use futures_util::stream::StreamExt;
 use tracing::error;
-use uuid::Uuid;
-use elder_scrobz_resolver::populate_scrobbles;
 
 #[debug_handler]
 #[utoipa::path(
@@ -41,17 +42,17 @@ pub async fn submit_listens(
     let listens: Vec<Listen> = payload.into();
     let scrobbles = listens
         .into_iter()
-        .map(|listen| CreateScrobble {
+        .map(|listen| CreateRawScrobble {
             user_id: user_id.to_string(),
             data: listen.into(),
         })
         .collect();
 
-    let uuids = CreateScrobble::batch_insert(scrobbles, &state.pool).await?;
+    let uuids = CreateRawScrobble::batch_insert(scrobbles, &state.pool).await?;
 
     for scrobble_id in uuids {
         let pool = state.pool.clone();
-        tokio::spawn(async  move {
+        tokio::spawn(async move {
             if let Err(err) = populate_scrobbles(&pool, scrobble_id).await {
                 error!("{err}");
             }
@@ -103,7 +104,7 @@ async fn save_listens(
 ) -> AppResult<()> {
     let chunk = chunk
         .into_iter()
-        .map(|payload| CreateScrobble {
+        .map(|payload| CreateRawScrobble {
             user_id: user_id.to_string(),
             data: Listen {
                 listen_type: ListenType::Import,
@@ -113,11 +114,11 @@ async fn save_listens(
         })
         .collect();
 
-    let uuids = CreateScrobble::batch_insert(chunk, &state.pool).await?;
+    let uuids = CreateRawScrobble::batch_insert(chunk, &state.pool).await?;
 
     for scrobble_id in uuids {
         let pool = state.pool.clone();
-        tokio::spawn(async  move {
+        tokio::spawn(async move {
             if let Err(err) = populate_scrobbles(&pool, scrobble_id).await {
                 error!("{err}");
             }

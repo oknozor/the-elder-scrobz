@@ -3,9 +3,8 @@ use crate::AppState;
 use axum::extract::{Path, State};
 use axum::Json;
 use axum_macros::debug_handler;
-use elder_scrobz_db::scrobble;
-use elder_scrobz_db::scrobble::Listen;
-use elder_scrobz_db::user::{CreateUser, User};
+use elder_scrobz_db::listens::raw::Listen;
+use elder_scrobz_db::user::CreateUser;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -53,7 +52,6 @@ pub async fn top_tracks(
 ) -> AppResult<Json<TracksStat>> {
     todo!()
 }
-
 
 #[debug_handler]
 #[utoipa::path(

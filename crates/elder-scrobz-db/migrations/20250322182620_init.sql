@@ -16,25 +16,21 @@ CREATE TABLE api_keys
 
 CREATE TABLE scrobbles_raw
 (
-    id         TEXT PRIMARY KEY,
-    user_id    TEXT  NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    data       JSONB NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE cover_arts
-(
-    mbid       TEXT PRIMARY KEY,
-    url        TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
+    id          TEXT PRIMARY KEY,
+    listened_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    user_id     TEXT  NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    data        JSONB NOT NULL,
+    created_at  TIMESTAMP DEFAULT NOW(),
+    UNIQUE (user_id, listened_at)
 );
 
 CREATE TABLE releases
 (
-    mbid           TEXT PRIMARY KEY,
-    name           TEXT NOT NULL,
-    cover_art_mbid TEXT references cover_arts,
-    created_at     TIMESTAMP DEFAULT NOW()
+    mbid          TEXT PRIMARY KEY,
+    name          TEXT NOT NULL,
+    description   TEXT,
+    cover_art_url TEXT,
+    created_at    TIMESTAMP DEFAULT NOW()
 
 );
 
@@ -43,6 +39,8 @@ CREATE TABLE tracks
     mbid         TEXT PRIMARY KEY,
     release_mbid TEXT NOT NULL references releases,
     name         TEXT NOT NULL,
+    number       TEXT,
+    length       INT,
     created_at   TIMESTAMP DEFAULT NOW()
 );
 
@@ -65,11 +63,10 @@ CREATE TABLE artist_releases
 
 CREATE TABLE scrobbles
 (
-    source_id   TEXT NOT NULL REFERENCES scrobbles_raw,
-    user_id     TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    track_id    TEXT NOT NULL REFERENCES tracks,
-    listened_at TIMESTAMP WITH TIME ZONE,
-    created_at  TIMESTAMP DEFAULT NOW()
+    source_id  TEXT PRIMARY KEY REFERENCES scrobbles_raw,
+    user_id    TEXT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    track_id   TEXT NOT NULL REFERENCES tracks,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 

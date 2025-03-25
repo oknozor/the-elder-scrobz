@@ -1,40 +1,13 @@
 use crate::PgPool;
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
-use sqlx::types::{Json, Uuid};
+use sqlx::types::Json;
 use sqlx::types::chrono::{DateTime, Utc};
 use utoipa::ToSchema;
-
-#[derive(sqlx::FromRow, Debug)]
-struct Scrobble {
-    source_id: String,
-    listened_at: DateTime<Utc>,
-    track_id: String,
-    user_id: String,
-}
-
-impl Scrobble {
-    pub async fn save(&self, pool: &PgPool) -> Result<(), Error> {
-        sqlx::query!(
-            r#"
-            INSERT INTO scrobbles (source_id, listened_at, track_id, user_id)
-            VALUES ($1, $2, $3, $4)
-            ON CONFLICT (source_id) DO NOTHING"#,
-            self.source_id,
-            self.listened_at,
-            self.track_id,
-            self.user_id
-        )
-            .execute(pool)
-            .await?;
-
-        Ok(())
-    }
-}
-
+use uuid::Uuid;
 
 #[derive(sqlx::FromRow, sqlx::Type, Debug)]
-pub struct CreateScrobble {
+pub struct CreateRawScrobble {
     pub user_id: String,
     pub data: Json<Listen>,
 }
@@ -56,13 +29,14 @@ impl From<SubmitListens> for Vec<Listen> {
 pub struct RawScrobble {
     pub id: String,
     pub user_id: String,
+    pub listened_at: DateTime<Utc>,
     pub data: Json<Listen>,
 }
 
 impl RawScrobble {
     pub async fn get_by_id(pool: &PgPool, scrobble_id: &str) -> Result<Option<RawScrobble>, Error> {
         let query = r#"
-            SELECT id, user_id, data
+            SELECT id, user_id, data, listened_at
             FROM scrobbles_raw
             WHERE id = $1
         "#;
@@ -74,20 +48,35 @@ impl RawScrobble {
     }
 }
 
-impl CreateScrobble {
-    pub async fn batch_insert(scrobbles: Vec<CreateScrobble>, pool: &PgPool) -> Result<Vec<String>, Error> {
+impl CreateRawScrobble {
+    pub async fn batch_insert(
+        scrobbles: Vec<CreateRawScrobble>,
+        pool: &PgPool,
+    ) -> Result<Vec<String>, Error> {
         let mut tx = pool.begin().await?;
         let mut uuids = Vec::with_capacity(scrobbles.len());
         for scrobble in scrobbles {
+            let listened_at = DateTime::from_timestamp(scrobble.data.payload.listened_at, 0)
+                .expect("Failed to parse timestamp");
             let uuid = Uuid::new_v4().to_string();
-            sqlx::query("INSERT INTO scrobbles_raw (user_id, id, data) VALUES ($1, $2, $3)")
-                .bind(scrobble.user_id)
-                .bind(&uuid)
-                .bind(&scrobble.data)
-                .execute(&mut *tx)
-                .await?;
 
-            uuids.push(uuid);
+            let value = serde_json::to_value(&scrobble.data).unwrap();
+            let id = sqlx::query_scalar!(
+                            r#"INSERT INTO scrobbles_raw (user_id, id, data, listened_at) VALUES ($1, $2, $3, $4)
+                                ON CONFLICT (user_id, listened_at) DO UPDATE
+                                SET id = scrobbles_raw.id -- No-op update to allow returning existing ID
+                                RETURNING id;"#,
+                scrobble.user_id,
+                uuid,
+                value,
+                listened_at
+            )
+            .fetch_optional(&mut *tx)
+            .await?;
+
+            if let Some(id) = id {
+                uuids.push(id);
+            }
         }
 
         tx.commit().await?;
@@ -118,8 +107,7 @@ pub enum ListenType {
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct SubmitListensPayload {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub listened_at: Option<i32>,
+    pub listened_at: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub track_metadata: Option<Box<TrackMetadata>>,
 }
@@ -240,7 +228,7 @@ pub struct TopReleasesForUserPayloadReleasesInnerArtistsInner {
 
 #[cfg(test)]
 mod test {
-    use crate::scrobble::SubmitListensPayload;
+    use crate::listens::raw::SubmitListensPayload;
 
     #[test]
     fn deserialize_submit_listens() {
@@ -248,8 +236,4 @@ mod test {
 
         serde_json::from_str::<SubmitListensPayload>(json).unwrap();
     }
-}
-
-pub async fn top_tracks(p0: &PgPool, p1: &String) -> Result<Vec<Scrobble>, Error> {
-    todo!()
 }

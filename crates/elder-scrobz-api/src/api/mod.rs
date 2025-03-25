@@ -15,7 +15,7 @@ pub fn app() -> OpenApiRouter<AppState> {
         .routes(routes!(create_user))
         .routes(routes!(import_listens))
         .routes(routes!(create_api_key))
-        // .routes(routes!(top_tracks))
-        // .routes(routes!(top_albums))
-        // .routes(routes!(top_artists))
+    // .routes(routes!(top_tracks))
+    // .routes(routes!(top_albums))
+    // .routes(routes!(top_artists))
 }

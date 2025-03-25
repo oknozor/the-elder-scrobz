@@ -1,12 +1,9 @@
 use crate::api::app;
-use crate::error::AppError;
 use crate::settings::Settings;
-use axum::Json;
 use elder_scrobz_db::build_pg_pool;
-use elder_scrobz_db::{PgPool, PgPoolOptions};
+use elder_scrobz_db::PgPool;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use std::time::Duration;
 use tower_http::trace::TraceLayer;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
