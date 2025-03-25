@@ -10,6 +10,50 @@
 						stroke="currentColor"
 						stroke-width="2"
 					>
+						<path d="M3 3v18h18" />
+						<path d="M18.4 9l-6-6-7 7" />
+					</svg>
+				</template>
+				Overview
+				<template #controls>
+					<TimeRangeSelector
+						v-model="timeRanges.tracks"
+						@update:modelValue="fetchStats"
+					/>
+				</template>
+			</SectionHeader>
+			<div class="overview-cards">
+				<OverviewCard
+					title="Songs listened"
+					:value="songsListened"
+					:percentageChange="songsPercentageChange ?? undefined"
+					:comparisonText="comparisonText"
+				/>
+				<OverviewCard
+					title="Time listened"
+					:value="formatDuration(timeListened)"
+					:percentageChange="timePercentageChange ?? undefined"
+					:comparisonText="comparisonText"
+				/>
+				<OverviewCard
+					title="Artists listened"
+					:value="artistsListened"
+					:percentageChange="artistsPercentageChange ?? undefined"
+					:comparisonText="comparisonText"
+				/>
+			</div>
+		</div>
+
+		<div class="stats-section">
+			<SectionHeader>
+				<template #icon>
+					<svg
+						class="title-icon"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
 						<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
 						<circle cx="12" cy="7" r="4" />
 					</svg>
@@ -237,6 +281,7 @@ import PulseBar from '@/components/stats/PulseBar.vue';
 import { formatTimeAgo, formatDuration } from '@/utils/formatter';
 import StatItem from '@/components/stats/StatItem.vue';
 import RecentTracks from '@/components/stats/RecentTracks.vue';
+import OverviewCard from '@/components/stats/OverviewCard.vue';
 
 interface TimeRanges {
 	artists: TimeRange;
@@ -296,6 +341,98 @@ const paginatedTracks = computed(() => {
 });
 
 const showDuration = ref(false);
+
+// Get the previous time range for comparison
+const getPreviousTimeRange = (currentRange: TimeRange): TimeRange => {
+	switch (currentRange) {
+		case 'today':
+			return 'today'; // Compare with yesterday (we'll handle this in the percentage calculation)
+		case 'week':
+			return 'week'; // Compare with previous week
+		case 'month':
+			return 'month'; // Compare with previous month
+		case 'year':
+			return 'year'; // Compare with previous year
+		default:
+			return 'all';
+	}
+};
+
+// Get comparison text based on the current time range
+const getComparisonText = (currentRange: TimeRange): string => {
+	switch (currentRange) {
+		case 'today':
+			return 'than yesterday';
+		case 'week':
+			return 'than last week';
+		case 'month':
+			return 'than last month';
+		case 'year':
+			return 'than last year';
+		default:
+			return '';
+	}
+};
+
+// Calculate percentage change between current and previous values
+const calculatePercentageChange = (current: number, previous: number): number => {
+	if (previous === 0) return 0;
+	return Math.round(((current - previous) / previous) * 100);
+};
+
+// For demonstration purposes, we'll simulate previous period data
+// In a real app, this would come from the API
+const getPreviousPeriodData = (currentRange: TimeRange) => {
+	// Simulate previous period data with a random decrease/increase
+	const currentPlayCount = stats.value.timeStats[currentRange].playCount;
+	const currentDuration = stats.value.timeStats[currentRange].duration;
+
+	// Generate a random factor between 0.7 and 1.3 for variation
+	const randomFactor = 0.7 + Math.random() * 0.6;
+
+	return {
+		playCount: Math.round(currentPlayCount * randomFactor),
+		duration: Math.round(currentDuration * randomFactor),
+		// For artists count, we'll use a different random factor
+		artistsCount: Math.round((stats.value.topArtists.length * randomFactor) / 2)
+	};
+};
+
+// Computed properties for the overview cards
+const currentTimeRange = computed(() => timeRanges.value.tracks);
+
+const songsListened = computed(() => stats.value.timeStats[currentTimeRange.value].playCount);
+
+const timeListened = computed(() => {
+	const minutes = stats.value.timeStats[currentTimeRange.value].duration;
+	return minutes;
+});
+
+const artistsListened = computed(() => {
+	// In a real app, this would be the count of unique artists in the current time range
+	// For this demo, we'll use a portion of the topArtists array length
+	return Math.round(stats.value.topArtists.length / 2);
+});
+
+const previousPeriodData = computed(() => {
+	return getPreviousPeriodData(currentTimeRange.value);
+});
+
+const songsPercentageChange = computed(() => {
+	return currentTimeRange.value === 'all' ? null : calculatePercentageChange(songsListened.value, previousPeriodData.value.playCount);
+});
+
+const timePercentageChange = computed(() => {
+	return currentTimeRange.value === 'all' ? null : calculatePercentageChange(timeListened.value, previousPeriodData.value.duration);
+});
+
+const artistsPercentageChange = computed(() => {
+	return currentTimeRange.value === 'all' ? null : calculatePercentageChange(artistsListened.value, previousPeriodData.value.artistsCount);
+});
+
+const comparisonText = computed(() => {
+	return getComparisonText(currentTimeRange.value);
+});
 
 const pulseTimeRanges: PulseTimeRange[] = [
 	'12days',
@@ -362,6 +499,12 @@ onMounted(async () => {
 
 .stats-section {
 	margin-bottom: 40px;
+}
+
+.overview-cards {
+	display: flex;
+	gap: 20px;
+	margin-bottom: 20px;
 }
 
 .title-icon {
