@@ -2,8 +2,11 @@
   <div class="overview-card">
     <h3 class="card-title">{{ title }}</h3>
     <div class="card-value">{{ value }}</div>
-    <div v-if="percentageChange !== null" class="percentage-change" :class="{ 'increase': percentageChange > 0, 'decrease': percentageChange < 0 }">
-      {{ percentageChange > 0 ? '+' : '' }}{{ percentageChange }}% {{ comparisonText }}
+    <div class="percentage-change-container">
+      <div v-if="percentageChange !== null" class="percentage-change" :class="{ 'increase': percentageChange > 0, 'decrease': percentageChange < 0 }">
+        {{ percentageChange > 0 ? '+' : '' }}{{ percentageChange }}% {{ comparisonText }}
+      </div>
+      <div v-else class="percentage-change-placeholder"></div>
     </div>
   </div>
 </template>
@@ -55,9 +58,17 @@ defineProps({
   margin-bottom: 8px;
 }
 
+.percentage-change-container {
+  height: 20px; /* Fixed height to ensure consistency */
+}
+
 .percentage-change {
   font-size: 0.9em;
   font-weight: 500;
+}
+
+.percentage-change-placeholder {
+  height: 20px; /* Same height as percentage-change */
 }
 
 .increase {
