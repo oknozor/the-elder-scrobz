@@ -6,6 +6,7 @@
 			:item="item"
 			:rank="index + 1"
 			:link="link"
+			:step="step"
 		/>
 	</div>
 	<div
@@ -21,6 +22,7 @@
 			:item="item"
 			:rank="index + step + 1"
 			:link="link"
+			:step="step"
 		/>
 	</div>
 </template>

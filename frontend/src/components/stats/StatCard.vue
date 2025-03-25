@@ -1,6 +1,16 @@
 <template>
 	<div class="card">
-		<div v-if="rank" class="rank-badge">#{{ rank }}</div>
+		<div
+			v-if="rank"
+			class="rank-badge"
+			:style="
+				rank > step
+					? { fontSize: '0.7em', width: '30px' }
+					: { fontSize: '0.9em', width: '24px' }
+			"
+		>
+			#{{ rank }}
+		</div>
 		<component
 			:is="link ? 'router-link' : 'div'"
 			:to="
@@ -40,7 +50,7 @@ interface Props {
 	link?: {
 		name: string;
 	};
-	expandable?: boolean;
+	step: number;
 }
 
 defineProps<Props>();
@@ -106,7 +116,8 @@ defineProps<Props>();
 	background: var(--primary-color);
 	color: var(--background-color);
 	width: 24px;
-	height: 24px;
+	height: auto;
+	padding: 2px;
 	border-radius: 4px;
 	display: flex;
 	align-items: center;
