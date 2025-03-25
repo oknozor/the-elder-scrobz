@@ -22,22 +22,22 @@ pub async fn get_most_listened_track(
 ) -> Result<Vec<TopTrack>, sqlx::Error> {
     let result = match period {
         Period::Week => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_week.sql")
+            sqlx::query_file_as!(TopTrack, "queries/charts/track/week.sql")
                 .fetch_all(pool)
                 .await?
         }
         Period::Month => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_month.sql")
+            sqlx::query_file_as!(TopTrack, "queries/charts/track/month.sql")
                 .fetch_all(pool)
                 .await?
         }
         Period::Year => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_year.sql")
+            sqlx::query_file_as!(TopTrack, "queries/charts/track/year.sql")
                 .fetch_all(pool)
                 .await?
         }
         Period::Today => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_today.sql")
+            sqlx::query_file_as!(TopTrack, "queries/charts/track/today.sql")
                 .fetch_all(pool)
                 .await?
         }

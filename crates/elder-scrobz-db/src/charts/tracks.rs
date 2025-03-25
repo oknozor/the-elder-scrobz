@@ -16,31 +16,56 @@ pub struct TopTrack {
     pub listens: Option<i64>,
 }
 
-pub async fn get_most_listened_track(
+pub async fn get_most_listened_tracks(
     period: Period,
+    user_id: Option<String>,
     pool: &PgPool,
 ) -> Result<Vec<TopTrack>, sqlx::Error> {
-    let result = match period {
-        Period::Week => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_week.sql")
-                .fetch_all(pool)
-                .await?
-        }
-        Period::Month => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_month.sql")
-                .fetch_all(pool)
-                .await?
-        }
-        Period::Year => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_year.sql")
-                .fetch_all(pool)
-                .await?
-        }
-        Period::Today => {
-            sqlx::query_file_as!(TopTrack, "queries/track_chart_today.sql")
-                .fetch_all(pool)
-                .await?
-        }
+    let result = match user_id {
+        None => match period {
+            Period::Week => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/week.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Month => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/month.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Year => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/year.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Today => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/today.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+        },
+        Some(user) => match period {
+            Period::Week => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/user_week.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Month => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/user_month.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Year => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/user_year.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Today => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/user_today.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+        },
     };
 
     Ok(result)

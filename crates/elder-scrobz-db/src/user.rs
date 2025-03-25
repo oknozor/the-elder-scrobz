@@ -58,7 +58,7 @@ impl User {
     pub async fn get_user_id_by_api_key(
         pool: &PgPool,
         api_key: &str,
-    ) -> Result<Option<String>, Error> {
+    ) -> Result<Option<UserWithKey>, Error> {
         let sha = key_sha(api_key);
 
         let user = sqlx::query_as!(
@@ -74,7 +74,7 @@ impl User {
         .fetch_optional(pool)
         .await?;
 
-        Ok(user.filter(|user| user.verify(api_key)).map(|u| u.id))
+        Ok(user.filter(|user| user.verify(api_key)))
     }
 }
 

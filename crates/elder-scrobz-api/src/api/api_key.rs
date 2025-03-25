@@ -1,7 +1,10 @@
+use crate::api::listens::Token;
 use crate::error::{AppError, AppResult};
 use crate::AppState;
 use axum::extract::{Path, State};
 use axum::Json;
+use axum_extra::headers::Authorization;
+use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
 use elder_scrobz_db::api_key::{generate_api_key, CreateApiKey};
 use elder_scrobz_db::user::User;
@@ -40,4 +43,46 @@ pub async fn create_api_key(
     .await?;
 
     Ok(Json(ApiKeyCreated { api_key: key.key }))
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
+pub struct TokenValidation {
+    pub valid: bool,
+    pub code: i64,
+    pub user_name: Option<String>,
+    pub message: String,
+}
+
+#[debug_handler]
+#[utoipa::path(
+    get,
+    path = "/1/validate-token",
+    responses(
+        (status = 200, description = "The user token is valid/invalid.", body = ApiKeyCreated)
+    )
+)]
+pub async fn validate_token(
+    State(state): State<AppState>,
+    TypedHeader(auth): TypedHeader<Authorization<Token>>,
+) -> AppResult<Json<TokenValidation>> {
+    let Some(token) = auth.0.token()? else {
+        return Err(AppError::Unauthorized("Missing token".to_string()));
+    };
+
+    Ok(
+        match User::get_user_id_by_api_key(&state.pool, token).await? {
+            None => Json(TokenValidation {
+                valid: false,
+                code: 1,
+                user_name: None,
+                message: "invalid token".to_string(),
+            }),
+            Some(user) => Json(TokenValidation {
+                valid: true,
+                code: 0,
+                user_name: Some(user.username),
+                message: "token is valid".to_string(),
+            }),
+        },
+    )
 }

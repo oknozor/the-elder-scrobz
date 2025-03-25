@@ -35,7 +35,7 @@ pub async fn submit_listens(
         return Err(AppError::Unauthorized("Missing token".to_string()));
     };
 
-    let Some(user_id) = User::get_user_id_by_api_key(&state.pool, token).await? else {
+    let Some(user) = User::get_user_id_by_api_key(&state.pool, token).await? else {
         return Err(AppError::Unauthorized("Invalid token".to_string()));
     };
 
@@ -43,7 +43,7 @@ pub async fn submit_listens(
     let scrobbles = listens
         .into_iter()
         .map(|listen| CreateRawScrobble {
-            user_id: user_id.to_string(),
+            user_id: user.id.to_string(),
             data: listen.into(),
         })
         .collect();

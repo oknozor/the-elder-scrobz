@@ -3,7 +3,8 @@ use crate::AppState;
 use axum::extract::{Path, Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
-use elder_scrobz_db::charts::tracks::{get_most_listened_track, TopTrack};
+use elder_scrobz_db::charts::album::{get_most_listened_albums, TopAlbum};
+use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
 use elder_scrobz_db::charts::Period;
 use elder_scrobz_db::user::CreateUser;
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,7 @@ pub async fn create_user(
 #[derive(Deserialize, ToSchema, Debug)]
 pub struct ChartQuery {
     period: Period,
+    user_id: Option<String>,
 }
 
 #[debug_handler]
@@ -42,40 +44,43 @@ pub struct ChartQuery {
     path = "/users/{id}/charts/tracks",
     params(
         ("id" = String, Path, description = "ID of the user"),
-        ("period" = ChartQuery, description = "Chart period such as 'year', 'month', 'week', or 'today'")
+        ("params" = ChartQuery, description = "Chart period such as 'year', 'month', 'week', or 'today'")
     ),
     responses(
         (status = 200, description = "Top tracks for user", body = Vec<TopTrack>),
         (status = 404, description = "User not found", body = AppError)
     )
 )]
-pub async fn top_tracks(
+pub async fn track_charts(
     State(_state): State<AppState>,
     Path(_user_id): Path<String>,
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<Vec<TopTrack>>> {
-    let tracks = get_most_listened_track(query.period, &_state.pool)
-        .await?
-        .into_iter()
-        .collect();
-
-    Ok(Json(tracks))
+    Ok(Json(
+        get_most_listened_tracks(query.period, query.user_id, &_state.pool).await?,
+    ))
 }
 
 #[debug_handler]
 #[utoipa::path(
     get,
-    path = "/users/{id}/charts/tracks",
+    path = "/users/{id}/charts/albums",
+    params(
+        ("id" = String, Path, description = "ID of the user"),
+        ("period" = ChartQuery, description = "Chart period such as 'year', 'month', 'week', or 'today'")
+    ),
     responses(
-        (status = 200, description = "Top album for user", body = Vec<TopTrack>),
+        (status = 200, description = "Top album for user", body = Vec<TopAlbum>),
         (status = 404, description = "User not found", body = AppError)
     )
 )]
-pub async fn _top_albums(
+pub async fn album_charts(
     State(_state): State<AppState>,
-    Path(_user_id): Path<String>,
-) -> AppResult<Json<Vec<TopTrack>>> {
-    todo!()
+    Query(query): Query<ChartQuery>,
+) -> AppResult<Json<Vec<TopAlbum>>> {
+    Ok(Json(
+        get_most_listened_albums(query.period, query.user_id, &_state.pool).await?,
+    ))
 }
 
 #[debug_handler]
