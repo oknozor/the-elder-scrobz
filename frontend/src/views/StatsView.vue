@@ -22,7 +22,11 @@
 					/>
 				</template>
 			</SectionHeader>
-			<StatGrid :items="stats.topArtists" :limit="15" />
+			<StatGrid
+				:items="stats.topArtists"
+				:limit="15"
+				:link="{ name: 'artist' }"
+			/>
 		</div>
 
 		<div class="stats-section">
@@ -39,7 +43,11 @@
 					/>
 				</template>
 			</SectionHeader>
-			<StatGrid :items="stats.topTracks" :limit="15" />
+			<StatGrid
+				:items="stats.topTracks"
+				:limit="15"
+				:link="{ name: 'track' }"
+			/>
 		</div>
 
 		<div class="stats-section">
@@ -56,7 +64,11 @@
 					/>
 				</template>
 			</SectionHeader>
-			<StatGrid :items="stats.topAlbums" :limit="15" />
+			<StatGrid
+				:items="stats.topAlbums"
+				:limit="15"
+				:link="{ name: 'album' }"
+			/>
 		</div>
 
 		<div class="stats-section">
