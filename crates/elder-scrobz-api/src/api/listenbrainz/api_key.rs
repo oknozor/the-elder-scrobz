@@ -56,7 +56,7 @@ pub struct TokenValidation {
 #[debug_handler]
 #[utoipa::path(
     get,
-    path = "/1/validate-token",
+    path = "/validate-token",
     responses(
         (status = 200, description = "The user token is valid/invalid.")
     )

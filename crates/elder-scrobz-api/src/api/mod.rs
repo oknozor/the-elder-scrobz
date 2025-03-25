@@ -9,6 +9,7 @@ use utoipa_axum::routes;
 pub mod charts;
 pub mod imports;
 pub mod listenbrainz;
+pub mod pulse;
 pub mod user;
 
 pub fn router() -> OpenApiRouter<AppState> {

@@ -727,6 +727,7 @@ dependencies = [
  "axum",
  "axum-extra",
  "axum-macros",
+ "chrono",
  "config",
  "dotenv",
  "elder-scrobz-db",

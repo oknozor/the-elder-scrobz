@@ -27,6 +27,7 @@ serde.workspace = true
 futures-util.workspace = true
 config.workspace = true
 reqwest.workspace = true
+chrono.workspace = true
 dotenv.workspace = true
 
 http = "1.2.0"

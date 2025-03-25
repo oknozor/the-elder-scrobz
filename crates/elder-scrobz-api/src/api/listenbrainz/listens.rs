@@ -14,7 +14,7 @@ use tracing::error;
 #[debug_handler]
 #[utoipa::path(
     post,
-    path = "/1/submit-listens",
+    path = "/submit-listens",
     responses(
         (status = 200, description = "Top tracks for user", body = ()),
         (status = 404, description = "User not found", body = AppError)
