@@ -1,5 +1,7 @@
 use crate::api::app;
+use crate::oauth::verify_bearer_token;
 use crate::settings::Settings;
+use axum::middleware;
 use elder_scrobz_db::build_pg_pool;
 use elder_scrobz_db::PgPool;
 use std::net::SocketAddr;
@@ -17,6 +19,7 @@ mod api;
 mod error;
 mod settings;
 
+mod oauth;
 #[cfg(test)]
 mod test_helper;
 
@@ -74,12 +77,17 @@ async fn main() -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
     info!("listening on {}", listener.local_addr()?);
+    let app = app()
+        .layer(TraceLayer::new_for_http())
+        .with_state(state.clone());
 
-    let app = app().layer(TraceLayer::new_for_http()).with_state(state);
-
-    let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
+    let (mut router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .nest("/api/v1/", app)
         .split_for_parts();
+
+    if !state.settings.debug {
+        router = router.layer(middleware::from_fn_with_state(state, verify_bearer_token))
+    }
 
     let router =
         router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));

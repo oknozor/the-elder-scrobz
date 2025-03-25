@@ -1,50 +1,216 @@
-name: Build and Push Docker Image
+name: Publish latest docker image
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
+    tags:
+      - "*"
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-backend
+  CARGO_TERM_COLOR: always
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+#   upload_license:
+#     name: Upload License
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#
+#       - uses: actions/upload-artifact@v4
+#         with:
+#           name: LICENSE
+#           path: LICENSE
+
+  build:
+    name: Build for ${{ matrix.os }}-${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            windows: true
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-musleabihf
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+
+    env:
+      SQLX_OFFLINE: true
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: "true"
+          key: "${{ matrix.os }}-${{ matrix.target }}"
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+
+      - if: ${{ matrix.windows }}
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --target ${{ matrix.target }} --release --locked
+
+      - if: ${{ ! matrix.windows }}
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --target ${{ matrix.target }} --release --locked
+
+      - if: ${{ ! matrix.windows }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/scrobz
+
+      - if: ${{ matrix.windows }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/scrobz.exe
+
+  upload_to_release:
+    needs: [build] # upload_license
+    name: Publish scrobz binaries
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_type == 'tag' }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ~/artifacts
+
+      - name: Copy artifacts to archive
+        run: |
+          mkdir x86_64-unknown-linux-musl
+          cp -r /home/runner/artifacts/x86_64-unknown-linux-musl/scrobz x86_64-unknown-linux-musl/scrobz
+          chmod +x -R  x86_64-unknown-linux-musl/scrobz
+          cp -r /home/runner/artifacts/LICENSE/LICENSE x86_64-unknown-linux-musl/
+          tar -czf scrobz-x86_64-unknown-linux-musl.tar.gz x86_64-unknown-linux-musl/*
+
+          mkdir armv7-unknown-linux-musleabihf
+          cp -r /home/runner/artifacts/armv7-unknown-linux-musleabihf/scrobz armv7-unknown-linux-musleabihf/scrobz
+          chmod +x -R  armv7-unknown-linux-musleabihf/scrobz
+          cp -r /home/runner/artifacts/LICENSE/LICENSE armv7-unknown-linux-musleabihf/
+          tar -czf scrobz-unknown-linux-musleabihf.tar.gz armv7-unknown-linux-musleabihf/*
+
+          mkdir aarch64-unknown-linux-gnu
+          cp -r /home/runner/artifacts/aarch64-unknown-linux-gnu/scrobz aarch64-unknown-linux-gnu/scrobz
+          chmod +x -R  aarch64-unknown-linux-gnu/scrobz
+          cp -r /home/runner/artifacts/LICENSE/LICENSE aarch64-unknown-linux-gnu/
+          tar -czf scrobz-unknown-linux-gnu.tar.gz aarch64-unknown-linux-gnu/*
+
+          mkdir x86_64-pc-windows-msvc
+          cp -r /home/runner/artifacts/x86_64-pc-windows-msvc/scrobz.exe x86_64-pc-windows-msvc/scrobz.exe
+          chmod +x -R  x86_64-pc-windows-msvc/scrobz.exe
+          cp -r /home/runner/artifacts/LICENSE/LICENSE x86_64-pc-windows-msvc/
+          tar -czf scrobz-pc-windows-msvc.tar.gz x86_64-pc-windows-msvc/*
+
+          mkdir x86_64-apple-darwin
+          cp -r /home/runner/artifacts/x86_64-apple-darwin/scrobz x86_64-apple-darwin/scrobz
+          chmod +x -R  x86_64-apple-darwin/scrobz
+          cp -r /home/runner/artifacts/LICENSE/LICENSE x86_64-apple-darwin/
+          tar -czf oknozor-the-elder-scrobz-apple-darwin.tar.gz x86_64-apple-darwin/*
+
+      - uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: oknozor-the-elder-scrobz-unknown-linux-musl.tar.gz
+          tag: ${{ github.ref }}
+          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-x86_64-unknown-linux-musl.tar.gz
+
+      - uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: oknozor-the-elder-scrobz-unknown-linux-musleabihf.tar.gz
+          tag: ${{ github.ref_name }}
+          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-armv7-unknown-linux-musleabihf.tar.gz
+
+      - uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: oknozor-the-elder-scrobz-unknown-linux-gnu.tar.gz
+          tag: ${{ github.ref_name }}
+          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-aarch64-unknown-linux-gnu.tar.gz
+
+      - uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: oknozor-the-elder-scrobz-pc-windows-msvc.tar.gz
+          tag: ${{ github.ref_name }}
+          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-x86_64-pc-windows-msvc.tar.gz
+
+      - uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: oknozor-the-elder-scrobz-apple-darwin.tar.gz
+          tag: ${{ github.ref_name }}
+          asset_name: oknozor-the-elder-scrobz{{ github.ref_name }}-x86_64-apple-darwin.tar.gz
+
+  docker:
+    needs: [build]
+    name: Docker publish scrobz:lastest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v1
 
-      - name: Log in to the Container registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
+      - uses: actions/download-artifact@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,format=short
+          path: ~/artifacts
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Copy artifacts to build dir
+        run: |
+          mkdir -p target/x86_64-unknown-linux-musl/release/
+          mkdir -p target/armv7-unknown-linux-musleabihf/release/
+          mkdir -p target/aarch64-unknown-linux-gnu/release/
+
+          cp -r /home/runner/artifacts/x86_64-unknown-linux-musl/. target/x86_64-unknown-linux-musl/release
+          cp -r /home/runner/artifacts/armv7-unknown-linux-musleabihf/. target/armv7-unknown-linux-musleabihf/release
+          cp -r /home/runner/artifacts/aarch64-unknown-linux-gnu/. target/aarch64-unknown-linux-gnu/release
+
+          chmod +x -R  target/x86_64-unknown-linux-musl/release
+          chmod +x -R  target/armv7-unknown-linux-musleabihf/release
+          chmod +x -R  target/aarch64-unknown-linux-gnu/release
+        working-directory: ./
+
+      - if: ${{ github.ref_type != 'tag' }}
+        name: Update multi-arch container latest
+        run: |
+          docker buildx build \
+          --push --platform linux/amd64,linux/arm/v7,linux/arm64/v8 \
+          -f docker/Dockerfile \
+          -t ghcr.io/oknozor/the-elder-scrobz:latest .
+
+      - if: ${{ github.ref_type == 'tag' }}
+        name: Update multi-arch container latest
+        run: |
+          docker buildx build \
+          --push --platform linux/amd64,linux/arm/v7,linux/arm64/v8 \
+          -f docker/Dockerfile \
+          -t ghcr.io/oknozor/the-elder-scrobz:${{ github.ref_name }} .

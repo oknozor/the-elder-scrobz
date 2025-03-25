@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO artist_credited (artist_mbid, track_mbid)\n        VALUES ($1, $2)\n        ON CONFLICT (artist_mbid, track_mbid) DO UPDATE\n        SET artist_mbid = COALESCE(EXCLUDED.artist_mbid, artist_credited.artist_mbid),\n            track_mbid = COALESCE(EXCLUDED.track_mbid, artist_credited.track_mbid);",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c94ab0a4a8ec9f3f5f0117ed1a8d16bdb034ecc5f743322ff183736f5be31511"
+}

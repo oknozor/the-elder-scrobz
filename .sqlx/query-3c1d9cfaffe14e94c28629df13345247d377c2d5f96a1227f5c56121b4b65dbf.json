@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO releases (mbid, name, artist_mbid, description, cover_art_url)\n        VALUES ($1, $2, $3, $4, $5)\n        ON CONFLICT (mbid) DO UPDATE\n        SET name = COALESCE(EXCLUDED.name, releases.name),\n            description = COALESCE(EXCLUDED.description, releases.description),\n            cover_art_url = COALESCE(EXCLUDED.cover_art_url, releases.cover_art_url),\n            artist_mbid = COALESCE(EXCLUDED.artist_mbid, releases.artist_mbid);\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3c1d9cfaffe14e94c28629df13345247d377c2d5f96a1227f5c56121b4b65dbf"
+}

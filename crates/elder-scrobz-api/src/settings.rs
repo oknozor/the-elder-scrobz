@@ -1,13 +1,14 @@
 use config::{Config, Environment, File};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Settings {
     pub debug: bool,
     pub domain: String,
     pub port: u16,
-    pub oauth_provider: AuthSettings,
+    pub oauth_provider: Arc<AuthSettings>,
     pub database: DbSettings,
 }
 
@@ -26,7 +27,7 @@ pub struct AuthSettings {
     pub client_secret: String,
     pub provider: String,
     pub user_info_url: String,
-    pub auth_url: String,
+    pub introspection_url: String,
     pub token_url: String,
 }
 
