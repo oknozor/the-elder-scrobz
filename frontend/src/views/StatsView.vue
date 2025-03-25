@@ -1,18 +1,5 @@
 <template>
   <div class="stats">
-    <div class="global-filters">
-      <div class="controls">
-        <UsernameSelector v-model="selectedUser" :users="users" />
-      </div>
-      <div class="user-controls">
-        <UserButton 
-          :current-user="currentUser"
-          @logout="handleLogout"
-          @profile="handleProfile"
-        />
-      </div>
-    </div>
-
     <div class="stats-section">
       <div class="section-header">
         <h2>
@@ -53,7 +40,9 @@
       <div class="grid-container">
         <div v-for="(track, index) in stats.topTracks.slice(0, 5)" :key="track.id" class="card">
           <div class="rank-badge">#{{ index + 1 }}</div>
-          <img :src="track.imageUrl" :alt="track.title" class="card-image" />
+          <div class="card-image-container">
+            <img :src="track.imageUrl" :alt="track.title" class="card-image" />
+          </div>
           <div class="card-content">
             <h3>{{ track.title }}</h3>
             <p>{{ track.artist }}</p>
@@ -82,7 +71,9 @@
         <div v-for="(album, index) in stats.topAlbums.slice(0, 5)" :key="album.id" class="card">
           <div class="rank-badge">#{{ index + 1 }}</div>
           <router-link :to="{ name: 'album', params: { id: album.id }}">
-            <img :src="album.imageUrl" :alt="album.title" class="card-image" />
+            <div class="card-image-container">
+              <img :src="album.imageUrl" :alt="album.title" class="card-image" />
+            </div>
           </router-link>
           <div class="card-content">
             <h3>{{ album.title }}</h3>
@@ -197,7 +188,12 @@
           <div class="user-column">{{ track.user }}</div>
           <div class="track-column">
             <img :src="track.imageUrl" :alt="track.title" class="track-thumbnail" />
-            {{ track.artist }} - {{ track.title }}
+            <div class="track-info-container">
+              {{ track.artist }} - {{ track.title }}
+              <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -229,7 +225,6 @@ import { fetchMusicStats } from '@/services/mockData'
 import { fetchUsers } from '@/services/mockUsers'
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue'
 import UsernameSelector from '@/components/UsernameSelector.vue'
-import UserButton from '@/components/UserButton.vue'
 import { useRouter } from 'vue-router'
 
 interface TimeRanges {
@@ -288,8 +283,9 @@ const router = useRouter()
 
 const fetchStats = async () => {
   try {
+    const username = selectedUser.value?.name || null;
     const [statsData, usersData] = await Promise.all([
-      fetchMusicStats(timeRanges.value.artists, selectedPulseRange.value),
+      fetchMusicStats(timeRanges.value.artists, selectedPulseRange.value, username),
       fetchUsers()
     ])
     stats.value = statsData
@@ -343,34 +339,17 @@ const formatDuration = (minutes: number): string => {
   }
 }
 
-const currentUser = ref<User | null>({
-  id: '1',
-  name: 'John Doe',
-  imageUrl: 'https://picsum.photos/32/32?random=1',
-  lastActive: new Date().toISOString(),
-  apiKeys: [],
-  stats: {
-    totalPlays: 0,
-    totalDuration: 0,
-    topArtists: [],
-    topAlbums: [],
-    topTracks: []
-  }
+
+// Watch for changes in the selected user
+watch(selectedUser, () => {
+  fetchStats()
 })
-
-const handleLogout = () => {
-  // Implement logout logic here
-  console.log('Logout clicked')
-}
-
-const handleProfile = () => {
-  router.push({ name: 'profile' })
-}
 
 onMounted(async () => {
   try {
+    const username = selectedUser.value?.name || null;
     const [statsData, usersData] = await Promise.all([
-      fetchMusicStats(timeRanges.value.artists),
+      fetchMusicStats(timeRanges.value.artists, selectedPulseRange.value, username),
       fetchUsers()
     ])
     stats.value = statsData
@@ -383,27 +362,14 @@ onMounted(async () => {
 
 <style scoped>
 .stats {
-  padding: 20px;
+  padding-top: 20px;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.global-filters {
-  margin-bottom: 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
 }
 
 .controls {
   display: flex;
   gap: 20px;
-}
-
-.user-controls {
-  display: flex;
-  align-items: center;
 }
 
 .stats-section {
@@ -458,6 +424,12 @@ h2 {
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+.card-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .card-image {
@@ -567,6 +539,26 @@ h2 {
   border-radius: 4px;
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.track-info-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.play-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--primary-color);
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.track-column:hover .play-icon {
+  opacity: 1;
 }
 
 .pagination {

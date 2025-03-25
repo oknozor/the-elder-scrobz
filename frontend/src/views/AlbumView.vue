@@ -1,19 +1,5 @@
 <template>
   <div class="album-page">
-    <div class="page-header">
-      <div class="header-left">
-        <button class="back-button" @click="router.back()">
-          <span class="back-icon">←</span>
-          Back
-        </button>
-        <UsernameSelector v-model="selectedUser" :users="users" @update:modelValue="fetchAlbumData" />
-      </div>
-      <UserButton 
-        :current-user="currentUser"
-        @logout="handleLogout"
-        @profile="handleProfile"
-      />
-    </div>
     <div class="album-header">
       <img :src="album.imageUrl" :alt="album.title" class="album-image" />
       <div class="album-info">
@@ -37,7 +23,14 @@
       <div class="tracks-table">
         <div v-for="(track, index) in album.topTracks" :key="track.id" class="track-row">
           <div class="track-rank">#{{ index + 1 }}</div>
-          <img :src="track.imageUrl" :alt="track.title" class="track-thumbnail" />
+          <div class="track-thumbnail-container">
+            <img :src="track.imageUrl" :alt="track.title" class="track-thumbnail" />
+            <div class="track-play-icon">
+              <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
           <div class="track-info">
             <h3>{{ track.title }}</h3>
             <p>{{ track.playCount }} plays / {{ formatDuration(track.duration) }}</p>
@@ -58,11 +51,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchAlbumDetails } from '@/services/mockData'
 import { fetchUsers } from '@/services/mockUsers'
-import UserButton from '@/components/UserButton.vue'
 import UsernameSelector from '@/components/UsernameSelector.vue'
 import type { User, AlbumDetails } from '@/types/music'
 
@@ -110,13 +102,20 @@ const formatDuration = (minutes: number): string => {
 
 const fetchAlbumData = async () => {
   const albumId = route.params.id as string
-  album.value = await fetchAlbumDetails(albumId)
+  const username = selectedUser.value?.name || null
+  album.value = await fetchAlbumDetails(albumId, username)
 }
+
+// Watch for changes in the selected user
+watch(selectedUser, () => {
+  fetchAlbumData()
+})
 
 onMounted(async () => {
   try {
+    const username = selectedUser.value?.name || null
     const [albumData, usersData] = await Promise.all([
-      fetchAlbumDetails(route.params.id as string),
+      fetchAlbumDetails(route.params.id as string, username),
       fetchUsers()
     ])
     album.value = albumData
@@ -129,52 +128,11 @@ onMounted(async () => {
 
 <style scoped>
 .album-page {
-  padding: 20px;
+  padding-top: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.back-button {
-  margin-bottom: 0;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-color);
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: all 0.2s;
-  height: 40px;
-}
-
-.back-button:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(-2px);
-}
-
-.back-icon {
-  font-size: 1.2em;
-  line-height: 1;
-}
 
 .album-header {
   display: flex;
@@ -276,18 +234,45 @@ onMounted(async () => {
   vertical-align: middle;
 }
 
-.track-thumbnail {
+.track-thumbnail-container {
+  position: relative;
   display: table-cell;
   padding: 12px;
   width: 60px;
   vertical-align: middle;
 }
 
-.track-thumbnail img {
+.track-thumbnail {
   width: 48px;
   height: 48px;
   border-radius: 4px;
   object-fit: cover;
+}
+
+.track-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.track-play-icon .play-icon {
+  width: 16px;
+  height: 16px;
+  color: white;
+}
+
+.track-thumbnail-container:hover .track-play-icon {
+  opacity: 1;
 }
 
 .track-info {

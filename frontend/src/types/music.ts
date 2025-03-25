@@ -86,6 +86,7 @@ export interface User {
   name: string;
   imageUrl: string;
   lastActive: string;
+  isAdmin?: boolean;
   apiKeys: ApiKey[];
   stats: {
     totalPlays: number;
@@ -94,4 +95,4 @@ export interface User {
     topAlbums: Album[];
     topTracks: Track[];
   };
-} 
+}

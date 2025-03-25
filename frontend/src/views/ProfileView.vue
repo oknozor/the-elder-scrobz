@@ -1,18 +1,5 @@
 <template>
   <div class="profile">
-    <div class="page-header">
-      <button class="back-button" @click="router.back()">
-        <span class="back-icon">←</span>
-        Back
-      </button>
-      <div class="user-controls">
-        <UserButton 
-          :current-user="currentUser"
-          @logout="handleLogout"
-          @profile="handleProfile"
-        />
-      </div>
-    </div>
 
     <div class="profile-section">
       <h2>Profile</h2>
@@ -153,7 +140,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getUserProfile, createApiKey as createApiKeyService } from '@/services/mockData'
-import UserButton from '@/components/UserButton.vue'
 import type { User, ApiKey } from '@/types/music'
 
 const router = useRouter()
@@ -276,41 +262,11 @@ onMounted(async () => {
 
 <style scoped>
 .profile {
-  padding: 20px;
+  padding-top: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-color);
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.back-button:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(-2px);
-}
-
-.back-icon {
-  font-size: 1.2em;
-  line-height: 1;
-}
 
 .profile-section {
   background: var(--card-background);
