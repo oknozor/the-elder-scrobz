@@ -395,25 +395,31 @@ const generateMoreTracks = (): RecentTrack[] => {
   return tracks
 }
 
-export const fetchMusicStats = async (timeRange: TimeRange, pulseRange: PulseTimeRange = '12months'): Promise<MusicStats> => {
+export const fetchMusicStats = async (timeRange: TimeRange, pulseRange: PulseTimeRange = '12months', username: string | null = null): Promise<MusicStats> => {
   const allRecentTracks = [...recentTracks, ...generateMoreTracks()].filter(track => {
+    // Filter by time range
+    let passesTimeFilter = true;
     if (timeRange === 'today') {
       const today = new Date().toDateString();
-      return new Date(track.lastPlayed).toDateString() === today;
+      passesTimeFilter = new Date(track.lastPlayed).toDateString() === today;
     } else if (timeRange === 'week') {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
-      return new Date(track.lastPlayed) >= weekAgo;
+      passesTimeFilter = new Date(track.lastPlayed) >= weekAgo;
     } else if (timeRange === 'month') {
       const monthAgo = new Date();
       monthAgo.setMonth(monthAgo.getMonth() - 1);
-      return new Date(track.lastPlayed) >= monthAgo;
+      passesTimeFilter = new Date(track.lastPlayed) >= monthAgo;
     } else if (timeRange === 'year') {
       const yearAgo = new Date();
       yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-      return new Date(track.lastPlayed) >= yearAgo;
+      passesTimeFilter = new Date(track.lastPlayed) >= yearAgo;
     }
-    return true;
+
+    // Filter by username if provided
+    const passesUserFilter = username ? track.user === username : true;
+
+    return passesTimeFilter && passesUserFilter;
   });
 
   // Sort tracks by lastPlayed in descending order (newest first)
@@ -489,8 +495,8 @@ export const fetchMusicStats = async (timeRange: TimeRange, pulseRange: PulseTim
   }
 }
 
-export const fetchArtistDetails = async (artistId: string): Promise<ArtistDetails> => {
-  // Find the artist in mock data
+export const fetchArtistDetails = async (artistId: string, username: string | null = null): Promise<ArtistDetails> => {
+  console.log("fetchArtistDetails: ", artistId, " username: ", username)
   const artist = mockArtists.find(a => a.id === artistId)
   if (!artist) {
     throw new Error('Artist not found')
@@ -510,7 +516,7 @@ export const fetchArtistDetails = async (artistId: string): Promise<ArtistDetail
   // Get recent listens for this artist
   const allRecentTracks = [...recentTracks, ...generateMoreTracks()]
   const artistRecentListens = allRecentTracks
-    .filter(t => t.artist === artist.name)
+    .filter(t => t.artist === artist.name && (username ? t.user === username : true))
     .sort((a, b) => new Date(b.lastPlayed).getTime() - new Date(a.lastPlayed).getTime())
     .slice(0, 20) // Limit to 20 recent listens
 
@@ -595,8 +601,8 @@ export const getUserProfile = async (userId: string): Promise<User> => {
   };
 }
 
-export const fetchAlbumDetails = async (albumId: string): Promise<AlbumDetails> => {
-  // Find the album in mock data
+export const fetchAlbumDetails = async (albumId: string, username: string | null = null): Promise<AlbumDetails> => {
+  console.log("fetchAlbumDetails: ", albumId, " username: ", username)
   const album = mockAlbums.find(a => a.id === albumId)
   if (!album) {
     throw new Error('Album not found')
@@ -612,7 +618,7 @@ export const fetchAlbumDetails = async (albumId: string): Promise<AlbumDetails> 
     ...album,
     topTracks: albumTracks
   }
-} 
+}
 
 // Simulate import process with a delay
 export const importUserData = async (file: File, format: string): Promise<boolean> => {

@@ -7,6 +7,7 @@ export const mockUsers: User[] = [
     name: 'John Doe',
     imageUrl: 'https://picsum.photos/32/32?random=1',
     lastActive: new Date().toISOString(),
+    isAdmin: true,
     apiKeys: [],
     stats: {
       totalPlays: 1234,
@@ -21,6 +22,7 @@ export const mockUsers: User[] = [
     name: 'Jane Smith',
     imageUrl: 'https://picsum.photos/32/32?random=2',
     lastActive: new Date().toISOString(),
+    isAdmin: false,
     apiKeys: [],
     stats: {
       totalPlays: 987,
@@ -35,6 +37,7 @@ export const mockUsers: User[] = [
     name: 'Bob Johnson',
     imageUrl: 'https://picsum.photos/32/32?random=3',
     lastActive: new Date().toISOString(),
+    isAdmin: false,
     apiKeys: [],
     stats: {
       totalPlays: 567,
@@ -49,6 +52,7 @@ export const mockUsers: User[] = [
     name: 'Alice Brown',
     imageUrl: 'https://picsum.photos/32/32?random=4',
     lastActive: new Date().toISOString(),
+    isAdmin: false,
     apiKeys: [],
     stats: {
       totalPlays: 432,
@@ -63,6 +67,7 @@ export const mockUsers: User[] = [
     name: 'Charlie Wilson',
     imageUrl: 'https://picsum.photos/32/32?random=5',
     lastActive: new Date().toISOString(),
+    isAdmin: false,
     apiKeys: [],
     stats: {
       totalPlays: 321,

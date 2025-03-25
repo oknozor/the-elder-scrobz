@@ -1,18 +1,5 @@
 <template>
   <div class="import-page">
-    <div class="page-header">
-      <div class="header-left">
-        <button class="back-button" @click="router.back()">
-          <span class="back-icon">←</span>
-          Back
-        </button>
-      </div>
-      <UserButton 
-        :current-user="currentUser"
-        @logout="handleLogout"
-        @profile="handleProfile"
-      />
-    </div>
 
     <div class="import-section">
       <h1>Import Listening History</h1>
@@ -94,7 +81,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import UserButton from '@/components/UserButton.vue'
 import type { User } from '@/types/music'
 import { importUserData } from '@/services/mockData'
 
@@ -251,43 +237,6 @@ const formatFileSize = (bytes: number): string => {
   margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-color);
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: all 0.2s;
-  height: 40px;
-}
-
-.back-button:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(-2px);
-}
-
-.back-icon {
-  font-size: 1.2em;
-  line-height: 1;
-}
 
 .import-section {
   max-width: 600px;

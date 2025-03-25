@@ -1,18 +1,5 @@
 <template>
   <div class="users-page">
-    <div class="page-header">
-      <div class="header-left">
-        <button class="back-button" @click="router.back()">
-          <span class="back-icon">←</span>
-          Back
-        </button>
-      </div>
-      <UserButton 
-        :current-user="currentUser"
-        @logout="handleLogout"
-        @profile="handleProfile"
-      />
-    </div>
 
     <div class="users-section">
       <h1>Users</h1>
@@ -25,6 +12,7 @@
               <th>Last Login</th>
               <th>Play Count</th>
               <th>Play Duration</th>
+              <th>Is Admin ?</th>
               <th></th>
             </tr>
           </thead>
@@ -39,6 +27,18 @@
               <td>{{ formatDate(user.lastActive) }}</td>
               <td>{{ formatNumber(user.stats.totalPlays) }}</td>
               <td>{{ formatDuration(user.stats.totalDuration) }}</td>
+              <td>
+                <div class="toggle-container">
+                  <input 
+                    type="checkbox" 
+                    :id="'admin-toggle-' + user.id" 
+                    class="toggle-input" 
+                    :checked="user.isAdmin" 
+                    @change="toggleAdmin(user)"
+                  />
+                  <label :for="'admin-toggle-' + user.id" class="toggle-label"></label>
+                </div>
+              </td>
               <td>
                 <button class="delete-btn" @click="handleDeleteUser(user.id)">
                   <svg class="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -71,7 +71,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import UserButton from '@/components/UserButton.vue'
 import type { User } from '@/types/music'
 
 const router = useRouter()
@@ -150,6 +149,13 @@ const confirmDeleteUser = () => {
   }
 }
 
+const toggleAdmin = (user: User) => {
+  // Toggle the isAdmin property
+  user.isAdmin = !user.isAdmin
+  console.log(`User ${user.name} is now ${user.isAdmin ? 'an admin' : 'not an admin'}`)
+  // In a real application, you would send this update to the server
+}
+
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', {
@@ -178,48 +184,11 @@ const formatDuration = (ms: number): string => {
 
 <style scoped>
 .users-page {
-  padding: 20px;
+  padding-top: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-color);
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: all 0.2s;
-  height: 40px;
-}
-
-.back-button:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(-2px);
-}
-
-.back-icon {
-  font-size: 1.2em;
-  line-height: 1;
-}
 
 .users-section {
   background: var(--card-background);
@@ -354,5 +323,50 @@ h1 {
 
 .delete-confirm-btn:hover {
   background-color: #ff6666;
+}
+
+/* Toggle switch styles */
+.toggle-container {
+  display: flex;
+  justify-content: left;
+}
+
+.toggle-input {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+  position: absolute;
+}
+
+.toggle-label {
+  cursor: pointer;
+  width: 50px;
+  height: 24px;
+  background: var(--border-color);
+  display: block;
+  border-radius: 24px;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.toggle-label:after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--card-background);
+  border-radius: 20px;
+  transition: 0.2s;
+}
+
+.toggle-input:checked + .toggle-label {
+  background: var(--primary-color);
+}
+
+.toggle-input:checked + .toggle-label:after {
+  left: calc(100% - 2px);
+  transform: translateX(-100%);
 }
 </style> 
