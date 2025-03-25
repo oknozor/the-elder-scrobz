@@ -2,24 +2,67 @@
 	<table class="recent-tracks-table">
 		<tbody>
 			<tr
-				v-for="track in paginatedTracks"
-				:key="track.id"
+				v-for="(track, index) in paginatedTracks"
+				:key="index"
 				class="recent-track-row"
 			>
 				<td class="time-column">
-					{{ formatTimeAgo(track.lastPlayed) }}
+					<transition name="fade" mode="out-in">
+						<span :key="track.lastPlayed">{{
+							formatTimeAgo(track.lastPlayed)
+						}}</span>
+					</transition>
 				</td>
-				<td class="user-column">{{ track.user }}</td>
+				<td class="user-column">
+					<transition name="fade" mode="out-in">
+						<router-link
+							:key="track.user"
+							:to="{
+								name: 'profile',
+								params: { username: track.user },
+							}"
+							class="link"
+						>
+							{{ track.user }}
+						</router-link>
+					</transition>
+				</td>
 				<td class="track-column">
 					<img
 						:src="track.imageUrl"
 						:alt="track.title"
 						class="track-thumbnail"
-						:class="{ 'image-loaded': imageLoaded(track.id) }"
+						:class="{
+							'image-loaded': imageLoaded(track.id),
+						}"
 						@load="onImageLoad(track.id)"
 					/>
 					<div class="track-info-container">
-						{{ track.artist }} - {{ track.title }}
+						<transition name="fade" mode="out-in">
+							<div>
+								<router-link
+									:key="track.title"
+									:to="{
+										name: 'artist',
+										params: { id: track.artist },
+									}"
+									class="link"
+								>
+									{{ track.artist }}
+								</router-link>
+								-
+								<router-link
+									:key="track.title"
+									:to="{
+										name: 'track',
+										params: { id: track.title },
+									}"
+									class="link"
+								>
+									{{ track.title }}
+								</router-link>
+							</div>
+						</transition>
 					</div>
 				</td>
 			</tr>
@@ -70,6 +113,12 @@ defineProps({
 
 defineEmits(['change-page']);
 
+const goToTrackPage = (trackId: number) => {
+	return () => {
+		router.push({ name: 'track', params: { id: trackId } });
+	};
+};
+
 const onImageLoad = (trackId: number) => {
 	loadedImages.value.add(trackId);
 };
@@ -81,6 +130,7 @@ const imageLoaded = (trackId: number) => {
 
 <style scoped>
 .recent-tracks-table {
+	height: 51rem;
 	width: 100%;
 	background: var(--card-background);
 	border-radius: 8px;
@@ -116,6 +166,11 @@ const imageLoaded = (trackId: number) => {
 	font-size: 0.9em;
 }
 
+.link {
+	color: var(--text-color);
+	text-decoration: none;
+}
+
 .track-column {
 	color: var(--text-color);
 	font-size: 0.9em;
@@ -127,12 +182,24 @@ const imageLoaded = (trackId: number) => {
 	gap: 8px;
 }
 
+.track {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
 .track-thumbnail {
 	width: 24px;
 	height: 24px;
 	border-radius: 4px;
 	object-fit: cover;
 	flex-shrink: 0;
+	transition: opacity 0.25s ease-in-out;
+	opacity: 0;
+}
+
+.track-thumbnail.image-loaded {
+	opacity: 1;
 }
 
 .track-info-container {
@@ -174,17 +241,14 @@ const imageLoaded = (trackId: number) => {
 	color: var(--text-secondary);
 	font-size: 0.9em;
 }
-.track-thumbnail {
-	width: 24px;
-	height: 24px;
-	border-radius: 4px;
-	object-fit: cover;
-	flex-shrink: 0;
-	transition: opacity 0.25s ease-in-out;
-	opacity: 0;
-}
 
-.track-thumbnail.image-loaded {
-	opacity: 1;
+/* Fade transition for the table content */
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.25s;
+}
+.fade-enter,
+.fade-leave-to {
+	opacity: 0;
 }
 </style>
