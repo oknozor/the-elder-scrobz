@@ -5,9 +5,11 @@ pub mod scrobble;
 #[derive(sqlx::FromRow, Debug)]
 pub struct Track {
     pub mbid: String,
+    pub artist_mbid: String,
     pub release_mbid: String,
+    pub artist_display_name: Option<String>,
     pub name: String,
-    pub number: Option<String>,
+    pub number: Option<i32>,
     pub length: Option<i32>,
 }
 
@@ -15,16 +17,20 @@ impl Track {
     pub async fn save(&self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
-        INSERT INTO tracks (mbid, release_mbid, name, number, length)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO tracks (mbid, release_mbid, artist_mbid, artist_display_name, name, number, length)
+        VALUES ($1, $2, $3, $4, $5, $6 ,$7)
         ON CONFLICT (mbid) DO UPDATE
         SET name = COALESCE(EXCLUDED.name, tracks.name),
+            artist_mbid = COALESCE(EXCLUDED.artist_mbid, tracks.artist_mbid),
+            artist_display_name = COALESCE(EXCLUDED.artist_display_name, tracks.artist_display_name),
             number = COALESCE(EXCLUDED.number, tracks.number),
             length = COALESCE(EXCLUDED.length, tracks.length);
 
         "#,
             self.mbid,
             self.release_mbid,
+            self.artist_mbid,
+            self.artist_display_name,
             self.name,
             self.number,
             self.length,
@@ -39,6 +45,7 @@ impl Track {
 pub struct Release {
     pub mbid: String,
     pub name: String,
+    pub artist_mbid: Option<String>,
     pub description: Option<String>,
     pub cover_art_url: Option<String>,
 }
@@ -47,15 +54,17 @@ impl Release {
     pub async fn save(self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
-        INSERT INTO releases (mbid, name, description, cover_art_url)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO releases (mbid, name, artist_mbid, description, cover_art_url)
+        VALUES ($1, $2, $3, $4, $5)
         ON CONFLICT (mbid) DO UPDATE
         SET name = COALESCE(EXCLUDED.name, releases.name),
             description = COALESCE(EXCLUDED.description, releases.description),
-            cover_art_url = COALESCE(EXCLUDED.cover_art_url, releases.cover_art_url);
+            cover_art_url = COALESCE(EXCLUDED.cover_art_url, releases.cover_art_url),
+            artist_mbid = COALESCE(EXCLUDED.artist_mbid, releases.artist_mbid);
         "#,
             self.mbid,
             self.name,
+            self.artist_mbid,
             self.description,
             self.cover_art_url,
         )
@@ -63,6 +72,27 @@ impl Release {
         .await?;
 
         Ok(())
+    }
+
+    pub async fn release_exists_with_cover_art(
+        mbid: &str,
+        pool: &PgPool,
+    ) -> Result<bool, sqlx::Error> {
+        let exists = sqlx::query_scalar!(
+            r#"
+        SELECT EXISTS(
+            SELECT 1
+            FROM releases
+            WHERE mbid = $1
+              AND cover_art_url IS NOT NULL
+        )
+        "#,
+            mbid
+        )
+        .fetch_one(pool)
+        .await?;
+
+        Ok(exists.unwrap_or_default())
     }
 }
 
@@ -94,21 +124,21 @@ impl Artist {
 }
 
 #[derive(sqlx::FromRow, Debug)]
-pub struct ArtistRelease {
+pub struct ArtistCredited {
     pub artist_mbid: String,
-    pub release_mbid: String,
+    pub track_mbid: String,
 }
 
-impl ArtistRelease {
+impl ArtistCredited {
     pub async fn save(&self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
-            r#"INSERT INTO artist_releases (artist_mbid, release_mbid)
+            r#"INSERT INTO artist_credited (artist_mbid, track_mbid)
         VALUES ($1, $2)
-        ON CONFLICT (artist_mbid, release_mbid) DO UPDATE
-        SET artist_mbid = COALESCE(EXCLUDED.artist_mbid, artist_releases.artist_mbid),
-            release_mbid = COALESCE(EXCLUDED.release_mbid, artist_releases.release_mbid);"#,
+        ON CONFLICT (artist_mbid, track_mbid) DO UPDATE
+        SET artist_mbid = COALESCE(EXCLUDED.artist_mbid, artist_credited.artist_mbid),
+            track_mbid = COALESCE(EXCLUDED.track_mbid, artist_credited.track_mbid);"#,
             self.artist_mbid,
-            self.release_mbid,
+            self.track_mbid,
         )
         .execute(pool)
         .await?;

@@ -18,30 +18,10 @@ CREATE TABLE scrobbles_raw
 (
     id          TEXT PRIMARY KEY,
     listened_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    user_id     TEXT  NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    data        JSONB NOT NULL,
+    user_id     TEXT                     NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    data        JSONB                    NOT NULL,
     created_at  TIMESTAMP DEFAULT NOW(),
     UNIQUE (user_id, listened_at)
-);
-
-CREATE TABLE releases
-(
-    mbid          TEXT PRIMARY KEY,
-    name          TEXT NOT NULL,
-    description   TEXT,
-    cover_art_url TEXT,
-    created_at    TIMESTAMP DEFAULT NOW()
-
-);
-
-CREATE TABLE tracks
-(
-    mbid         TEXT PRIMARY KEY,
-    release_mbid TEXT NOT NULL references releases,
-    name         TEXT NOT NULL,
-    number       TEXT,
-    length       INT,
-    created_at   TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE artists
@@ -52,12 +32,35 @@ CREATE TABLE artists
     created_at  TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE artist_releases
+CREATE TABLE releases
 (
-    artist_mbid  TEXT NOT NULL references artists,
-    release_mbid TEXT NOT NULL references releases,
-    created_at   TIMESTAMP DEFAULT NOW(),
-    PRIMARY KEY (artist_mbid, release_mbid)
+    mbid          TEXT PRIMARY KEY,
+    name          TEXT NOT NULL,
+    artist_mbid   TEXT references artists,
+    description   TEXT,
+    cover_art_url TEXT,
+    created_at    TIMESTAMP DEFAULT NOW()
+
+);
+
+CREATE TABLE tracks
+(
+    mbid                TEXT PRIMARY KEY,
+    artist_mbid         TEXT NOT NULL references artists,
+    release_mbid        TEXT NOT NULL references releases,
+    artist_display_name TEXT,
+    name                TEXT NOT NULL,
+    number              INT,
+    length              INT,
+    created_at          TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE artist_credited
+(
+    artist_mbid TEXT NOT NULL references artists,
+    track_mbid  TEXT NOT NULL references tracks,
+    created_at  TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (artist_mbid, track_mbid)
 
 );
 

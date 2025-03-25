@@ -194,7 +194,7 @@ pub struct AdditionalInfo {
     pub genre: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artist_names: Option<Vec<String>>,
-    #[serde(rename = "trackNumber", skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "trackNumber", skip_serializing_if = "Option::is_none")]
     pub track_number: Option<String>,
 }
 

@@ -1,9 +1,10 @@
 use crate::error::{AppError, AppResult};
 use crate::AppState;
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
-use elder_scrobz_db::listens::raw::Listen;
+use elder_scrobz_db::charts::tracks::{get_most_listened_track, TopTrack};
+use elder_scrobz_db::charts::Period;
 use elder_scrobz_db::user::CreateUser;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -12,7 +13,6 @@ use utoipa::ToSchema;
 pub struct UserCreated {
     pub(crate) user_id: String,
 }
-
 #[debug_handler]
 #[utoipa::path(
     post,
@@ -31,56 +31,62 @@ pub async fn create_user(
     }))
 }
 
-#[derive(Serialize, Deserialize, Debug, ToSchema)]
-pub struct TracksStat {
-    pub user_id: String,
-    pub scrobbles: Vec<Listen>,
+#[derive(Deserialize, Debug)]
+pub struct ChartQuery {
+    period: Period,
 }
 
 #[debug_handler]
 #[utoipa::path(
     get,
-    path = "/users/{id}/stats/tracks",
+    path = "/users/{id}/charts/tracks",
     responses(
-        (status = 200, description = "Top tracks for user", body = TracksStat),
+        (status = 200, description = "Top tracks for user", body = Vec<TopTrack>),
         (status = 404, description = "User not found", body = AppError)
     )
 )]
 pub async fn top_tracks(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
-) -> AppResult<Json<TracksStat>> {
-    todo!()
+    Query(query): Query<ChartQuery>,
+) -> AppResult<Json<Vec<TopTrack>>> {
+    let tracks = get_most_listened_track(query.period, &state.pool)
+        .await?
+        .into_iter()
+        .map(TopTrack::from)
+        .collect();
+
+    Ok(Json(tracks))
 }
 
 #[debug_handler]
 #[utoipa::path(
     get,
-    path = "/users/{id}/stats/tracks",
+    path = "/users/{id}/charts/tracks",
     responses(
-        (status = 200, description = "Top album for user", body = TracksStat),
+        (status = 200, description = "Top album for user", body = Vec<TopTrack>),
         (status = 404, description = "User not found", body = AppError)
     )
 )]
 pub async fn top_albums(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
-) -> AppResult<Json<TracksStat>> {
+) -> AppResult<Json<Vec<TopTrack>>> {
     todo!()
 }
 
 #[debug_handler]
 #[utoipa::path(
     get,
-    path = "/users/{id}/stats/tracks",
+    path = "/users/{id}/charts/tracks",
     responses(
-        (status = 200, description = "Top artists for user", body = TracksStat),
+        (status = 200, description = "Top artists for user", body = Vec<TopTrack>),
         (status = 404, description = "User not found", body = AppError)
     )
 )]
 pub async fn top_artists(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
-) -> AppResult<Json<TracksStat>> {
+) -> AppResult<Json<Vec<TopTrack>>> {
     todo!()
 }

@@ -3096,7 +3096,7 @@ paths:
           description: Cover art created successfully.
         "400":
           description: Invalid JSON or invalid options in JSON passed.
-      summary: Create a cover art grid SVG file from the stats of a given user.
+      summary: Create a cover art grid SVG file from the charts of a given user.
       tags:
         - lbArt
   /1/art/{custom_name}/{user_name}/{time_range}/{image_size}:
@@ -3137,7 +3137,7 @@ paths:
           description: Cover art created successfully.
         "400":
           description: Invalid JSON or invalid options in JSON passed.
-      summary: Create a custom cover art SVG file from the stats of a given user.
+      summary: Create a custom cover art SVG file from the charts of a given user.
       tags:
         - lbArt
   /1/art/year-in-music/{year}/{user_name}:
@@ -3170,7 +3170,7 @@ paths:
           description: Cover art created successfully.
         "400":
           description: Invalid JSON or invalid options in JSON passed.
-      summary: Create the shareable svg image using YIM stats.
+      summary: Create the shareable svg image using YIM charts.
       tags:
         - lbArt
 components:
@@ -3178,7 +3178,7 @@ components:
     YearInMusicImage:
       enum:
         - overview
-        - stats
+        - charts
         - artists
         - albums
         - tracks
@@ -3228,8 +3228,8 @@ components:
         - designer-top-5
         - designer-top-10
         - lps-on-the-floor
-        - grid-stats
-        - grid-stats-special
+        - grid-charts
+        - grid-charts-special
       type: string
     searchUsers:
       example:
