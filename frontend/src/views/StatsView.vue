@@ -204,56 +204,16 @@
 				</template>
 			</SectionHeader>
 			<div class="stats-summary">
-				<div class="stat-item">
-					<span class="stat-label">Today</span>
-					<span class="stat-value">
-						{{
-							showDuration
-								? formatDuration(stats.timeStats.today.duration)
-								: stats.timeStats.today.playCount
-						}}
-					</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">This Week</span>
-					<span class="stat-value">
-						{{
-							showDuration
-								? formatDuration(stats.timeStats.week.duration)
-								: stats.timeStats.week.playCount
-						}}
-					</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">This Month</span>
-					<span class="stat-value">
-						{{
-							showDuration
-								? formatDuration(stats.timeStats.month.duration)
-								: stats.timeStats.month.playCount
-						}}
-					</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">This Year</span>
-					<span class="stat-value">
-						{{
-							showDuration
-								? formatDuration(stats.timeStats.year.duration)
-								: stats.timeStats.year.playCount
-						}}
-					</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-label">All Time</span>
-					<span class="stat-value">
-						{{
-							showDuration
-								? formatDuration(stats.timeStats.all.duration)
-								: stats.timeStats.all.playCount
-						}}
-					</span>
-				</div>
+				<StatItem
+					v-for="(label, period) in periodLabels"
+					:key="period"
+					:label="label"
+					:value="
+						showDuration
+							? formatDuration(stats.timeStats[period].duration)
+							: stats.timeStats[period].playCount
+					"
+				/>
 			</div>
 			<div class="recent-tracks-table">
 				<div
@@ -310,6 +270,7 @@ import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
 import PulseBar from '@/components/stats/PulseBar.vue';
 import { formatTimeAgo, formatDuration } from '@/utils/formatter';
+import StatItem from '@/components/stats/StatItem.vue';
 
 interface TimeRanges {
 	artists: TimeRange;
@@ -317,6 +278,14 @@ interface TimeRanges {
 	albums: TimeRange;
 	recent: TimeRange;
 }
+
+const periodLabels = {
+	today: 'Today',
+	week: 'This Week',
+	month: 'This Month',
+	year: 'This Year',
+	all: 'All Time',
+};
 
 const timeRanges = ref<TimeRanges>({
 	artists: 'week',
