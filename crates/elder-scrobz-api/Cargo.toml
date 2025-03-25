@@ -27,15 +27,13 @@ serde.workspace = true
 futures-util.workspace = true
 config.workspace = true
 reqwest.workspace = true
+dotenv.workspace = true
 
-uuid = { version = "1.16.0", features = ["v4"] }
-chrono.workspace = true
-bytes = "1.9.0"
 http = "1.2.0"
+
 # see: https://github.com/juhaku/utoipa/issues/1341
 [build-dependencies]
 zip = "=2.4.2"
-
 
 [dev-dependencies]
 http-body-util.workspace = true

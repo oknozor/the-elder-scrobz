@@ -50,11 +50,11 @@ pub struct ChartQuery {
     )
 )]
 pub async fn top_tracks(
-    State(state): State<AppState>,
-    Path(user_id): Path<String>,
+    State(_state): State<AppState>,
+    Path(_user_id): Path<String>,
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<Vec<TopTrack>>> {
-    let tracks = get_most_listened_track(query.period, &state.pool)
+    let tracks = get_most_listened_track(query.period, &_state.pool)
         .await?
         .into_iter()
         .collect();
@@ -71,9 +71,9 @@ pub async fn top_tracks(
         (status = 404, description = "User not found", body = AppError)
     )
 )]
-pub async fn top_albums(
-    State(state): State<AppState>,
-    Path(user_id): Path<String>,
+pub async fn _top_albums(
+    State(_state): State<AppState>,
+    Path(_user_id): Path<String>,
 ) -> AppResult<Json<Vec<TopTrack>>> {
     todo!()
 }
@@ -87,9 +87,9 @@ pub async fn top_albums(
         (status = 404, description = "User not found", body = AppError)
     )
 )]
-pub async fn top_artists(
-    State(state): State<AppState>,
-    Path(user_id): Path<String>,
+pub async fn _top_artists(
+    State(_state): State<AppState>,
+    Path(_user_id): Path<String>,
 ) -> AppResult<Json<Vec<TopTrack>>> {
     todo!()
 }

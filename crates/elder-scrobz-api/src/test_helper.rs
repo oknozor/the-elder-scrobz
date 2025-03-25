@@ -29,19 +29,7 @@ pub async fn start_postgres() -> anyhow::Result<(AppState, ContainerAsync<Postgr
 
     let pool = build_pg_pool(&admin_db_url).await;
 
-    let settings = Arc::new(Settings {
-        debug: true,
-        domain: "localhost".to_string(),
-        port: 3030,
-        database: DbSettings {
-            database: "scrobz".to_string(),
-            host: host_ip.to_string(),
-            port: host_port,
-            user: "scrobz".to_string(),
-            password: "scrobz".to_string(),
-        },
-        ..Default::default()
-    });
+    let settings = Arc::new(Settings::get()?);
 
     migrate_db(&pool).await?;
     Ok((AppState { pool, settings }, container))

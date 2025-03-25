@@ -1,22 +1,19 @@
-use crate::settings::AuthSettings;
+use crate::settings::Settings;
 use crate::AppState;
-use axum::body::Body;
 use axum::extract::{Request, State};
 use axum::{
     http::{HeaderMap, StatusCode},
     middleware::Next,
     response::Response,
-    RequestPartsExt,
 };
 use http::HeaderValue;
 use reqwest::Client;
 use serde::Deserialize;
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct AuthenticatedUser {
-    pub sub: String,
-    pub email: Option<String>,
+    pub _sub: String,
+    pub _email: Option<String>,
 }
 
 pub async fn verify_bearer_token(
@@ -25,8 +22,8 @@ pub async fn verify_bearer_token(
     next: Next,
 ) -> Response {
     let headers = req.headers();
-    if let Some(auth_value) = extract_bearer_token(&headers) {
-        match validate_token(&auth_value, &state.settings.oauth_provider).await {
+    if let Some(auth_value) = extract_bearer_token(headers) {
+        match validate_token(&auth_value, &state.settings).await {
             Ok(authenticated_user) => {
                 req.extensions_mut().insert(authenticated_user);
                 next.run(req).await
@@ -52,10 +49,10 @@ fn extract_bearer_token(headers: &HeaderMap) -> Option<String> {
         .map(|token: &str| token.to_string())
 }
 
-async fn validate_token(token: &str, auth_config: &AuthSettings) -> Result<AuthenticatedUser, ()> {
+async fn validate_token(_token: &str, auth_config: &Settings) -> Result<AuthenticatedUser, ()> {
     let client = Client::new();
     let response = client
-        .post(&auth_config.introspection_url)
+        .post(&auth_config.oauth_introspection_url)
         .send()
         .await
         .map_err(|_| ())?;
@@ -64,8 +61,8 @@ async fn validate_token(token: &str, auth_config: &AuthSettings) -> Result<Authe
         let token_info: TokenIntrospectionResponse = response.json().await.map_err(|_| ())?;
         if token_info.active {
             Ok(AuthenticatedUser {
-                sub: token_info.sub.clone(),
-                email: token_info.email.clone(),
+                _sub: token_info.sub.clone(),
+                _email: token_info.email.clone(),
             })
         } else {
             Err(())

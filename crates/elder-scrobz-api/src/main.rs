@@ -32,7 +32,7 @@ struct AppState {
 impl AppState {
     async fn init() -> anyhow::Result<Self> {
         let settings = Settings::get()?;
-        let pool = build_pg_pool(&settings.database_url()).await;
+        let pool = build_pg_pool(&settings.database_url).await;
         let settings = Arc::new(settings);
         Ok(AppState { pool, settings })
     }
@@ -62,11 +62,11 @@ impl Modify for SecurityAddon {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    dotenv::dotenv().ok();
+
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG").unwrap_or_else(|_| {
-                "tower_http=debug,axum=debug,elder_scrobz_api=debug,elder_scrobz_api=debug,elder_scrobz_resolver=debug".into()
-            }),
+            std::env::var("RUST_LOG").unwrap_or_else(|_| "tower_http=debug,scrobz=info".into()),
         ))
         .with(tracing_subscriber::fmt::layer())
         .init();

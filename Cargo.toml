@@ -38,6 +38,7 @@ http-body-util = "0.1.2"
 tower = "0.5.2"
 testcontainers-modules = { version = "0.11.6", features = ["postgres"] }
 speculoos = "0.12.0"
+dotenv = "0.15.0"
 
 musicbrainz_rs = "0.9.1"
 once_cell = "1.21.1"

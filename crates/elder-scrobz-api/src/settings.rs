@@ -1,34 +1,15 @@
 use config::{Config, Environment, File};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Settings {
     pub debug: bool,
-    pub domain: String,
     pub port: u16,
-    pub oauth_provider: Arc<AuthSettings>,
-    pub database: DbSettings,
-}
-
-#[derive(Debug, Serialize, Deserialize, Default)]
-pub struct DbSettings {
-    pub database: String,
-    pub host: String,
-    pub port: u16,
-    pub user: String,
-    pub password: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Default)]
-pub struct AuthSettings {
-    pub client_id: String,
-    pub client_secret: String,
-    pub provider: String,
-    pub user_info_url: String,
-    pub introspection_url: String,
-    pub token_url: String,
+    pub database_url: String,
+    pub oauth_client_id: String,
+    pub oauth_client_secret: String,
+    pub oauth_introspection_url: String,
 }
 
 impl Settings {
@@ -36,7 +17,8 @@ impl Settings {
         let mut config = Config::builder().add_source(
             Environment::with_prefix("SCROBZ")
                 .try_parsing(true)
-                .separator("_"),
+                .prefix_separator("__")
+                .separator("__"),
         );
 
         let etc_config = PathBuf::from("/etc/scrobz/config.toml");
@@ -50,38 +32,5 @@ impl Settings {
         }
 
         config.build()?.try_deserialize()
-    }
-
-    pub fn database_url(&self) -> String {
-        format!(
-            "postgres://{user}:{pwd}@{host}:{port}/{db}",
-            user = self.database.user,
-            pwd = self.database.password,
-            host = self.database.host,
-            port = self.database.port,
-            db = self.database.database
-        )
-    }
-
-    pub fn protocol(&self) -> &str {
-        if self.debug {
-            "http"
-        } else {
-            "https"
-        }
-    }
-
-    pub fn token_url(&self) -> String {
-        format!(
-            "{}{}",
-            self.oauth_provider.provider, self.oauth_provider.token_url
-        )
-    }
-
-    pub fn user_info_url(&self) -> String {
-        format!(
-            "{}{}",
-            self.oauth_provider.provider, self.oauth_provider.user_info_url
-        )
     }
 }
