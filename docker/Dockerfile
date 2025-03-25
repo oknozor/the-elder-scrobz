@@ -1,13 +1,13 @@
-FROM alpine as arm-builder
+FROM alpine AS arm-builder
 COPY ./target/armv7-unknown-linux-musleabihf/release/scrobz /scrobz
 
-FROM alpine as arm64-builder
-COPY ./target/aarch64-unknown-linux-musl/release/scrobz /scrobz
+FROM alpine AS arm64-builder
+COPY ./target/aarch64-unknown-linux-gnu/release/scrobz /scrobz
 
-FROM alpine as amd64-builder
+FROM alpine AS amd64-builder
 COPY ./target/x86_64-unknown-linux-musl/release/scrobz /scrobz
 
-FROM ${targetarch}-builder AS builder
+FROM ${TARGETARCH}-builder AS builder
 
 FROM alpine
 LABEL maintainer="Paul Delafosse <paul.delafosse@protonmail.com>"
