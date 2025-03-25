@@ -215,47 +215,12 @@
 					"
 				/>
 			</div>
-			<div class="recent-tracks-table">
-				<div
-					v-for="track in paginatedTracks"
-					:key="track.id"
-					class="recent-track-row"
-				>
-					<div class="time-column">
-						{{ formatTimeAgo(track.lastPlayed) }}
-					</div>
-					<div class="user-column">{{ track.user }}</div>
-					<div class="track-column">
-						<img
-							:src="track.imageUrl"
-							:alt="track.title"
-							class="track-thumbnail"
-						/>
-						<div class="track-info-container">
-							{{ track.artist }} - {{ track.title }}
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="pagination">
-				<button
-					class="page-btn"
-					:disabled="currentPage === 1"
-					@click="currentPage--"
-				>
-					Previous
-				</button>
-				<span class="page-info"
-					>Page {{ currentPage }} of {{ totalPages }}</span
-				>
-				<button
-					class="page-btn"
-					:disabled="currentPage === totalPages"
-					@click="currentPage++"
-				>
-					Next
-				</button>
-			</div>
+			<RecentTracks
+				:paginatedTracks="paginatedTracks"
+				:currentPage="currentPage"
+				:totalPages="totalPages"
+				@change-page="currentPage = $event"
+			/>
 		</div>
 	</div>
 </template>
@@ -271,6 +236,7 @@ import StatGrid from '@/components/stats/StatGrid.vue';
 import PulseBar from '@/components/stats/PulseBar.vue';
 import { formatTimeAgo, formatDuration } from '@/utils/formatter';
 import StatItem from '@/components/stats/StatItem.vue';
+import RecentTracks from '@/components/stats/RecentTracks.vue';
 
 interface TimeRanges {
 	artists: TimeRange;
@@ -402,100 +368,6 @@ onMounted(async () => {
 	width: 20px;
 	height: 20px;
 	color: var(--primary-color);
-}
-
-.recent-tracks-table {
-	background: var(--card-background);
-	border-radius: 8px;
-	overflow: hidden;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	border: 1px solid var(--border-color);
-	margin-bottom: 16px;
-}
-
-.recent-track-row {
-	display: grid;
-	grid-template-columns: 120px 150px 1fr;
-	padding: 8px 12px;
-	border-bottom: 1px solid var(--border-color);
-	align-items: center;
-}
-
-.recent-track-row:last-child {
-	border-bottom: none;
-}
-
-.recent-track-row:hover {
-	background: rgba(255, 255, 255, 0.05);
-}
-
-.time-column {
-	color: var(--text-secondary);
-	font-size: 0.9em;
-}
-
-.user-column {
-	color: var(--text-color);
-	font-size: 0.9em;
-}
-
-.track-column {
-	color: var(--text-color);
-	font-size: 0.9em;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.track-thumbnail {
-	width: 24px;
-	height: 24px;
-	border-radius: 4px;
-	object-fit: cover;
-	flex-shrink: 0;
-}
-
-.track-info-container {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	flex: 1;
-}
-
-.pagination {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 16px;
-	margin-top: 16px;
-}
-
-.page-btn {
-	padding: 6px 12px;
-	border: 1px solid var(--border-color);
-	border-radius: 4px;
-	background: var(--card-background);
-	color: var(--text-color);
-	cursor: pointer;
-	font-size: 0.9em;
-	transition: all 0.2s;
-}
-
-.page-btn:hover:not(:disabled) {
-	background: var(--background-color);
-}
-
-.page-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.page-info {
-	color: var(--text-secondary);
-	font-size: 0.9em;
 }
 
 .stats-summary {
