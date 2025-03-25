@@ -59,7 +59,7 @@ pub fn generate_api_key() -> ApiKey {
 
 pub fn key_sha(key: &str) -> String {
     let mut hasher = Sha256::new();
-    hasher.update(&key);
+    hasher.update(key);
     let sha = format!("{:x}", hasher.finalize());
     sha
 }

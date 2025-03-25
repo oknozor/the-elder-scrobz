@@ -1,7 +1,6 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::ToSchema;
 
@@ -59,7 +58,6 @@ mod tests {
     use axum::{http::Request, http::StatusCode};
     use http_body_util::BodyExt;
     use tower::ServiceExt;
-    use tower_http::services::ServeDir;
 
     #[tokio::test]
     async fn test_main_page() -> anyhow::Result<()> {
@@ -72,9 +70,7 @@ mod tests {
             .body(scrobble)?;
 
         let state = AppState::init().await?;
-        let app = app()
-            .nest_service("/front", ServeDir::new("dist"))
-            .with_state(state);
+        let (app, _) = app().with_state(state).split_for_parts();
 
         let response = app.oneshot(request).await?;
 

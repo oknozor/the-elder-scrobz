@@ -53,7 +53,6 @@ pub async fn top_tracks(
     let tracks = get_most_listened_track(query.period, &state.pool)
         .await?
         .into_iter()
-        .map(TopTrack::from)
         .collect();
 
     Ok(Json(tracks))

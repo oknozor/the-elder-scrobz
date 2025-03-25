@@ -90,7 +90,7 @@ async fn main() -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
     use crate::api::api_key::ApiKeyCreated;
     use crate::api::user::UserCreated;
     use crate::app;
@@ -105,7 +105,7 @@ mod tests {
     #[tokio::test]
     async fn submit_listens() -> anyhow::Result<()> {
         let (state, _container) = start_postgres().await?;
-        let app = app().with_state(state);
+        let (app, _) = app().with_state(state).split_for_parts();
 
         let body = serde_json::to_string(&CreateUser {
             username: "oknozor".to_string(),

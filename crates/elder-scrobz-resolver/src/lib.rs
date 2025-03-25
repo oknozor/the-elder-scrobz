@@ -40,7 +40,7 @@ pub async fn populate_scrobbles(pool: &PgPool, uuid: String) -> anyhow::Result<(
                 .artist_mbids
                 .as_ref()
                 .map(|artit_ids| {
-                    artit_ids.into_iter().map(|artist_id| Artist {
+                    artit_ids.iter().map(|artist_id| Artist {
                         mbid: artist_id.clone(),
                         name: None,
                         description: None,

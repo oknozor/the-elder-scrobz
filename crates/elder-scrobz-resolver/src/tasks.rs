@@ -22,7 +22,7 @@ pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<(
 
     info!("Fetching release {release_mbid} from MusicBrainz");
     let release = MusicBrainzRelease::fetch()
-        .id(&release_mbid)
+        .id(release_mbid)
         .with_annotations()
         .with_genres()
         .with_artist_credits()
