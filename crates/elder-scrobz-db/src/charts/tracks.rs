@@ -1,4 +1,4 @@
-use crate::charts::Period;
+use crate::Period;
 use serde::Serialize;
 use sqlx::PgPool;
 use sqlx::types::chrono::{DateTime, Utc};

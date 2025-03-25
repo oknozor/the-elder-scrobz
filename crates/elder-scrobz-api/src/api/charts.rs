@@ -5,7 +5,7 @@ use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::album::{get_most_listened_albums, TopAlbum};
 use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
-use elder_scrobz_db::charts::Period;
+use elder_scrobz_db::Period;
 use serde::Deserialize;
 use utoipa::ToSchema;
 
