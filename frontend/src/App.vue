@@ -4,7 +4,6 @@
       :current-user="currentUser"
       :show-back-button="showBackButton"
       @logout="handleLogout"
-      @profile="handleProfile"
     >
       <template #left>
         <UsernameSelector 
@@ -64,10 +63,6 @@ const currentUser = ref<User | null>({
 const handleLogout = () => {
   // Implement logout logic here
   console.log('Logout clicked')
-}
-
-const handleProfile = () => {
-  router.push({ name: 'profile' })
 }
 
 const handleUserChange = (user: User | null) => {

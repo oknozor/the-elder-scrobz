@@ -127,10 +127,6 @@ const handleLogout = () => {
   console.log('Logout clicked')
 }
 
-const handleProfile = () => {
-  router.push({ name: 'profile' })
-}
-
 const showDeleteConfirmation = ref(false)
 const userToDelete = ref<string | null>(null)
 

@@ -7,9 +7,6 @@
       </svg>
     </div>
     <div v-if="isOpen" class="user-dropdown">
-      <div class="user-option" @click="handleProfile">
-        <span class="option-text">Profile</span>
-      </div>
       <div class="user-option" @click="handleImport">
         <span class="option-text">Import</span>
       </div>
@@ -38,7 +35,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'logout'): void
-  (e: 'profile'): void
 }>()
 
 const isOpen = ref(false)
@@ -60,11 +56,6 @@ onUnmounted(() => {
 
 const handleLogout = () => {
   emit('logout')
-  isOpen.value = false
-}
-
-const handleProfile = () => {
-  emit('profile')
   isOpen.value = false
 }
 

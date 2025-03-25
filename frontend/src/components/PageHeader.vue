@@ -12,7 +12,6 @@
         <UserButton 
           :current-user="currentUser"
           @logout="$emit('logout')"
-          @profile="$emit('profile')"
         />
       </slot>
     </div>
@@ -33,7 +32,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'logout'): void
-  (e: 'profile'): void
   (e: 'back'): void
 }>()
 

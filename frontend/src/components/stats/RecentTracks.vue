@@ -15,16 +15,9 @@
 				</td>
 				<td class="user-column">
 					<transition name="fade" mode="out-in">
-						<router-link
-							:key="track.user"
-							:to="{
-								name: 'profile',
-								params: { username: track.user },
-							}"
-							class="link"
-						>
+						<span :key="track.user" class="user-name">
 							{{ track.user }}
-						</router-link>
+						</span>
 					</transition>
 				</td>
 				<td class="track-column">
@@ -169,6 +162,10 @@ const imageLoaded = (trackId: number) => {
 .link {
 	color: var(--text-color);
 	text-decoration: none;
+}
+
+.user-name {
+	color: var(--text-color);
 }
 
 .track-column {

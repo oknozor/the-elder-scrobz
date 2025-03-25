@@ -86,10 +86,6 @@ const handleLogout = () => {
   console.log('Logout clicked')
 }
 
-const handleProfile = () => {
-  router.push({ name: 'profile' })
-}
-
 const formatDuration = (minutes: number): string => {
   if (minutes < 60) {
     return `${minutes}m`

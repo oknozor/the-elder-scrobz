@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import StatsView from '@/views/StatsView.vue';
 import ArtistView from '@/views/ArtistView.vue';
-import ProfileView from '@/views/ProfileView.vue';
 import AlbumView from '@/views/AlbumView.vue';
 import ImportView from '@/views/ImportView.vue';
 import UsersView from '@/views/UsersView.vue';
@@ -30,11 +29,6 @@ const router = createRouter({
 			path: '/track/:id',
 			name: 'track',
 			component: TrackView,
-		},
-		{
-			path: '/profile/:username',
-			name: 'profile',
-			component: ProfileView,
 		},
 		{
 			path: '/import',

@@ -152,10 +152,6 @@ const handleLogout = () => {
   console.log('Logout clicked')
 }
 
-const handleProfile = () => {
-  router.push({ name: 'profile' })
-}
-
 const triggerFileInput = () => {
   fileInput.value?.click()
 }
