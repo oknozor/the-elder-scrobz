@@ -6,41 +6,63 @@ use std::result::Result;
 use utoipa::ToSchema;
 
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
-pub struct TopTrack {
-    pub track_id: String,
-    pub track_name: String,
-    pub track_length: Option<i32>,
-    pub release_name: String,
-    pub cover_art_url: Option<String>,
-    pub listened_at: DateTime<Utc>,
+pub struct TopArtist {
+    pub artist_id: String,
+    pub artist_name: Option<String>,
+    pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
 }
 
-pub async fn get_most_listened_track(
+pub async fn get_most_listened_artists(
     period: Period,
+    user_id: Option<String>,
     pool: &PgPool,
-) -> Result<Vec<TopTrack>, sqlx::Error> {
-    let result = match period {
-        Period::Week => {
-            sqlx::query_file_as!(TopTrack, "queries/charts/track/week.sql")
-                .fetch_all(pool)
-                .await?
-        }
-        Period::Month => {
-            sqlx::query_file_as!(TopTrack, "queries/charts/track/month.sql")
-                .fetch_all(pool)
-                .await?
-        }
-        Period::Year => {
-            sqlx::query_file_as!(TopTrack, "queries/charts/track/year.sql")
-                .fetch_all(pool)
-                .await?
-        }
-        Period::Today => {
-            sqlx::query_file_as!(TopTrack, "queries/charts/track/today.sql")
-                .fetch_all(pool)
-                .await?
-        }
+) -> Result<Vec<TopArtist>, sqlx::Error> {
+    let result = match user_id {
+        None => match period {
+            Period::Week => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/week.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Month => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/month.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Year => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/year.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Today => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/today.sql")
+                    .fetch_all(pool)
+                    .await?
+            }
+        },
+        Some(user) => match period {
+            Period::Week => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/user_week.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Month => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/user_month.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Year => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/user_year.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+            Period::Today => {
+                sqlx::query_file_as!(TopArtist, "queries/charts/artist/user_today.sql", user)
+                    .fetch_all(pool)
+                    .await?
+            }
+        },
     };
 
     Ok(result)

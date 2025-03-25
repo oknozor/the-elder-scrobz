@@ -58,7 +58,7 @@ pub struct TokenValidation {
     get,
     path = "/1/validate-token",
     responses(
-        (status = 200, description = "The user token is valid/invalid.", body = ApiKeyCreated)
+        (status = 200, description = "The user token is valid/invalid.")
     )
 )]
 pub async fn validate_token(
