@@ -7,10 +7,10 @@ COPY ./target/aarch64-unknown-linux-musl/release/scrobz /scrobz
 FROM alpine as amd64-builder
 COPY ./target/x86_64-unknown-linux-musl/release/scrobz /scrobz
 
-FROM ${TARGETARCH}-builder AS builder
+FROM ${targetarch}-builder AS builder
 
 FROM alpine
-MAINTAINER Paul Delafosse "paul.delafosse@protonmail.com"
+LABEL maintainer="Paul Delafosse <paul.delafosse@protonmail.com>"
 
 RUN addgroup -S scrobz && adduser -S scrobz -G scrobz
 USER scrobz
