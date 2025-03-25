@@ -15,10 +15,10 @@ pub struct TopArtist {
 
 pub async fn get_most_listened_artists(
     period: Period,
-    user_id: Option<String>,
+    username: Option<String>,
     pool: &PgPool,
 ) -> Result<Vec<TopArtist>, sqlx::Error> {
-    let result = match user_id {
+    let result = match username {
         None => match period {
             Period::Week => {
                 sqlx::query_file_as!(TopArtist, "queries/charts/artist/week.sql")

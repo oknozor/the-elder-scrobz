@@ -55,6 +55,22 @@ impl User {
         Ok(user)
     }
 
+    pub async fn get_by_username(pool: &PgPool, username: &str) -> Result<Option<Self>, Error> {
+        let user = sqlx::query_as!(
+            User,
+            r#"
+            SELECT id, username, email
+            FROM users
+            WHERE username = $1
+            "#,
+            username
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(user)
+    }
+
     pub async fn get_user_id_by_api_key(
         pool: &PgPool,
         api_key: &str,
@@ -75,6 +91,19 @@ impl User {
         .await?;
 
         Ok(user.filter(|user| user.verify(api_key)))
+    }
+
+    pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<Vec<Self>, Error> {
+        let user = sqlx::query_as!(
+            User,
+            r#" SELECT id, username, email FROM users ORDER BY id LIMIT $1 OFFSET $2"#,
+            limit,
+            offset,
+        )
+        .fetch_all(pool)
+        .await?;
+
+        Ok(user)
     }
 }
 

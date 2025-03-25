@@ -82,7 +82,7 @@ async fn main() -> anyhow::Result<()> {
         .with_state(state.clone());
 
     let (mut router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
-        .merge(app)
+        .nest("/api/v1", app)
         .split_for_parts();
 
     if !state.settings.debug {

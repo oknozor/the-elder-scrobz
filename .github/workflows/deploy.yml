@@ -177,6 +177,8 @@ jobs:
           --push --platform linux/amd64,linux/arm/v7,linux/arm64/v8 \
           -f docker/Dockerfile \
           -t ghcr.io/oknozor/the-elder-scrobz:latest .
+          --iidfile image_id.txt
+          echo "latest-sha=$(cat image_id.txt)" >> $GITHUB_OUTPUT
 
       - if: ${{ github.ref_type == 'tag' }}
         name: Update multi-arch container latest
@@ -185,3 +187,36 @@ jobs:
           --push --platform linux/amd64,linux/arm/v7,linux/arm64/v8 \
           -f docker/Dockerfile \
           -t ghcr.io/oknozor/the-elder-scrobz:${{ github.ref_name }} .
+          --iidfile image_id.txt
+          echo "latest-sha=$(cat image_id.txt)" >> $GITHUB_OUTPUT
+
+
+  deploy:
+    name: Deploy latest to homelab
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout GitOps Repo
+        uses: actions/checkout@v4
+        with:
+          repository: lucas-dclrcq/homelabitty
+          token: ${{ secrets.GH_PAT }}
+          path: gitops-repo
+
+      - name: Update HelmRelease File
+        env:
+          SHA256: ${{ needs.build.outputs.latest-sha }}
+        run: |
+          VERSION="latest@${SHA256}" yq eval '.spec.values.controllers.main.containers.main.image.tag = strenv(VERSION)' \
+            -i gitops-repo/kubernetes/apps/default/homelab-manager/app/helmrelease.yaml
+
+      - name: Commit & push new version
+        env:
+          SHA256: ${{ needs.build.outputs.latest-sha }}
+        run: |
+          cd gitops-repo
+          git config user.name "Homelab Manager"
+          git config user.email "homelab@manager.org"
+          git add kubernetes/apps/default/homelab-manager/app/helmrelease.yaml
+          git commit -m "chore(homelab-manager): update latest to ${SHA256}"
+          git push origin main

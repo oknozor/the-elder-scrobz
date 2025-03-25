@@ -15,7 +15,6 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(submit_listens))
         .routes(routes!(create_api_key))
         .routes(routes!(validate_token))
-    // .routes(routes!(top_artists))
 }
 
 pub struct Token(HeaderValue);
