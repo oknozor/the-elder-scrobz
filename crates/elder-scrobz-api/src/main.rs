@@ -1,4 +1,4 @@
-use crate::api::app;
+use crate::api::router;
 use crate::oauth::verify_bearer_token;
 use crate::settings::Settings;
 use axum::middleware;
@@ -77,12 +77,12 @@ async fn main() -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
     info!("listening on {}", listener.local_addr()?);
-    let app = app()
+    let app = router()
         .layer(TraceLayer::new_for_http())
         .with_state(state.clone());
 
     let (mut router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
-        .nest("/api/v1/", app)
+        .merge(app)
         .split_for_parts();
 
     if !state.settings.debug {
@@ -99,9 +99,8 @@ async fn main() -> anyhow::Result<()> {
 #[cfg(test)]
 mod tests {
 
-    use crate::api::api_key::ApiKeyCreated;
     use crate::api::user::UserCreated;
-    use crate::app;
+    use crate::router;
     use crate::test_helper::{scrobble_fixture, start_postgres};
     use axum::response::Response;
     use axum::{http::Request, http::StatusCode};
@@ -113,7 +112,7 @@ mod tests {
     #[tokio::test]
     async fn submit_listens() -> anyhow::Result<()> {
         let (state, _container) = start_postgres().await?;
-        let (app, _) = app().with_state(state).split_for_parts();
+        let (app, _) = router().with_state(state).split_for_parts();
 
         let body = serde_json::to_string(&CreateUser {
             username: "oknozor".to_string(),
@@ -142,6 +141,11 @@ mod tests {
         assert_that!(response.status()).is_equal_to(StatusCode::OK);
 
         let body = body_to_string(response).await?;
+        #[derive(serde::Deserialize)]
+        struct ApiKeyCreated {
+            api_key: String,
+        }
+
         let api_key: ApiKeyCreated = serde_json::from_str(&body)?;
 
         let scrobble = scrobble_fixture()?;

@@ -1,4 +1,4 @@
-use crate::api::listens::Token;
+use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
 use crate::AppState;
 use axum::extract::{Path, State};

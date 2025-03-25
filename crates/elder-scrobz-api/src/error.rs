@@ -54,7 +54,7 @@ impl IntoResponse for AppError {
 #[cfg(test)]
 mod tests {
     use crate::test_helper::scrobble_fixture;
-    use crate::{app, AppState};
+    use crate::{router, AppState};
     use axum::{http::Request, http::StatusCode};
     use http_body_util::BodyExt;
     use tower::ServiceExt;
@@ -70,7 +70,7 @@ mod tests {
             .body(scrobble)?;
 
         let state = AppState::init().await?;
-        let (app, _) = app().with_state(state).split_for_parts();
+        let (app, _) = router().with_state(state).split_for_parts();
 
         let response = app.oneshot(request).await?;
 

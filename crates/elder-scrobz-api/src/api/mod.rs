@@ -1,22 +1,23 @@
-use crate::api::api_key::*;
-use crate::api::listens::*;
+use crate::api::charts::*;
+use crate::api::charts::{album_charts, track_charts};
+use crate::api::imports::*;
 use crate::api::user::*;
 use crate::AppState;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
-pub mod api_key;
-pub mod listens;
+pub mod charts;
+pub mod imports;
+pub mod listenbrainz;
 pub mod user;
 
-pub fn app() -> OpenApiRouter<AppState> {
-    OpenApiRouter::new()
-        .routes(routes!(submit_listens))
+pub fn router() -> OpenApiRouter<AppState> {
+    let api = OpenApiRouter::new()
         .routes(routes!(create_user))
         .routes(routes!(import_listens))
-        .routes(routes!(create_api_key))
-        .routes(routes!(validate_token))
         .routes(routes!(track_charts))
         .routes(routes!(album_charts))
-    // .routes(routes!(top_artists))
+        .routes(routes!(artist_charts));
+
+    listenbrainz::router().nest("/api/v1/", api)
 }

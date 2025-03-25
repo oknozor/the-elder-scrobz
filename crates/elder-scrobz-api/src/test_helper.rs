@@ -1,4 +1,4 @@
-use crate::settings::{DbSettings, Settings};
+use crate::settings::Settings;
 use crate::AppState;
 use elder_scrobz_db::{build_pg_pool, migrate_db};
 use std::fs;
