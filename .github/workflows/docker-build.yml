@@ -11,16 +11,15 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-#   upload_license:
-#     name: Upload License
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#
-#       - uses: actions/upload-artifact@v4
-#         with:
-#           name: LICENSE
-#           path: LICENSE
+  upload_license:
+    name: Upload License
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LICENSE
+          path: LICENSE
 
   build:
     name: Build for ${{ matrix.os }}-${{ matrix.target }}
@@ -86,7 +85,7 @@ jobs:
           path: target/${{ matrix.target }}/release/scrobz.exe
 
   upload_to_release:
-    needs: [build] # upload_license
+    needs: [build, upload_license]
     name: Publish scrobz binaries
     runs-on: ubuntu-latest
     if: ${{ github.ref_type == 'tag' }}
