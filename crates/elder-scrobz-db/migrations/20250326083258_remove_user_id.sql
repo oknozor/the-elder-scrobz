@@ -1,3 +1,6 @@
+DROP INDEX IF EXISTS idx_user_scrobbles;
+DROP INDEX IF EXISTS idx_api_keys;
+
 ALTER TABLE api_keys DROP CONSTRAINT IF EXISTS api_keys_user_id_fkey;
 ALTER TABLE scrobbles_raw DROP CONSTRAINT IF EXISTS scrobbles_raw_user_id_fkey;
 ALTER TABLE scrobbles DROP CONSTRAINT IF EXISTS scrobbles_user_id_fkey;
