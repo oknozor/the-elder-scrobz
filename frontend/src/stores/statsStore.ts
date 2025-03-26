@@ -29,7 +29,7 @@ export const useStatsStore = defineStore('stats', {
 			try {
 				this.isLoading = true;
 				this.error = null;
-				const { data } = await apiClient.get('/api/v1/users');
+				const { data } = await apiClient.get('/users');
 				this.users = data;
 			} catch (error) {
 				this.error = 'Failed to fetch users';
@@ -50,7 +50,7 @@ export const useStatsStore = defineStore('stats', {
 			try {
 				this.error = null;
 				const { data } = await apiClient.get(
-					`/api/v1/charts/albums?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
+					`/charts/albums?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
 				);
 				this.topAlbums = data;
 			} catch (error) {
@@ -70,7 +70,7 @@ export const useStatsStore = defineStore('stats', {
 			try {
 				this.error = null;
 				const { data } = await apiClient.get(
-					`/api/v1/charts/artists?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
+					`/charts/artists?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
 				);
 				this.topArtists = data;
 			} catch (error) {
@@ -90,7 +90,7 @@ export const useStatsStore = defineStore('stats', {
 			try {
 				this.error = null;
 				const { data } = await apiClient.get(
-					`/api/v1/charts/tracks?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
+					`/charts/tracks?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
 				);
 				this.topTracks = data;
 			} catch (error) {
@@ -105,26 +105,12 @@ export const useStatsStore = defineStore('stats', {
 			try {
 				this.error = null;
 				const { data } = await apiClient.get(
-					`/api/v1/charts/pulses?${usernameParam}period=${period}`
+					`/charts/pulses?${usernameParam}period=${period}`
 				);
 				this.pulses = data;
 			} catch (error) {
 				this.error = 'Failed to fetch pulse data';
 				console.error('Error fetching pulses:', error);
-			}
-		},
-
-		/** Fetch recent listens */
-		async fetchRecentTracks(page = 1, pageSize = 20) {
-			try {
-				this.error = null;
-				const { data } = await apiClient.get(
-					`/api/v1/listens/recent?page_size=${pageSize}&page=${page}`
-				);
-				this.recentTracks = data;
-			} catch (error) {
-				this.error = 'Failed to fetch recent tracks';
-				console.error('Error fetching recent tracks:', error);
 			}
 		},
 	},

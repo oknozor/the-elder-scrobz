@@ -31,7 +31,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { AppUser } from '@/stores/usersStore';
 
-const props = defineProps<{
+defineProps<{
 	modelValue: AppUser | null;
 	users: AppUser[];
 }>();

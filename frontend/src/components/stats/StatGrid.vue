@@ -10,6 +10,7 @@
 		/>
 	</div>
 	<div
+		v-if="items.length > step"
 		class="grid-container bottom-items"
 		:style="{ height: bottomHeight }"
 		@mouseenter="handleMouseEnter"
