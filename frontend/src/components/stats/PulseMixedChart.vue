@@ -18,6 +18,7 @@ import {
 	Tooltip,
 	Legend,
 } from 'chart.js';
+import { formatDates } from '@/utils/formatter';
 
 ChartJS.register(
 	CategoryScale,
@@ -33,7 +34,7 @@ ChartJS.register(
 interface Props {
 	pulseData: Array<{
 		period: string;
-		playCount: number;
+		listens: number;
 	}>;
 }
 
@@ -44,12 +45,12 @@ const chartData = computed(() => {
 		.getPropertyValue('--primary-color')
 		.trim();
 	return {
-		labels: props.pulseData.map((d) => d.period),
+		labels: props.pulseData.map((d) => formatDates(d.period)),
 		datasets: [
 			{
 				type: 'bar' as const,
 				label: 'Plays',
-				data: props.pulseData.map((d) => d.playCount),
+				data: props.pulseData.map((d) => d.listens),
 				backgroundColor: primaryColor + '40',
 				borderColor: primaryColor,
 				borderRadius: 4,
@@ -58,7 +59,7 @@ const chartData = computed(() => {
 			{
 				type: 'line' as const,
 				label: 'Trend',
-				data: props.pulseData.map((d) => d.playCount),
+				data: props.pulseData.map((d) => d.listens),
 				borderColor: primaryColor,
 				backgroundColor: primaryColor + '20',
 				fill: true,

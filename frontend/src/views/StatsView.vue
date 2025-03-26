@@ -17,8 +17,8 @@
 				Overview
 				<template #controls>
 					<TimeRangeSelector
-						v-model="timeRanges.tracks"
-						@update:modelValue="fetchStats"
+						v-model="timeRanges.recent"
+						@update:modelValue=""
 					/>
 				</template>
 			</SectionHeader>
@@ -61,13 +61,18 @@
 				Artists Chart
 				<template #controls>
 					<TimeRangeSelector
-						v-model="timeRanges.tracks"
-						@update:modelValue="fetchStats"
+						v-model="timeRanges.artists"
+						@update:modelValue="
+							statsStore.fetchTopArtists(
+								selectedUser?.username || null,
+								timeRanges.artists
+							)
+						"
 					/>
 				</template>
 			</SectionHeader>
 			<StatGrid
-				:items="stats.topArtists"
+				:items="statsStore.topArtists"
 				:limit="15"
 				:link="{ name: 'artist' }"
 			/>
@@ -94,12 +99,17 @@
 				<template #controls>
 					<TimeRangeSelector
 						v-model="timeRanges.tracks"
-						@update:modelValue="fetchStats"
+						@update:modelValue="
+							statsStore.fetchTopTracks(
+								selectedUser?.username || null,
+								timeRanges.tracks
+							)
+						"
 					/>
 				</template>
 			</SectionHeader>
 			<StatGrid
-				:items="stats.topTracks"
+				:items="statsStore.topTracks"
 				:limit="15"
 				:link="{ name: 'track' }"
 			/>
@@ -127,12 +137,17 @@
 				<template #controls>
 					<TimeRangeSelector
 						v-model="timeRanges.albums"
-						@update:modelValue="fetchStats"
+						@update:modelValue="
+							statsStore.fetchTopAlbums(
+								selectedUser?.username || null,
+								timeRanges.albums
+							)
+						"
 					/>
 				</template>
 			</SectionHeader>
 			<StatGrid
-				:items="stats.topAlbums"
+				:items="statsStore.topAlbums"
 				:limit="15"
 				:link="{ name: 'album' }"
 			/>
@@ -160,21 +175,19 @@
 				</template>
 				Pulse
 				<template #controls>
-					<div class="pulse-filters">
-						<button
-							v-for="range in pulseTimeRanges"
-							:key="range"
-							class="pulse-filter-btn"
-							:class="{ active: selectedPulseRange === range }"
-							@click="selectedPulseRange = range"
-						>
-							{{ range.replace(/(\d+)(\w+)/, '$1 $2') }}
-						</button>
-					</div>
+					<TimeRangeSelector
+						v-model="timeRanges.pulses"
+						@update:modelValue="
+							statsStore.fetchPulses(
+								selectedUser?.username || null,
+								timeRanges.pulses
+							)
+						"
+					/>
 				</template>
 			</SectionHeader>
 			<div class="pulse-charts">
-				<PulseMixedChart :pulseData="stats.pulseData" />
+				<PulseMixedChart :pulseData="statsStore.pulses" />
 			</div>
 		</div>
 
@@ -251,9 +264,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
-import { TimeRange, MusicStats, User, PulseTimeRange } from '@/types/music';
-import { fetchMusicStats } from '@/services/mockData';
-import { fetchUsers } from '@/services/mockUsers';
+import {
+	TimeRange,
+	MusicStats,
+	PulseTimeRange,
+	RecentTrack,
+} from '@/types/music';
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
 import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
@@ -262,12 +278,15 @@ import StatItem from '@/components/stats/StatItem.vue';
 import RecentTracks from '@/components/stats/RecentTracks.vue';
 import OverviewCard from '@/components/stats/OverviewCard.vue';
 import PulseMixedChart from '@/components/stats/PulseMixedChart.vue';
+import { useStatsStore } from '@/stores/statsStore';
+import { AppUser, useUsersStore } from '@/stores/usersStore';
 
 interface TimeRanges {
 	artists: TimeRange;
 	tracks: TimeRange;
 	albums: TimeRange;
 	recent: TimeRange;
+	pulses: TimeRange;
 }
 
 const periodLabels = {
@@ -283,13 +302,11 @@ const timeRanges = ref<TimeRanges>({
 	tracks: 'week',
 	albums: 'week',
 	recent: 'week',
+	pulses: 'week',
 });
 
 const stats = ref<MusicStats>({
-	topArtists: [],
-	topTracks: [],
-	topAlbums: [],
-	recentTracks: [],
+	recentTracks: [] as RecentTrack[],
 	timeStats: {
 		today: { playCount: 0, duration: 0 },
 		week: { playCount: 0, duration: 0 },
@@ -297,11 +314,11 @@ const stats = ref<MusicStats>({
 		year: { playCount: 0, duration: 0 },
 		all: { playCount: 0, duration: 0 },
 	},
-	pulseData: [],
 });
+const statsStore = useStatsStore();
+const usersStore = useUsersStore();
 
-const users = ref<User[]>([]);
-const selectedUser = ref<User | null>(null);
+const selectedUser = ref<AppUser | null>(usersStore.selectedUser || null);
 
 const ITEMS_PER_PAGE = 20;
 const currentPage = ref(1);
@@ -313,26 +330,10 @@ const totalPages = computed(() => {
 const paginatedTracks = computed(() => {
 	const start = (currentPage.value - 1) * ITEMS_PER_PAGE;
 	const end = start + ITEMS_PER_PAGE;
-	return stats.value.recentTracks.slice(start, end);
+	return stats.value.recentTracks.slice(start, end) as RecentTrack[];
 });
 
 const showDuration = ref(false);
-
-// Get the previous time range for comparison
-const getPreviousTimeRange = (currentRange: TimeRange): TimeRange => {
-	switch (currentRange) {
-		case 'today':
-			return 'today'; // Compare with yesterday (we'll handle this in the percentage calculation)
-		case 'week':
-			return 'week'; // Compare with previous week
-		case 'month':
-			return 'month'; // Compare with previous month
-		case 'year':
-			return 'year'; // Compare with previous year
-		default:
-			return 'all';
-	}
-};
 
 // Get comparison text based on the current time range
 const getComparisonText = (currentRange: TimeRange): string => {
@@ -374,7 +375,7 @@ const getPreviousPeriodData = (currentRange: TimeRange) => {
 		duration: Math.round(currentDuration * randomFactor),
 		// For artists count, we'll use a different random factor
 		artistsCount: Math.round(
-			(stats.value.topArtists.length * randomFactor) / 2
+			(statsStore.topArtists.length * randomFactor) / 2
 		),
 	};
 };
@@ -394,7 +395,7 @@ const timeListened = computed(() => {
 const artistsListened = computed(() => {
 	// In a real app, this would be the count of unique artists in the current time range
 	// For this demo, we'll use a portion of the topArtists array length
-	return Math.round(stats.value.topArtists.length / 2);
+	return Math.round(statsStore.topArtists.length / 2);
 });
 
 const previousPeriodData = computed(() => {
@@ -432,56 +433,36 @@ const comparisonText = computed(() => {
 	return getComparisonText(currentTimeRange.value);
 });
 
-const pulseTimeRanges: PulseTimeRange[] = [
-	'12days',
-	'12weeks',
-	'12months',
-	'12years',
-];
 const selectedPulseRange = ref<PulseTimeRange>('12months');
-
-const fetchStats = async () => {
-	try {
-		const username = selectedUser.value?.name || null;
-		const [statsData, usersData] = await Promise.all([
-			fetchMusicStats(
-				timeRanges.value.artists,
-				selectedPulseRange.value,
-				username
-			),
-			fetchUsers(),
-		]);
-		stats.value = statsData;
-		users.value = usersData;
-		currentPage.value = 1; // Reset to first page when fetching new data
-	} catch (error) {
-		console.error('Error fetching data:', error);
-	}
-};
 
 // Watch for changes in the pulse range
 watch(selectedPulseRange, () => {
-	fetchStats();
+	fetchAllStats(selectedUser.value?.username || null, timeRanges.value);
 });
 
 // Watch for changes in the selected user
 watch(selectedUser, () => {
-	fetchStats();
+	fetchAllStats(selectedUser.value?.username || null, timeRanges.value);
 });
+
+const fetchAllStats = async (
+	username: string | null,
+	timeRanges: TimeRanges
+) => {
+	await Promise.all([
+		statsStore.fetchTopArtists(username, timeRanges.artists),
+		statsStore.fetchTopTracks(username, timeRanges.tracks),
+		statsStore.fetchTopAlbums(username, timeRanges.albums),
+		statsStore.fetchPulses(username, timeRanges.pulses),
+	]);
+};
 
 onMounted(async () => {
 	try {
-		const username = selectedUser.value?.name || null;
-		const [statsData, usersData] = await Promise.all([
-			fetchMusicStats(
-				timeRanges.value.artists,
-				selectedPulseRange.value,
-				username
-			),
-			fetchUsers(),
-		]);
-		stats.value = statsData;
-		users.value = usersData;
+		await fetchAllStats(
+			selectedUser.value?.username || null,
+			timeRanges.value
+		);
 	} catch (error) {
 		console.error('Error fetching data:', error);
 	}
