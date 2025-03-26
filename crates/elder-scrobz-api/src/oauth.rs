@@ -1,12 +1,12 @@
 use crate::settings::Settings;
 use crate::AppState;
 use axum::extract::{Request, State};
+use axum::http::HeaderValue;
 use axum::{
     http::{HeaderMap, StatusCode},
     middleware::Next,
     response::Response,
 };
-use http::HeaderValue;
 use reqwest::Client;
 use serde::Deserialize;
 

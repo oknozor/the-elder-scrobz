@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE scrobbles_raw\n            SET status = 'processed'\n            WHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a4b2b0d2d29a64444c2130fd1b1518d0eb7fba1963c6e251b523b966553aee8d"
+}

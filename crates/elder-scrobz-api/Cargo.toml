@@ -29,8 +29,6 @@ config.workspace = true
 reqwest.workspace = true
 dotenv.workspace = true
 
-http = "1.2.0"
-
 # see: https://github.com/juhaku/utoipa/issues/1341
 [build-dependencies]
 zip = "=2.4.2"

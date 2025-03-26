@@ -732,7 +732,6 @@ dependencies = [
  "elder-scrobz-db",
  "elder-scrobz-resolver",
  "futures-util",
- "http",
  "http-body-util",
  "reqwest",
  "serde",

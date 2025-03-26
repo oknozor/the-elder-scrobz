@@ -1,4 +1,3 @@
-use crate::api::charts::*;
 use crate::api::imports::*;
 use crate::AppState;
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
@@ -6,6 +5,7 @@ use utoipa::{IntoParams, Modify, OpenApi, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
+pub mod admin;
 pub mod charts;
 pub mod imports;
 pub mod listenbrainz;
@@ -15,6 +15,7 @@ const USERS_TAG: &str = "users";
 const CHARTS_TAG: &str = "charts";
 const SCROBBLES_TAG: &str = "scrobbles";
 const API_KEYS_TAG: &str = "apikey";
+const ADMIN_TAG: &str = "admin";
 
 #[derive(OpenApi)]
 #[openapi(
@@ -24,6 +25,7 @@ const API_KEYS_TAG: &str = "apikey";
         (name = CHARTS_TAG, description = "Charts"),
         (name = SCROBBLES_TAG, description = "Scrobbles"),
         (name = API_KEYS_TAG, description = "ApiKey"),
+        (name = ADMIN_TAG, description = "Administration"),
     )
 )]
 pub struct ApiDoc;
@@ -58,12 +60,11 @@ impl Default for PageQuery {
 }
 
 pub fn router() -> OpenApiRouter<AppState> {
-    let api = OpenApiRouter::new()
-        .routes(routes!(import_listens))
-        .routes(routes!(pulses));
+    let api = OpenApiRouter::new().routes(routes!(import_listens));
 
     listenbrainz::router()
         .merge(api)
         .nest("/users", user::router())
         .nest("/charts", charts::router())
+        .nest("/admin", admin::router())
 }

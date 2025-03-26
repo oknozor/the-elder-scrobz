@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, user_id, data as \"data: Json<Listen>\", listened_at, status AS \"status: ProcessState\"\n            FROM scrobbles_raw\n            WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "data: Json<Listen>",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "listened_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "status: ProcessState",
+        "type_info": {
+          "Custom": {
+            "name": "scrobble_state",
+            "kind": {
+              "Enum": [
+                "unprocessed",
+                "processed"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "fd0d36ccd0aaa0c92fc95c1264b317088621123d4c4b1c37f15d615df8ae5f92"
+}

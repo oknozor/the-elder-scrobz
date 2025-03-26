@@ -4,7 +4,7 @@ use crate::settings::Settings;
 use axum::middleware;
 use elder_scrobz_db::build_pg_pool;
 use elder_scrobz_db::PgPool;
-use elder_scrobz_resolver::pg_listener;
+use elder_scrobz_resolver::ScrobbleResolver;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tower_http::trace::TraceLayer;
@@ -71,7 +71,9 @@ async fn main() -> anyhow::Result<()> {
     let router =
         router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
 
-    let (a, b) = tokio::join!(axum::serve(listener, router), pg_listener(pool));
+    let mut resolver = ScrobbleResolver::create(pool.clone()).await?;
+
+    let (a, b) = tokio::join!(axum::serve(listener, router), resolver.listen());
     a?;
     b?;
     Ok(())
