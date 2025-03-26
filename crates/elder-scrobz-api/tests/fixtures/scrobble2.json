@@ -1,0 +1,28 @@
+{
+  "listen_type": "single",
+  "payload": [
+    {
+      "listened_at": 1742975958,
+      "track_metadata": {
+        "track_name": "Enter Hallownest",
+        "artist_name": "Christopher Larkin",
+        "release_name": "Hollow Knight (Original Soundtrack)",
+        "additional_info": {
+          "duration_ms": 89730,
+          "tracknumber": 1,
+          "artist_mbids": [
+            "38e0beaf-c6ea-4561-808c-ba4a84b66341"
+          ],
+          "artist_names": [
+            "Christopher Larkin"
+          ],
+          "release_mbid": "085d63c1-d39f-4943-a6e5-704ce896f8a0",
+          "recording_mbid": "e578f2cd-372d-48b5-8e9f-cd9f16780843",
+          "submission_client": "navidrome",
+          "release_group_mbid": "9df7cf82-6ea3-4021-829f-f2192977ac8d",
+          "submission_client_version": "0.55.1 (beb768cd)"
+        }
+      }
+    }
+  ]
+}

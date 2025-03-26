@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT track_id              as track_id,\n       track.name            as track_name,\n       track.length          as track_length,\n       release.name          as release_name,\n       release.cover_art_url as cover_art_url,\n       raw.listened_at       as listened_at,\n       count(*)              as listens\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN users u on scrobbles.user_id = u.id\nWHERE DATE_TRUNC('week', listened_at) = DATE_TRUNC('week', NOW())\n  AND u.username = $1\nGROUP BY track_id, track.name, track.length, release.name, release.cover_art_url, raw.listened_at\nORDER BY listens DESC\nLIMIT 10",
+  "query": "SELECT track_id              as track_id,\n       track.name            as track_name,\n       track.length          as track_length,\n       release.name          as release_name,\n       release.cover_art_url as cover_art_url,\n       raw.listened_at       as listened_at,\n       count(*)              as listens\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE DATE_TRUNC('month', listened_at) = DATE_TRUNC('month', NOW())\n  AND u.username = $1\n\nGROUP BY track_id, track.name, track.length, release.name, release.cover_art_url, raw.listened_at\nORDER BY listens DESC\nLIMIT 10",
   "describe": {
     "columns": [
       {
@@ -54,5 +54,5 @@
       null
     ]
   },
-  "hash": "12695459ea3b7bf3fe770666260b98785ff1e555dc2ea8ba5c930d93657221a1"
+  "hash": "0637d987f4dc7682b1f261c9072025f1a25a7a1f476a4b85f5bcab69700e2947"
 }

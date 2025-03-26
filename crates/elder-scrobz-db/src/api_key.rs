@@ -11,7 +11,7 @@ use sha2::{Digest, Sha256};
 pub struct CreateApiKey {
     pub sha: String,
     pub api_key_hash: String,
-    pub user_id: String,
+    pub username: String,
 }
 
 impl CreateApiKey {
@@ -22,7 +22,7 @@ impl CreateApiKey {
         VALUES ($1, $2, $3)
         "#,
             self.sha,
-            self.user_id,
+            self.username,
             self.api_key_hash,
         )
         .execute(pool)

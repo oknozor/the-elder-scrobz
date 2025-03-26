@@ -28,17 +28,17 @@ pub struct ApiKeyCreated {
 )]
 pub async fn create_api_key(
     State(state): State<AppState>,
-    Path(user_id): Path<String>,
+    Path(username): Path<String>,
 ) -> AppResult<Json<ApiKeyCreated>> {
-    let Some(user) = User::get_by_id(&state.pool, &user_id).await? else {
-        return Err(AppError::UserNotFound { id: user_id });
+    let Some(user) = User::get_by_username(&state.pool, &username).await? else {
+        return Err(AppError::UserNotFound { id: username });
     };
 
     let key = generate_api_key();
     CreateApiKey {
         sha: key.sha,
         api_key_hash: key.hashed_key,
-        user_id: user.id,
+        username: user.username,
     }
     .insert(&state.pool)
     .await?;

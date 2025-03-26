@@ -4,9 +4,7 @@ use crate::AppState;
 use axum::extract::{Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
-use elder_scrobz_db::user::{CreateUser, User as DbUser};
-use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use elder_scrobz_db::user::{CreateUser, User as DbUser, User};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -16,43 +14,20 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(get_users))
 }
 
-#[derive(Serialize, Deserialize, ToSchema, Debug)]
-pub struct UserCreated {
-    pub(crate) user_id: String,
-}
-
-#[derive(Serialize, Deserialize, ToSchema, Debug)]
-pub struct User {
-    pub username: String,
-    pub email: String,
-}
-
-impl From<DbUser> for User {
-    fn from(user: DbUser) -> Self {
-        Self {
-            username: user.username,
-            email: user.email,
-        }
-    }
-}
-
 #[debug_handler]
 #[utoipa::path(
     post,
     path = "/",
     responses(
-        (status = 200, description = "User Created", body = UserCreated, content_type = "application/json"),
+        (status = 200, description = "User Created", body = User, content_type = "application/json"),
     ),
     tag = crate::api::USERS_TAG
 )]
 pub async fn create_user(
     State(state): State<AppState>,
     Json(user): Json<CreateUser>,
-) -> AppResult<Json<UserCreated>> {
-    let uuid = user.insert(&state.pool).await?;
-    Ok(Json(UserCreated {
-        user_id: uuid.to_string(),
-    }))
+) -> AppResult<Json<User>> {
+    Ok(Json(user.insert(&state.pool).await?))
 }
 
 #[debug_handler]
@@ -68,11 +43,7 @@ pub async fn get_users(
     State(state): State<AppState>,
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<Vec<User>>> {
-    let users = DbUser::all(&state.pool, query.page_size, query.page - 1)
-        .await?
-        .into_iter()
-        .map(User::from)
-        .collect();
-
-    Ok(Json(users))
+    Ok(Json(
+        DbUser::all(&state.pool, query.page_size, query.page - 1).await?,
+    ))
 }

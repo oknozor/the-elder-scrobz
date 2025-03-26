@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 #[derive(sqlx::FromRow, sqlx::Type, Debug)]
 pub struct CreateRawScrobble {
-    pub user_id: String,
+    pub username: String,
     pub data: Json<Listen>,
 }
 
@@ -66,7 +66,7 @@ impl CreateRawScrobble {
                                 ON CONFLICT (user_id, listened_at) DO UPDATE
                                 SET id = scrobbles_raw.id -- No-op update to allow returning existing ID
                                 RETURNING id;"#,
-                scrobble.user_id,
+                scrobble.username,
                 uuid,
                 value,
                 listened_at

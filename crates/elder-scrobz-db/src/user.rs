@@ -2,7 +2,6 @@ use crate::PgPool;
 use crate::api_key::{key_sha, verify_api_key};
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
-use sqlx::types::Uuid;
 use utoipa::ToSchema;
 
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
@@ -12,54 +11,35 @@ pub struct CreateUser {
 }
 
 impl CreateUser {
-    pub async fn insert(self, pool: &PgPool) -> Result<Uuid, Error> {
-        let user_id = Uuid::new_v4();
-
-        sqlx::query!(
+    pub async fn insert(self, pool: &PgPool) -> Result<User, Error> {
+        let user = sqlx::query_as!(
+            User,
             r#"
-        INSERT INTO users (id, username, email)
-        VALUES ($1, $2, $3)
+        INSERT INTO users (username, email)
+        VALUES ($1, $2) returning username, email
         "#,
-            user_id.to_string(),
             self.username,
             self.email,
         )
-        .execute(pool)
+        .fetch_one(pool)
         .await?;
 
-        Ok(user_id)
+        Ok(user)
     }
 }
 
-#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize)]
+#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
 pub struct User {
-    pub id: String,
     pub username: String,
     pub email: String,
 }
 
 impl User {
-    pub async fn get_by_id(pool: &PgPool, user_id: &str) -> Result<Option<Self>, Error> {
-        let user = sqlx::query_as!(
-            User,
-            r#"
-            SELECT id, username, email
-            FROM users
-            WHERE id = $1
-            "#,
-            user_id
-        )
-        .fetch_optional(pool)
-        .await?;
-
-        Ok(user)
-    }
-
     pub async fn get_by_username(pool: &PgPool, username: &str) -> Result<Option<Self>, Error> {
         let user = sqlx::query_as!(
             User,
             r#"
-            SELECT id, username, email
+            SELECT username, email
             FROM users
             WHERE username = $1
             "#,
@@ -80,9 +60,9 @@ impl User {
         let user = sqlx::query_as!(
             UserWithKey,
             r#"
-            SELECT u.id, u.username, u.email, k.api_key_hash
+            SELECT u.username, u.email, k.api_key_hash
             FROM users u
-            JOIN api_keys k ON u.id = k.user_id
+            JOIN api_keys k ON u.username = k.user_id
             WHERE k.sha = $1
             "#,
             sha
@@ -96,7 +76,7 @@ impl User {
     pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<Vec<Self>, Error> {
         let user = sqlx::query_as!(
             User,
-            r#" SELECT id, username, email FROM users ORDER BY id LIMIT $1 OFFSET $2"#,
+            r#" SELECT username, email FROM users ORDER BY username LIMIT $1 OFFSET $2"#,
             limit,
             offset,
         )
@@ -109,7 +89,6 @@ impl User {
 
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize)]
 pub struct UserWithKey {
-    pub id: String,
     pub username: String,
     pub email: String,
     pub api_key_hash: String,
@@ -124,7 +103,6 @@ impl UserWithKey {
 impl From<UserWithKey> for User {
     fn from(user: UserWithKey) -> Self {
         Self {
-            id: user.id,
             username: user.username,
             email: user.email,
         }

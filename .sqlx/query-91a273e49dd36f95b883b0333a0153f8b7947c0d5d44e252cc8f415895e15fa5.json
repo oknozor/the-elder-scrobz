@@ -1,35 +1,28 @@
 {
   "db_name": "PostgreSQL",
-  "query": " SELECT id, username, email FROM users ORDER BY id LIMIT $1 OFFSET $2",
+  "query": "\n            SELECT username, email\n            FROM users\n            WHERE username = $1\n            ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 1,
         "name": "username",
         "type_info": "Text"
       },
       {
-        "ordinal": 2,
+        "ordinal": 1,
         "name": "email",
         "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Int8",
-        "Int8"
+        "Text"
       ]
     },
     "nullable": [
       false,
-      false,
       false
     ]
   },
-  "hash": "be10b785f3197eb730c8049cb12cf5ad26a2a81d8ba4f14e710c1b3347708ffe"
+  "hash": "91a273e49dd36f95b883b0333a0153f8b7947c0d5d44e252cc8f415895e15fa5"
 }

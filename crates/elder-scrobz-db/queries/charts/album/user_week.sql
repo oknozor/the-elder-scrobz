@@ -7,7 +7,7 @@ FROM scrobbles
          JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id
          JOIN tracks track ON track.mbid = scrobbles.track_id
          JOIN releases release ON track.release_mbid = release.mbid
-         JOIN users u on scrobbles.user_id = u.id
+         JOIN users u on scrobbles.user_id = u.username
 WHERE DATE_TRUNC('week', listened_at) = DATE_TRUNC('week', NOW())
   AND u.username = $1
 GROUP BY release.mbid, release.name, release.cover_art_url

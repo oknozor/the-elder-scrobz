@@ -52,7 +52,7 @@ async fn save_listens(
     let chunk = chunk
         .into_iter()
         .map(|payload| CreateRawScrobble {
-            user_id: user_id.to_string(),
+            username: user_id.to_string(),
             data: Listen {
                 listen_type: ListenType::Import,
                 payload,

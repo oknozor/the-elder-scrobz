@@ -41,7 +41,7 @@ pub async fn submit_listens(
     let scrobbles = listens
         .into_iter()
         .map(|listen| CreateRawScrobble {
-            user_id: user.id.to_string(),
+            username: user.username.clone(),
             data: listen.into(),
         })
         .collect();

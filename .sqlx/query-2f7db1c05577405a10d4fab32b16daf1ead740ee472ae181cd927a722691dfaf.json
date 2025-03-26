@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": " SELECT username, email FROM users ORDER BY username LIMIT $1 OFFSET $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "email",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "2f7db1c05577405a10d4fab32b16daf1ead740ee472ae181cd927a722691dfaf"
+}
