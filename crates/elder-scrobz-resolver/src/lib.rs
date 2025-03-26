@@ -29,6 +29,7 @@ impl ScrobbleResolver {
 
         while retry_count > 0 {
             while let Ok(notification) = self.pg_listener.recv().await {
+                info!("Processing new_insert");
                 let Ok(scrobble) = serde_json::from_str::<RawScrobble>(notification.payload())
                 else {
                     let payload = notification.payload();

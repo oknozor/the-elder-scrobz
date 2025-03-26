@@ -755,6 +755,7 @@ version = "0.1.0"
 dependencies = [
  "argon2",
  "base64 0.22.1",
+ "chrono",
  "password-hash",
  "rand 0.9.0",
  "serde",

@@ -8,7 +8,10 @@ use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::{CreateRawScrobble, Listen, SubmitListens};
 use elder_scrobz_db::user::User;
-use tracing::debug;
+use serde::Serialize;
+
+#[derive(Debug, Default, Serialize)]
+pub struct Empty {}
 
 #[debug_handler]
 #[utoipa::path(
@@ -27,10 +30,7 @@ pub async fn submit_listens(
     State(state): State<AppState>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
     Json(payload): Json<SubmitListens>,
-) -> AppResult<()> {
-    let json = serde_json::to_string(&payload)?;
-    debug!("{json:?}");
-
+) -> AppResult<Json<Empty>> {
     let Some(token) = auth.0.token()? else {
         return Err(AppError::Unauthorized("Missing token".to_string()));
     };
@@ -51,5 +51,5 @@ pub async fn submit_listens(
 
     CreateRawScrobble::batch_insert(scrobbles, &state.pool).await?;
 
-    Ok(())
+    Ok(Empty::default().into())
 }
