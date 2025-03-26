@@ -14,6 +14,3 @@ base64.workspace = true
 rand.workspace = true
 password-hash.workspace = true
 sha2.workspace = true
-tracing.workspace = true
-musicbrainz_rs.workspace = true
-anyhow.workspace = true

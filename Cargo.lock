@@ -727,7 +727,6 @@ dependencies = [
  "axum",
  "axum-extra",
  "axum-macros",
- "chrono",
  "config",
  "dotenv",
  "elder-scrobz-db",
@@ -755,17 +754,14 @@ dependencies = [
 name = "elder-scrobz-db"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "argon2",
  "base64 0.22.1",
- "musicbrainz_rs",
  "password-hash",
  "rand 0.9.0",
  "serde",
  "serde_json",
  "sha2",
  "sqlx",
- "tracing",
  "utoipa",
  "uuid",
 ]
@@ -775,7 +771,6 @@ name = "elder-scrobz-resolver"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "chrono",
  "elder-scrobz-db",
  "musicbrainz_rs",
  "once_cell",

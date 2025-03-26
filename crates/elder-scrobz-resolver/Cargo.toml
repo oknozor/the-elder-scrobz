@@ -9,5 +9,4 @@ tokio.workspace = true
 musicbrainz_rs.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
-chrono.workspace = true
 once_cell.workspace = true
