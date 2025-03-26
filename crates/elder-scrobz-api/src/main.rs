@@ -7,6 +7,7 @@ use elder_scrobz_db::PgPool;
 use elder_scrobz_resolver::ScrobbleResolver;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
@@ -81,8 +82,12 @@ async fn main() -> anyhow::Result<()> {
         router = router.layer(middleware::from_fn_with_state(state, verify_bearer_token))
     }
 
+    let serve_dir = ServeDir::new("/app/frontend")
+        .not_found_service(ServeFile::new("/app/frontend/index.html"));
+
     let router =
-        router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
+        router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
+        .fallback_service(serve_dir);
 
     let mut resolver = ScrobbleResolver::create(pool.clone()).await?;
 
