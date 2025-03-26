@@ -2,7 +2,7 @@
 	<div class="grid-container top-items">
 		<StatCard
 			v-for="(item, index) in items.slice(0, step)"
-			:key="item.id"
+			:key="generateKey(item, index)"
 			:item="item"
 			:rank="index + 1"
 			:link="link"
@@ -18,7 +18,7 @@
 	>
 		<StatCard
 			v-for="(item, index) in items.slice(step, limit)"
-			:key="item.id"
+			:key="generateKey(item, index)"
 			:item="item"
 			:rank="index + step + 1"
 			:link="link"
@@ -30,17 +30,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import StatCard from './StatCard.vue';
-
+import type { Artist, Track, Album } from '@/types/music';
 interface Props {
-	items: Array<{
-		id: string;
-		name?: string;
-		title?: string;
-		artist?: string;
-		imageUrl: string;
-		playCount: number;
-		duration: number;
-	}>;
+	items: Artist[] | Track[] | Album[];
 	limit?: number;
 	step?: number;
 	link?: {
@@ -65,6 +57,17 @@ const handleMouseLeave = () => {
 	if (bottomItems.value) {
 		bottomHeight.value = '7.5rem';
 	}
+};
+
+const generateKey = (item: Artist | Track | Album, index: number) => {
+	if ('release_id' in item) {
+		return item.release_id;
+	} else if ('artist_id' in item) {
+		return item.artist_id;
+	} else if ('track_id' in item) {
+		return item.track_id;
+	}
+	return index;
 };
 </script>
 

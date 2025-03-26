@@ -84,14 +84,16 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue';
+import { defineProps, ref, PropType } from 'vue';
 import { formatTimeAgo } from '@/utils/formatter';
+import router from '@/router';
+import { RecentTrack } from '@/types/music';
 
-const loadedImages = ref<Set<number>>(new Set());
+const loadedImages = ref<Set<string>>(new Set());
 
 defineProps({
 	paginatedTracks: {
-		type: Array,
+		type: Array as PropType<RecentTrack[]>,
 		required: true,
 	},
 	currentPage: {
@@ -112,11 +114,11 @@ const goToTrackPage = (trackId: number) => {
 	};
 };
 
-const onImageLoad = (trackId: number) => {
+const onImageLoad = (trackId: string) => {
 	loadedImages.value.add(trackId);
 };
 
-const imageLoaded = (trackId: number) => {
+const imageLoaded = (trackId: string) => {
 	return loadedImages.value.has(trackId);
 };
 </script>

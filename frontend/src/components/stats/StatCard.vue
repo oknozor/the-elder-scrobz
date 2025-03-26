@@ -13,39 +13,58 @@
 		</div>
 		<component
 			:is="link ? 'router-link' : 'div'"
-			:to="
-				link ? { name: link.name, params: { id: item.id } } : undefined
-			"
+			:to="link ? { name: link.name, params: { id: id } } : undefined"
 		>
 			<img
-				:src="item.imageUrl"
-				:alt="item.title || item.name"
+				v-if="imageUrl"
+				:src="imageUrl"
+				:alt="title"
 				class="card-image"
 			/>
+			<div v-else class="card-image-placeholder">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					width="50"
+					height="50"
+					stroke-width="2"
+				>
+					<path d="M15 8h.01"></path>
+					<path
+						d="M7 3h11a3 3 0 0 1 3 3v11m-.856 3.099a2.991 2.991 0 0 1 -2.144 .901h-12a3 3 0 0 1 -3 -3v-12c0 -.845 .349 -1.608 .91 -2.153"
+					></path>
+					<path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"></path>
+					<path
+						d="M16.33 12.338c.574 -.054 1.155 .166 1.67 .662l3 3"
+					></path>
+					<path d="M3 3l18 18"></path>
+				</svg>
+			</div>
 		</component>
 		<div class="card-content">
-			<h3>{{ item.title || item.name }}</h3>
-			<p v-if="item.artist">{{ item.artist }}</p>
+			<h3>{{ title }}</h3>
+			<p v-if="artist && !isArtist(item)">{{ artist }}</p>
 			<p>
-				{{ item.playCount }} plays / {{ formatDuration(item.duration) }}
+				{{ playCount }} plays
+				{{
+					duration ? `/ ${formatMillisecondsToMinutes(duration)}` : ''
+				}}
 			</p>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { formatDuration } from '@/utils/formatter';
+import { formatMillisecondsToMinutes } from '@/utils/formatter';
+import type { Artist, Track, Album } from '@/types/music';
+import { computed } from 'vue';
 
 interface Props {
-	item: {
-		id: string;
-		name?: string;
-		title?: string;
-		artist?: string;
-		imageUrl: string;
-		playCount: number;
-		duration: number;
-	};
+	item: Artist | Track | Album;
 	rank?: number;
 	link?: {
 		name: string;
@@ -53,7 +72,80 @@ interface Props {
 	step: number;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+function isTrack(item: Artist | Track | Album): item is Track {
+	return (item as Track).track_id !== undefined;
+}
+
+function isArtist(item: Artist | Track | Album): item is Artist {
+	return (item as Artist).artist_id !== undefined;
+}
+
+function isAlbum(item: Artist | Track | Album): item is Album {
+	return (item as Album).release_id !== undefined;
+}
+
+const id = computed(() => {
+	if (isTrack(props.item)) {
+		return props.item.track_id;
+	} else if (isArtist(props.item)) {
+		return props.item.artist_id;
+	} else if (isAlbum(props.item)) {
+		return props.item.release_id;
+	}
+});
+
+const title = computed(() => {
+	if (isTrack(props.item)) {
+		return props.item.track_name;
+	} else if (isArtist(props.item)) {
+		return props.item.artist_name;
+	} else if (isAlbum(props.item)) {
+		return props.item.release_name;
+	}
+	return 'Unknown';
+});
+
+const imageUrl = computed(() => {
+	if (isTrack(props.item)) {
+		return props.item.cover_art_url;
+	} else if (isArtist(props.item)) {
+		return props.item.cover_art_url;
+	} else if (isAlbum(props.item)) {
+		return props.item.cover_art_url;
+	}
+	return '';
+});
+
+const artist = computed(() => {
+	if (isTrack(props.item)) {
+		return props.item.artist_name;
+	} else if (isArtist(props.item)) {
+		return props.item.artist_name;
+	} else if (isAlbum(props.item)) {
+		return props.item.artist_name;
+	}
+	return '';
+});
+
+const playCount = computed(() => {
+	if (isTrack(props.item)) {
+		return props.item.listens;
+	} else if (isArtist(props.item)) {
+		return props.item.listens;
+	} else if (isAlbum(props.item)) {
+		return props.item.listens;
+	}
+	return 0;
+});
+
+const duration = computed(() => {
+	if (isTrack(props.item)) {
+		return props.item.track_length;
+	}
+	return null;
+});
 </script>
 
 <style scoped>
@@ -126,5 +218,14 @@ defineProps<Props>();
 	font-size: 0.9em;
 	z-index: 1;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.card-image-placeholder {
+	width: 100%;
+	height: 100%;
+	background-color: var(--background-color);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-color);
 }
 </style>

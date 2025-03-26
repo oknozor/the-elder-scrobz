@@ -2,39 +2,37 @@ export type TimeRange = 'today' | 'week' | 'month' | 'year' | 'all';
 export type PulseTimeRange = '12days' | '12weeks' | '12months' | '12years';
 
 export interface Artist {
-	id: string;
-	name: string;
-	imageUrl: string;
-	playCount: number;
-	duration: number; // in minutes
+	artist_id: string;
+	artist_name: string;
+	cover_art_url: string;
+	last_listened_at: string;
+	listens: number;
 }
 
+export interface Track {
+	track_id: string;
+	track_name: string;
+	release_name: string;
+	artist_name: string;
+	cover_art_url: string;
+	listens: number;
+	track_length: number; // in minutes
+}
+
+export interface Album {
+	release_id: string;
+	release_name: string;
+	artist_name: string;
+	cover_art_url: string;
+	last_listened_at: string;
+	listens: number;
+}
 export interface ArtistDetails extends Artist {
 	topTracks: Track[];
 	albums: Album[];
 	recentListens: RecentTrack[];
 	description?: string;
 }
-
-export interface Track {
-	id: string;
-	title: string;
-	artist: string;
-	album?: string; //Could be optional since not all tracks might have an album ?
-	imageUrl: string;
-	playCount: number;
-	duration: number; // in minutes
-}
-
-export interface Album {
-	id: string;
-	title: string;
-	artist: string;
-	imageUrl: string;
-	playCount: number;
-	duration: number; // in minutes
-}
-
 export interface AlbumDetails extends Album {
 	topTracks: Track[];
 }
@@ -57,13 +55,10 @@ export interface TimePeriodStats {
 
 export interface PulseData {
 	period: string;
-	playCount: number;
+	listens: number;
 }
 
 export interface MusicStats {
-	topArtists: Artist[];
-	topTracks: Track[];
-	topAlbums: Album[];
 	recentTracks: RecentTrack[];
 	timeStats: {
 		today: TimePeriodStats;
@@ -72,7 +67,6 @@ export interface MusicStats {
 		year: TimePeriodStats;
 		all: TimePeriodStats;
 	};
-	pulseData: PulseData[];
 }
 
 export interface ApiKey {
