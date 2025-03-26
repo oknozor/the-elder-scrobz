@@ -267,7 +267,6 @@ import { ref, onMounted, computed, watch } from 'vue';
 import {
 	TimeRange,
 	MusicStats,
-	PulseTimeRange,
 	RecentTrack,
 } from '@/types/music';
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
@@ -499,25 +498,6 @@ onMounted(async () => {
 	border: 1px solid var(--border-color);
 }
 
-.stat-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	flex: 1;
-}
-
-.stat-label {
-	color: var(--text-secondary);
-	font-size: 0.9em;
-	margin-bottom: 4px;
-}
-
-.stat-value {
-	color: var(--text-color);
-	font-size: 1.2em;
-	font-weight: bold;
-}
-
 .view-toggle {
 	display: flex;
 	align-items: center;
@@ -549,32 +529,6 @@ onMounted(async () => {
 .icon {
 	width: 20px;
 	height: 20px;
-}
-
-.pulse-filters {
-	display: flex;
-	gap: 8px;
-}
-
-.pulse-filter-btn {
-	padding: 6px 12px;
-	border: 1px solid var(--border-color);
-	border-radius: 4px;
-	background: var(--card-background);
-	color: var(--text-color);
-	cursor: pointer;
-	font-size: 0.9em;
-	transition: all 0.2s;
-}
-
-.pulse-filter-btn:hover {
-	background: var(--background-color);
-}
-
-.pulse-filter-btn.active {
-	background: var(--primary-color);
-	color: var(--background-color);
-	border-color: var(--primary-color);
 }
 
 .pulse-charts {

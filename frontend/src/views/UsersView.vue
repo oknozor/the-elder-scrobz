@@ -70,25 +70,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import type { User } from '@/types/music'
 
-const router = useRouter()
-
-const currentUser = ref<User | null>({
-  id: '1',
-  name: 'John Doe',
-  imageUrl: 'https://picsum.photos/32/32?random=1',
-  lastActive: new Date().toISOString(),
-  apiKeys: [],
-  stats: {
-    totalPlays: 0,
-    totalDuration: 0,
-    topArtists: [],
-    topAlbums: [],
-    topTracks: []
-  }
-})
 
 // Mock data for users
 const users = ref<User[]>([
@@ -121,11 +104,6 @@ const users = ref<User[]>([
     }
   }
 ])
-
-const handleLogout = () => {
-  // Implement logout logic here
-  console.log('Logout clicked')
-}
 
 const showDeleteConfirmation = ref(false)
 const userToDelete = ref<string | null>(null)

@@ -89,7 +89,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getUserProfile, createApiKey as createApiKeyService } from '@/services/mockData'
 import type { User, ApiKey } from '@/types/music'
 
 const user = ref<User>({
@@ -157,7 +156,13 @@ const createApiKey = async () => {
   if (!newKeyLabel.value.trim()) return
 
   try {
-    const newKey = await createApiKeyService(user.value.id, newKeyLabel.value)
+    const newKey = {
+      id: "string",
+      label: "string",
+      key: "string",
+      createdAt: "string",
+      lastUsed: "string"
+    } // TODO await createApiKeyService(user.value.id, newKeyLabel.value)
     user.value.apiKeys.push(newKey)
     showCreateKeyModal.value = false
     newKeyLabel.value = ''
@@ -188,7 +193,20 @@ const deleteApiKey = () => {
 
 onMounted(async () => {
   try {
-    user.value = await getUserProfile('1')
+    user.value = {
+      id: '1',
+      name: 'John Doe',
+      imageUrl: 'https://picsum.photos/32/32?random=1',
+      lastActive: new Date().toISOString(),
+      apiKeys: [],
+        stats: {
+          totalPlays: 0,
+          totalDuration: 0,
+          topArtists: [],
+          topAlbums: [],
+          topTracks: []
+        }
+    } //TODO await getUserProfile('1')
   } catch (error) {
     console.error('Error fetching user profile:', error)
   }

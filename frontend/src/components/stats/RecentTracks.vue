@@ -86,7 +86,6 @@
 <script setup lang="ts">
 import { ref, PropType } from 'vue';
 import { formatTimeAgo } from '@/utils/formatter';
-import router from '@/router';
 import { RecentTrack } from '@/types/music';
 
 const loadedImages = ref<Set<string>>(new Set());
@@ -107,12 +106,6 @@ defineProps({
 });
 
 defineEmits(['change-page']);
-
-const goToTrackPage = (trackId: number) => {
-	return () => {
-		router.push({ name: 'track', params: { id: trackId } });
-	};
-};
 
 const onImageLoad = (trackId: string) => {
 	loadedImages.value.add(trackId);
@@ -181,12 +174,6 @@ const imageLoaded = (trackId: string) => {
 	gap: 8px;
 }
 
-.track {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
 .track-thumbnail {
 	width: 24px;
 	height: 24px;
@@ -239,15 +226,5 @@ const imageLoaded = (trackId: string) => {
 .page-info {
 	color: var(--text-secondary);
 	font-size: 0.9em;
-}
-
-/* Fade transition for the table content */
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.25s;
-}
-.fade-enter,
-.fade-leave-to {
-	opacity: 0;
 }
 </style>

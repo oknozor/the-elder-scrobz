@@ -80,9 +80,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import type { User } from '@/types/music'
-import { importUserData } from '@/services/mockData'
 
 interface ImportHistoryItem {
   name: string
@@ -91,7 +88,6 @@ interface ImportHistoryItem {
   timestamp: string
 }
 
-const router = useRouter()
 const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFile = ref<File | null>(null)
 const isDragging = ref(false)
@@ -132,26 +128,6 @@ const selectedFormatInfo = computed(() => {
   return importFormats.find(format => format.id === selectedFormat.value) || importFormats[0]
 })
 
-const currentUser = ref<User | null>({
-  id: '1',
-  name: 'John Doe',
-  imageUrl: 'https://picsum.photos/32/32?random=1',
-  lastActive: new Date().toISOString(),
-  apiKeys: [],
-  stats: {
-    totalPlays: 0,
-    totalDuration: 0,
-    topArtists: [],
-    topAlbums: [],
-    topTracks: []
-  }
-})
-
-const handleLogout = () => {
-  // Implement logout logic here
-  console.log('Logout clicked')
-}
-
 const triggerFileInput = () => {
   fileInput.value?.click()
 }
@@ -179,7 +155,7 @@ const handleImport = async () => {
     console.log('Importing file:', selectedFile.value, 'Format:', selectedFormat.value)
 
     // Call the mock import function with a delay
-    const success = await importUserData(selectedFile.value, selectedFormat.value)
+    const success = true// TODO await importUserData(selectedFile.value, selectedFormat.value)
 
     if (success) {
       // After successful import, show success state
