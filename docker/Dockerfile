@@ -13,9 +13,11 @@ FROM alpine
 LABEL maintainer="Paul Delafosse <paul.delafosse@protonmail.com>"
 
 RUN addgroup -S scrobz && adduser -S scrobz -G scrobz
+RUN mkdir -p /app/frontend && chown -R scrobz:scrobz /app
 USER scrobz
 
 COPY --from=builder /scrobz /usr/bin/scrobz
+COPY ./frontend/dist/ /app/frontend/
 
 EXPOSE 3000
 

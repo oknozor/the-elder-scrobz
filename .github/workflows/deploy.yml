@@ -24,6 +24,33 @@ jobs:
           name: LICENSE
           path: LICENSE
 
+  build_frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist
+
   build:
     name: Build for ${{ matrix.os }}-${{ matrix.target }}
     runs-on: ${{ matrix.os }}
@@ -72,8 +99,9 @@ jobs:
           path: target/${{ matrix.target }}/release/scrobz
 
 
+
   upload_to_release:
-    needs: [build, upload_license]
+    needs: [build, build_frontend, upload_license]
     name: Publish scrobz binaries
     runs-on: ubuntu-latest
     if: ${{ github.ref_type == 'tag' }}
@@ -138,7 +166,7 @@ jobs:
           asset_name: the-elder-scrobz{{ github.ref_name }}-x86_64-apple-darwin.tar.gz
 
   docker:
-    needs: [build]
+    needs: [build, build_frontend]
     name: Docker publish scrobz:latest
     runs-on: ubuntu-latest
     outputs:
@@ -165,10 +193,12 @@ jobs:
           mkdir -p target/x86_64-unknown-linux-musl/release/
           mkdir -p target/armv7-unknown-linux-musleabihf/release/
           mkdir -p target/aarch64-unknown-linux-gnu/release/
+          mkdir -p frontend/dist/
 
           cp -r /home/runner/artifacts/x86_64-unknown-linux-musl/. target/x86_64-unknown-linux-musl/release
           cp -r /home/runner/artifacts/armv7-unknown-linux-musleabihf/. target/armv7-unknown-linux-musleabihf/release
           cp -r /home/runner/artifacts/aarch64-unknown-linux-gnu/. target/aarch64-unknown-linux-gnu/release
+          cp -r /home/runner/artifacts/frontend-build/. frontend/dist/
 
           chmod +x -R  target/x86_64-unknown-linux-musl/release
           chmod +x -R  target/armv7-unknown-linux-musleabihf/release
