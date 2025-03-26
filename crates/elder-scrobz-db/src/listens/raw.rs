@@ -69,6 +69,19 @@ impl RawScrobble {
         Ok(())
     }
 
+    // TODO: pagination
+    pub async fn all(pool: &PgPool) -> Result<Vec<RawScrobble>, Error> {
+        sqlx::query_as(
+            r#"
+            SELECT id, user_id, data, listened_at, status
+            FROM scrobbles_raw
+        "#,
+        )
+        .fetch_all(pool) // Fetch all rows that match the query
+        .await
+    }
+
+    // TODO: pagination
     pub async fn get_unprocessed(pool: &PgPool) -> Result<Vec<RawScrobble>, Error> {
         sqlx::query_as(
             r#"

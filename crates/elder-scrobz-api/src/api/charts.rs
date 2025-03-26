@@ -9,7 +9,7 @@ use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
 use elder_scrobz_db::pulses::Pulse;
 use elder_scrobz_db::Period;
 use serde::Deserialize;
-use utoipa::{IntoParams, ToSchema};
+use utoipa::IntoParams;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -21,7 +21,7 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(pulses))
 }
 
-#[derive(Deserialize, ToSchema, IntoParams, Debug)]
+#[derive(Deserialize, IntoParams, Debug)]
 #[serde(default)]
 pub struct ChartQuery {
     // Year | month | week | today
@@ -105,7 +105,7 @@ pub async fn artist_charts(
     ))
 }
 
-#[derive(Deserialize, ToSchema, IntoParams, Debug)]
+#[derive(Deserialize, IntoParams, Debug)]
 pub struct PulseQuery {
     period: Period,
     user_id: Option<String>,
