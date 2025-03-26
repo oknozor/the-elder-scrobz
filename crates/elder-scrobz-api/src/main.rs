@@ -4,6 +4,7 @@ use crate::settings::Settings;
 use axum::middleware;
 use elder_scrobz_db::build_pg_pool;
 use elder_scrobz_db::PgPool;
+use elder_scrobz_resolver::pg_listener;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tower_http::trace::TraceLayer;
@@ -49,6 +50,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let state = AppState::init().await?;
+    let pool = state.pool.clone();
     elder_scrobz_db::migrate_db(&state.pool).await?;
     let addr = SocketAddr::from(([0, 0, 0, 0], state.settings.port));
     let listener = tokio::net::TcpListener::bind(&addr).await?;
@@ -69,18 +71,19 @@ async fn main() -> anyhow::Result<()> {
     let router =
         router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
 
-    axum::serve(listener, router).await?;
+    let (a, b) = tokio::join!(axum::serve(listener, router), pg_listener(pool));
+    a?;
+    b?;
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::api::user::UserCreated;
     use crate::router;
     use crate::test_helper::{scrobble_fixture, start_postgres};
     use axum::response::Response;
     use axum::{http::Request, http::StatusCode};
-    use elder_scrobz_db::user::CreateUser;
+    use elder_scrobz_db::user::{CreateUser, User};
     use http_body_util::BodyExt;
     use speculoos::prelude::*;
     use tower::ServiceExt;
@@ -105,11 +108,11 @@ mod tests {
         assert_that!(response.status()).is_equal_to(StatusCode::OK);
 
         let body = body_to_string(response).await?;
-        let user: UserCreated = serde_json::from_str(&body)?;
+        let user: User = serde_json::from_str(&body)?;
 
         let request = Request::builder()
             .method("POST")
-            .uri(format!("/users/{}/api-key/create", user.user_id))
+            .uri(format!("/users/{}/api-key/create", user.username))
             .header("Content-Type", "application/json")
             .body(axum::body::Body::empty())?;
 

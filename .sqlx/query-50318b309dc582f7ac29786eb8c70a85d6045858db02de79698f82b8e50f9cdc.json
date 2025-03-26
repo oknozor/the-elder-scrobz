@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT u.username, u.username, u.email, k.api_key_hash\n            FROM users u\n            JOIN api_keys k ON u.username = k.user_id\n            WHERE k.sha = $1\n            ",
+  "query": "\n            SELECT u.username, u.email, k.api_key_hash\n            FROM users u\n            JOIN api_keys k ON u.username = k.user_id\n            WHERE k.sha = $1\n            ",
   "describe": {
     "columns": [
       {
@@ -10,16 +10,11 @@
       },
       {
         "ordinal": 1,
-        "name": "username",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 2,
         "name": "email",
         "type_info": "Text"
       },
       {
-        "ordinal": 3,
+        "ordinal": 2,
         "name": "api_key_hash",
         "type_info": "Text"
       }
@@ -32,9 +27,8 @@
     "nullable": [
       false,
       false,
-      false,
       false
     ]
   },
-  "hash": "3ab9dc2b7891b0294a0bd81642e21e6fae7d81d36c13ab4b6b7111767dea5a11"
+  "hash": "50318b309dc582f7ac29786eb8c70a85d6045858db02de79698f82b8e50f9cdc"
 }

@@ -25,7 +25,7 @@ impl From<SubmitListens> for Vec<Listen> {
     }
 }
 
-#[derive(sqlx::FromRow, sqlx::Type, Debug)]
+#[derive(sqlx::FromRow, sqlx::Type, Deserialize, Debug)]
 pub struct RawScrobble {
     pub id: String,
     pub user_id: String,
@@ -52,20 +52,16 @@ impl CreateRawScrobble {
     pub async fn batch_insert(
         scrobbles: Vec<CreateRawScrobble>,
         pool: &PgPool,
-    ) -> Result<Vec<String>, Error> {
+    ) -> Result<(), Error> {
         let mut tx = pool.begin().await?;
-        let mut uuids = Vec::with_capacity(scrobbles.len());
         for scrobble in scrobbles {
             let listened_at = DateTime::from_timestamp(scrobble.data.payload.listened_at, 0)
                 .expect("Failed to parse timestamp");
             let uuid = Uuid::new_v4().to_string();
 
             let value = serde_json::to_value(&scrobble.data).unwrap();
-            let id = sqlx::query_scalar!(
-                            r#"INSERT INTO scrobbles_raw (user_id, id, data, listened_at) VALUES ($1, $2, $3, $4)
-                                ON CONFLICT (user_id, listened_at) DO UPDATE
-                                SET id = scrobbles_raw.id -- No-op update to allow returning existing ID
-                                RETURNING id;"#,
+            sqlx::query!(r#"INSERT INTO scrobbles_raw (user_id, id, data, listened_at) VALUES ($1, $2, $3, $4)
+                                ON CONFLICT (user_id, listened_at) DO NOTHING;"#,
                 scrobble.username,
                 uuid,
                 value,
@@ -73,15 +69,11 @@ impl CreateRawScrobble {
             )
             .fetch_optional(&mut *tx)
             .await?;
-
-            if let Some(id) = id {
-                uuids.push(id);
-            }
         }
 
         tx.commit().await?;
 
-        Ok(uuids)
+        Ok(())
     }
 }
 
@@ -111,26 +103,32 @@ pub enum ListenType {
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct SubmitListensPayload {
     pub listened_at: i64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub track_metadata: Option<Box<TrackMetadata>>,
+    pub track_metadata: TrackMetadata,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct TrackMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub additional_info: Option<AdditionalInfo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_name: Option<String>,
+    pub artist_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mbid_mapping: Option<Box<MbidMapping>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub track_name: Option<String>,
+    pub release_name: String,
+    pub track_name: String,
 }
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct AdditionalInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recording_mbid: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub release_mbid: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration_ms: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tracknumber: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub artist_mbids: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub media_player: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -146,21 +144,11 @@ pub struct AdditionalInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub origin_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub release_mbid: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub artist_mbids: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub recording_mbid: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub recording_msid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub duration_ms: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tracknumber: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub release_group_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

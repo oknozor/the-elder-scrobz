@@ -8,8 +8,6 @@ use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::{CreateRawScrobble, Listen, SubmitListens};
 use elder_scrobz_db::user::User;
-use elder_scrobz_resolver::populate_scrobbles;
-use tracing::error;
 
 #[debug_handler]
 #[utoipa::path(
@@ -38,6 +36,7 @@ pub async fn submit_listens(
     };
 
     let listens: Vec<Listen> = payload.into();
+
     let scrobbles = listens
         .into_iter()
         .map(|listen| CreateRawScrobble {
@@ -46,16 +45,7 @@ pub async fn submit_listens(
         })
         .collect();
 
-    let uuids = CreateRawScrobble::batch_insert(scrobbles, &state.pool).await?;
-
-    for scrobble_id in uuids {
-        let pool = state.pool.clone();
-        tokio::spawn(async move {
-            if let Err(err) = populate_scrobbles(&pool, scrobble_id).await {
-                error!("{err}");
-            }
-        });
-    }
+    CreateRawScrobble::batch_insert(scrobbles, &state.pool).await?;
 
     Ok(())
 }

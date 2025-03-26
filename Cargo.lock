@@ -774,6 +774,8 @@ dependencies = [
  "elder-scrobz-db",
  "musicbrainz_rs",
  "once_cell",
+ "serde_json",
+ "sqlx",
  "tokio",
  "tracing",
 ]

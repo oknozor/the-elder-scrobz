@@ -4,9 +4,7 @@ use axum::extract::{Path, State};
 use axum_extra::extract::JsonLines;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::{CreateRawScrobble, Listen, ListenType, SubmitListensPayload};
-use elder_scrobz_resolver::populate_scrobbles;
 use futures_util::stream::StreamExt;
-use tracing::error;
 
 #[debug_handler]
 #[utoipa::path(
@@ -61,16 +59,7 @@ async fn save_listens(
         })
         .collect();
 
-    let uuids = CreateRawScrobble::batch_insert(chunk, &state.pool).await?;
-
-    for scrobble_id in uuids {
-        let pool = state.pool.clone();
-        tokio::spawn(async move {
-            if let Err(err) = populate_scrobbles(&pool, scrobble_id).await {
-                error!("{err}");
-            }
-        });
-    }
+    CreateRawScrobble::batch_insert(chunk, &state.pool).await?;
 
     Ok(())
 }

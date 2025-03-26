@@ -10,3 +10,5 @@ musicbrainz_rs.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
 once_cell.workspace = true
+sqlx.workspace = true
+serde_json.workspace = true
