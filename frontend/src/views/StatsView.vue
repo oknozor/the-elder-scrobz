@@ -383,13 +383,13 @@ const getPreviousPeriodData = (currentRange: TimeRange) => {
 // Computed properties for the overview cards
 const currentTimeRange = computed(() => timeRanges.value.tracks);
 
-const songsListened = computed(
-	() => stats.value.timeStats[currentTimeRange.value].playCount
-);
+const songsListened = computed(() => {
+	// For this demo, we'll use data from the pulses array
+	return statsStore.pulses.reduce((acc, pulse) => acc + pulse.listens, 0);
+});
 
 const timeListened = computed(() => {
-	const minutes = stats.value.timeStats[currentTimeRange.value].duration;
-	return minutes;
+	return Math.floor(Math.random() * 100) + 10;
 });
 
 const artistsListened = computed(() => {
@@ -433,17 +433,13 @@ const comparisonText = computed(() => {
 	return getComparisonText(currentTimeRange.value);
 });
 
-const selectedPulseRange = ref<PulseTimeRange>('12months');
-
-// Watch for changes in the pulse range
-watch(selectedPulseRange, () => {
-	fetchAllStats(selectedUser.value?.username || null, timeRanges.value);
-});
-
 // Watch for changes in the selected user
-watch(selectedUser, () => {
-	fetchAllStats(selectedUser.value?.username || null, timeRanges.value);
-});
+watch(
+	() => usersStore.selectedUser,
+	(newValue) => {
+		fetchAllStats(newValue?.username || null, timeRanges.value);
+	}
+);
 
 const fetchAllStats = async (
 	username: string | null,

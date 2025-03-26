@@ -42,7 +42,7 @@ import { useRouter } from 'vue-router';
 import { AppUser } from '@/stores/usersStore';
 
 const router = useRouter();
-const props = defineProps<{
+defineProps<{
 	currentUser: AppUser | null;
 }>();
 

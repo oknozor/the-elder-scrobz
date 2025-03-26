@@ -53,7 +53,7 @@ const handleLogout = () => {
 
 const handleUserChange = (user: AppUser | null) => {
 	selectedUser.value = user;
-	usersStore.selectedUser = user;
+	usersStore.updateSelectedUser(user);
 };
 
 onMounted(async () => {

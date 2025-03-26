@@ -13,8 +13,11 @@ export const useUsersStore = defineStore('users', {
 	}),
 	actions: {
 		async fetchUsers() {
-			const { data } = await apiClient.get<AppUser[]>('/api/v1/users');
+			const { data } = await apiClient.get<AppUser[]>('/users');
 			this.users = data;
+		},
+		updateSelectedUser(user: AppUser | null) {
+			this.selectedUser = user;
 		},
 	},
 });

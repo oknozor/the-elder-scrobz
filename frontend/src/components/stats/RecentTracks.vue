@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, PropType } from 'vue';
+import { ref, PropType } from 'vue';
 import { formatTimeAgo } from '@/utils/formatter';
 import router from '@/router';
 import { RecentTrack } from '@/types/music';
