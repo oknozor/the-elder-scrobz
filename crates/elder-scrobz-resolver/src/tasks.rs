@@ -74,3 +74,19 @@ pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<(
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test() {
+    let release = MusicBrainzRelease::fetch()
+        .id("26e61359-cb9a-4464-8ec6-db44290e4d67")
+        .with_annotations()
+        .with_genres()
+        .with_artist_credits()
+        .with_artists()
+        .with_recordings()
+        .execute_with_client(&MB_CLIENT)
+        .await
+        .unwrap();
+
+    println!("{:#?}", release);
+}

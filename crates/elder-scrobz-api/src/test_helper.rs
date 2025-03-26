@@ -16,13 +16,6 @@ pub fn scrobble_fixture() -> anyhow::Result<String> {
     Ok(scrobble)
 }
 
-#[test]
-fn test() -> anyhow::Result<()> {
-    let scrobble = fs::read_to_string("tests/fixtures/scrobble2.json")?;
-    let s = serde_json::from_str::<SubmitListens>(&scrobble)?;
-    println!("{:#?}", s);
-    Ok(())
-}
 pub async fn start_postgres() -> anyhow::Result<(AppState, ContainerAsync<Postgres>)> {
     let container = Postgres::default()
         .with_db_name("scrobz")

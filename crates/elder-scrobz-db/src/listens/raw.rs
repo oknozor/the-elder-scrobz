@@ -159,7 +159,7 @@ impl RawScrobble {
     }
 
     pub fn track_duration(&self) -> Option<i32> {
-        self.additional_info().and_then(|info| info.tracknumber)
+        self.additional_info().and_then(|info| info.duration_ms)
     }
 
     fn mappings(&self) -> Option<&MbidMapping> {
@@ -309,65 +309,4 @@ pub struct TopReleasesForUserPayloadReleasesInnerArtistsInner {
     pub artist_mbid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub join_phrase: Option<String>,
-}
-
-#[cfg(test)]
-mod test {
-    use crate::listens::raw::ListenType::Single;
-    use crate::listens::raw::{AdditionalInfo, SubmitListens, SubmitListensPayload, TrackMetadata};
-
-    #[test]
-    fn deserialize_submit_listens() {
-        let listens = SubmitListens {
-            listen_type: Single,
-            payload: Vec::from([SubmitListensPayload {
-                listened_at: 1742999763,
-                track_metadata: TrackMetadata {
-                    additional_info: Some(AdditionalInfo {
-                        recording_mbid: Some("9f3748d6-b4db-41d7-875e-43d8e273575c".to_string()),
-                        release_mbid: Some("ee3a8b51-b67d-41a5-bbc6-2cb427677947".to_string()),
-                        duration_ms: Some(235930),
-                        tracknumber: Some(13),
-                        artist_mbids: Some(vec!["93dda03d-c1d3-42c2-80b0-fa71bc20262b".to_string()]),
-                        media_player: None,
-                        media_player_version: None,
-                        submission_client: Some("navidrome".to_string()),
-                        submission_client_version: Some("0.55.1 (beb768cd)".to_string()),
-                        music_service: None,
-                        music_service_name: None,
-                        origin_url: None,
-                        recording_msid: None,
-                        tags: None,
-                        duration: None,
-                        release_group_mbid: Some("2d1a315e-ae5a-3648-ab58-59a45ce5bac5".to_string()),
-                        track_mbid: None,
-                        work_mbids: None,
-                        isrc: None,
-                        spotify_id: None,
-                        discnumber: None,
-                        listening_from: None,
-                        release_artist_name: None,
-                        release_artist_names: None,
-                        spotify_album_artist_ids: None,
-                        spotify_album_id: None,
-                        spotify_artist_ids: None,
-                        youtube_id: None,
-                        albumartist: None,
-                        comment: None,
-                        date: None,
-                        genre: None,
-                        artist_names: Some(vec!["Capleton".to_string()]),
-                        track_number: None,
-                    }),
-                    artist_name: "Capleton".to_string(),
-                    mbid_mapping: None,
-                    release_name: "I Testament".to_string(),
-                    track_name: "Death Row".to_string(),
-                },
-            }]),
-        };
-        let json = serde_json::to_string_pretty(&listens).unwrap();
-        println!("{}", json);
-
-    }
 }
