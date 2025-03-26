@@ -87,12 +87,10 @@ impl CreateRawScrobble {
         scrobbles: Vec<CreateRawScrobble>,
         pool: &PgPool,
     ) -> Result<(), Error> {
-        let mut tx = pool.begin().await?;
         for scrobble in scrobbles {
             let listened_at = DateTime::from_timestamp(scrobble.data.payload.listened_at, 0)
                 .expect("Failed to parse timestamp");
             let uuid = Uuid::new_v4().to_string();
-
             let value = serde_json::to_value(&scrobble.data).unwrap();
             sqlx::query!(r#"INSERT INTO scrobbles_raw (user_id, id, data, listened_at) VALUES ($1, $2, $3, $4)
                                 ON CONFLICT (user_id, listened_at) DO NOTHING;"#,
@@ -101,11 +99,9 @@ impl CreateRawScrobble {
                 value,
                 listened_at
             )
-            .fetch_optional(&mut *tx)
+                .execute(pool)
             .await?;
         }
-
-        tx.commit().await?;
 
         Ok(())
     }

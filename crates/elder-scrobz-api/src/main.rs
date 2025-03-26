@@ -60,7 +60,7 @@ async fn main() -> anyhow::Result<()> {
         .layer(TraceLayer::new_for_http())
         .with_state(state.clone());
 
-    #[cfg(not(debug_assertions))]
+    #[cfg(debug_assertions)]
     let app = {
         info!("Enabling CORS for local development. Don't do this in production.");
         use axum::http::HeaderValue;
@@ -70,7 +70,7 @@ async fn main() -> anyhow::Result<()> {
                 .allow_origin("*".parse::<HeaderValue>().unwrap())
                 .allow_headers(Any)
                 .allow_methods(Any),
-        );
+        )
     };
 
     let (mut router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
