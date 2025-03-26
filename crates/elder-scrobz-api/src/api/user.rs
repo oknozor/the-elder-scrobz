@@ -41,8 +41,9 @@ impl From<DbUser> for User {
     post,
     path = "/",
     responses(
-        (status = 200, description = "User Created", body = UserCreated),
-    )
+        (status = 200, description = "User Created", body = UserCreated, content_type = "application/json"),
+    ),
+    tag = crate::api::USERS_TAG
 )]
 pub async fn create_user(
     State(state): State<AppState>,
@@ -59,8 +60,9 @@ pub async fn create_user(
     get,
     path = "/",
     responses(
-        (status = 200, description = "All users", body = UserCreated),
-    )
+        (status = 200, description = "All users", body = Vec<User>, content_type = "application/json"),
+    ),
+    tag = crate::api::USERS_TAG
 )]
 pub async fn get_users(
     State(state): State<AppState>,

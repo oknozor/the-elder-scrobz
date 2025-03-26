@@ -1,4 +1,3 @@
-use crate::api::PageQuery;
 use crate::error::{AppError, AppResult};
 use crate::AppState;
 use axum::extract::{Query, State};
@@ -10,7 +9,7 @@ use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
 use elder_scrobz_db::pulses::Pulse;
 use elder_scrobz_db::Period;
 use serde::Deserialize;
-use utoipa::ToSchema;
+use utoipa::{IntoParams, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -22,26 +21,40 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(pulses))
 }
 
-#[derive(Deserialize, ToSchema, Debug)]
+#[derive(Deserialize, ToSchema, IntoParams, Debug)]
+#[serde(default)]
 pub struct ChartQuery {
+    // Year | month | week | today
     period: Period,
+    // The username to filter result on
     username: Option<String>,
-    #[serde(flatten)]
-    page: PageQuery,
+    // Page to query
+    page: i64,
+    // Number of item in a page
+    page_size: i64,
+}
+
+impl Default for ChartQuery {
+    fn default() -> Self {
+        ChartQuery {
+            period: Period::Year,
+            username: None,
+            page: 1,
+            page_size: 10,
+        }
+    }
 }
 
 #[debug_handler]
 #[utoipa::path(
     get,
     path = "/tracks",
-    params(
-        ("id" = String, Path, description = "ID of the user"),
-        ("params" = ChartQuery, description = "Chart period such as 'year', 'month', 'week', or 'today'")
-    ),
+    params(ChartQuery),
     responses(
-        (status = 200, description = "Top tracks for user", body = Vec<TopTrack>),
+        (status = 200, description = "Top tracks for user", body = Vec<TopTrack>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
-    )
+    ),
+    tag = crate::api::CHARTS_TAG
 )]
 pub async fn track_charts(
     State(state): State<AppState>,
@@ -56,14 +69,12 @@ pub async fn track_charts(
 #[utoipa::path(
     get,
     path = "/albums",
-    params(
-        ("id" = String, Path, description = "ID of the user"),
-        ("period" = ChartQuery, description = "Chart period such as 'year', 'month', 'week', or 'today'")
-    ),
+    params(ChartQuery),
     responses(
-        (status = 200, description = "Top album for user", body = Vec<TopAlbum>),
+        (status = 200, description = "Top album for user", body = Vec<TopAlbum>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
-    )
+    ),
+    tag = crate::api::CHARTS_TAG
 )]
 pub async fn album_charts(
     State(state): State<AppState>,
@@ -78,14 +89,12 @@ pub async fn album_charts(
 #[utoipa::path(
     get,
     path = "/artists",
-    params(
-        ("id" = String, Path, description = "ID of the user"),
-        ("period" = ChartQuery, description = "Chart period such as 'year', 'month', 'week', or 'today'")
-    ),
+    params(ChartQuery),
     responses(
-        (status = 200, description = "Top album for user", body = Vec<TopAlbum>),
+        (status = 200, description = "Top album for user", body = Vec<TopAlbum>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
-    )
+    ),
+    tag = crate::api::CHARTS_TAG
 )]
 pub async fn artist_charts(
     State(state): State<AppState>,
@@ -96,7 +105,7 @@ pub async fn artist_charts(
     ))
 }
 
-#[derive(Deserialize, ToSchema, Debug)]
+#[derive(Deserialize, ToSchema, IntoParams, Debug)]
 pub struct PulseQuery {
     period: Period,
     user_id: Option<String>,
@@ -106,15 +115,12 @@ pub struct PulseQuery {
 #[utoipa::path(
     get,
     path = "/pulses",
-    params(
-        ("id" = String, Path, description = "ID of the user"),
-        ("period" = Period, description = "Chart period such as 'year', 'month', 'week', or 'today'"),
-        ("user_id" = Option<String>, description = "filter by user id")
-    ),
+    params(PulseQuery),
     responses(
-        (status = 200, description = "Top album for user", body = Vec<Pulse>),
+        (status = 200, description = "Top album for user", body = Vec<Pulse>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
-    )
+    ),
+    tag = crate::api::CHARTS_TAG
 )]
 pub async fn pulses(
     State(state): State<AppState>,

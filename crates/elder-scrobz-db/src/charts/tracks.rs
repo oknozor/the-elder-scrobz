@@ -5,7 +5,10 @@ use sqlx::types::chrono::{DateTime, Utc};
 use std::result::Result;
 use utoipa::ToSchema;
 
+const DOCS: &str = include_str!("../../docs/track_charts.example.json");
+
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
+#[schema(example = json!(DOCS))]
 pub struct TopTrack {
     pub track_id: String,
     pub track_name: String,

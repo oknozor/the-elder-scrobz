@@ -15,7 +15,8 @@ use tracing::error;
     responses(
         (status = 200, description = "Top tracks for user", body = ()),
         (status = 404, description = "User not found", body = AppError)
-    )
+    ),
+    tag = crate::api::SCROBBLES_TAG
 )]
 pub async fn import_listens(
     State(state): State<AppState>,

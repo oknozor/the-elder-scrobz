@@ -85,7 +85,10 @@ impl CreateRawScrobble {
     }
 }
 
+const SUBMIT_LISTEN_DOCS: &str = include_str!("../../docs/submitlisten.example.json");
+
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
+#[schema(example = json!(SUBMIT_LISTEN_DOCS))]
 pub struct SubmitListens {
     pub listen_type: ListenType,
     pub payload: Vec<SubmitListensPayload>,

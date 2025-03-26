@@ -1,4 +1,4 @@
-use crate::api::router;
+use crate::api::{router, ApiDoc};
 use crate::oauth::verify_bearer_token;
 use crate::settings::Settings;
 use axum::middleware;
@@ -10,8 +10,7 @@ use tower_http::trace::TraceLayer;
 use tracing::info;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
-use utoipa::{Modify, OpenApi};
+use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -35,28 +34,6 @@ impl AppState {
         let pool = build_pg_pool(&settings.database_url).await;
         let settings = Arc::new(settings);
         Ok(AppState { pool, settings })
-    }
-}
-
-#[derive(OpenApi)]
-#[openapi(
-    modifiers(&SecurityAddon),
-    tags(
-            (name = "scrobz", description = "The Elder Scrobz")
-    )
-)]
-struct ApiDoc;
-
-struct SecurityAddon;
-
-impl Modify for SecurityAddon {
-    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
-        if let Some(components) = openapi.components.as_mut() {
-            components.add_security_scheme(
-                "api_key",
-                SecurityScheme::ApiKey(ApiKey::Header(ApiKeyValue::new("todo_apikey"))),
-            )
-        }
     }
 }
 
@@ -98,7 +75,6 @@ async fn main() -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
-
     use crate::api::user::UserCreated;
     use crate::router;
     use crate::test_helper::{scrobble_fixture, start_postgres};

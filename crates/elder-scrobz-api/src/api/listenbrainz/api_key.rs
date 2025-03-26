@@ -23,7 +23,8 @@ pub struct ApiKeyCreated {
     responses(
         (status = 200, description = "Create a new user ApiKey", body = ApiKeyCreated),
         (status = 404, description = "User not found", body = AppError)
-    )
+    ),
+    tag = crate::api::API_KEYS_TAG
 )]
 pub async fn create_api_key(
     State(state): State<AppState>,
@@ -57,9 +58,13 @@ pub struct TokenValidation {
 #[utoipa::path(
     get,
     path = "/validate-token",
+    params(
+        ("Authorization" = String, Header, description = "Token to validate. Format: `Token <token>`")
+    ),
     responses(
-        (status = 200, description = "The user token is valid/invalid.")
-    )
+        (status = 200, description = "The user token is valid/invalid.", content_type = "application/json", body = TokenValidation)
+    ),
+    tag = crate::api::API_KEYS_TAG
 )]
 pub async fn validate_token(
     State(state): State<AppState>,

@@ -5,7 +5,10 @@ use sqlx::types::chrono::{DateTime, Utc};
 use std::result::Result;
 use utoipa::ToSchema;
 
+const DOCS: &str = include_str!("../../docs/artist_charts.example.json");
+
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
+#[schema(example = json!(DOCS))]
 pub struct TopArtist {
     pub artist_id: String,
     pub artist_name: Option<String>,

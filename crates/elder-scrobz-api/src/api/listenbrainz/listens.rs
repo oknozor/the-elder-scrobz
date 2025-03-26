@@ -15,10 +15,14 @@ use tracing::error;
 #[utoipa::path(
     post,
     path = "/submit-listens",
+    params(
+        ("Authorization" = String, Header, description = "Token to validate. Format: `Token <token>`")
+    ),
     responses(
-        (status = 200, description = "Top tracks for user", body = ()),
+        (status = 200, description = "Top tracks for user", body = SubmitListens, ),
         (status = 404, description = "User not found", body = AppError)
-    )
+    ),
+    tag = crate::api::SCROBBLES_TAG
 )]
 pub async fn submit_listens(
     State(state): State<AppState>,

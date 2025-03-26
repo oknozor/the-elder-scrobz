@@ -1,0 +1,26 @@
+[
+  {
+    "artist_id": "133c77d4-f8a8-4d26-92e2-6729a9264750",
+    "artist_name": "Sonic Area",
+    "last_listened_at": "2025-01-10T10:35:57Z",
+    "listens": 10
+  },
+  {
+    "artist_id": "381086ea-f511-4aba-bdf9-71c753dc5077",
+    "artist_name": "Kendrick Lamar",
+    "last_listened_at": "2025-01-11T09:40:04Z",
+    "listens": 9
+  },
+  {
+    "artist_id": "6bbb3983-ce8a-4971-96e0-7cae73268fc4",
+    "artist_name": "Jungle",
+    "last_listened_at": "2025-01-10T15:51:23Z",
+    "listens": 1
+  },
+  {
+    "artist_id": "c204d74b-fe8b-41a9-b9d2-d7c953bbe2fc",
+    "artist_name": "Jonah Senzel",
+    "last_listened_at": "2025-01-11T08:55:18Z",
+    "listens": 1
+  }
+]

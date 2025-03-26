@@ -1,0 +1,43 @@
+{
+  "listen_type": "single",
+  "payload": [
+    {
+      "inserted_at": 1736503839.79322,
+      "listened_at": 1736503811,
+      "track_metadata": {
+        "track_name": "Lotus",
+        "artist_name": "Sonic Area",
+        "mbid_mapping": {
+          "caa_id": 28429645674,
+          "artists": [
+            {
+              "artist_mbid": "133c77d4-f8a8-4d26-92e2-6729a9264750",
+              "join_phrase": "",
+              "artist_credit_name": "Sonic Area"
+            }
+          ],
+          "artist_mbids": [
+            "133c77d4-f8a8-4d26-92e2-6729a9264750"
+          ],
+          "release_mbid": "7a82e8bd-a384-49e6-8aa8-d68b8194e535",
+          "recording_mbid": "6591c359-f7ce-409b-93a8-e39571834cdc",
+          "recording_name": "Lotus",
+          "caa_release_mbid": "7a82e8bd-a384-49e6-8aa8-d68b8194e535"
+        },
+        "release_name": "Ki",
+        "recording_msid": "8beb36df-cf65-4c29-9cad-a09ca8577904",
+        "additional_info": {
+          "duration_ms": 246730,
+          "tracknumber": 4,
+          "artist_mbids": [
+            "133c77d4-f8a8-4d26-92e2-6729a9264750"
+          ],
+          "release_mbid": "7a82e8bd-a384-49e6-8aa8-d68b8194e535",
+          "recording_mbid": "6591c359-f7ce-409b-93a8-e39571834cdc",
+          "submission_client": "navidrome",
+          "submission_client_version": "0.54.3 (734eb30a)"
+        }
+      }
+    }
+  ]
+}
