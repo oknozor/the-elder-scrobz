@@ -10,7 +10,8 @@ utoipa-swagger-ui = { version = "9.0.0", features = ["axum"] }
 utoipa = { version = "5.3.1", features = ["macros", "axum_extras", "chrono"] }
 axum-extra = { version = "0.10.0", features = ["typed-header", "json-lines"] }
 axum-macros = "0.5.0"
-tower-http = { version = "0.6.2", features = ["trace", "fs", "auth"] }
+tower = "0.5.2"
+tower-http = { version = "0.6.2", features = ["trace", "fs", "auth", "cors"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 tracing = "0.1.41"
 
@@ -34,7 +35,6 @@ elder-scrobz-db = { path = "crates/elder-scrobz-db", version = "0.1.0" }
 elder-scrobz-resolver = { path = "crates/elder-scrobz-resolver", version = "0.1.0" }
 
 http-body-util = "0.1.2"
-tower = "0.5.2"
 testcontainers-modules = { version = "0.11.6", features = ["postgres"] }
 speculoos = "0.12.0"
 dotenv = "0.15.0"
