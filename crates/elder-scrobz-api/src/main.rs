@@ -85,8 +85,8 @@ async fn main() -> anyhow::Result<()> {
     let serve_dir = ServeDir::new("/app/frontend")
         .not_found_service(ServeFile::new("/app/frontend/index.html"));
 
-    let router =
-        router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
+    let router = router
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
         .fallback_service(serve_dir);
 
     let mut resolver = ScrobbleResolver::create(pool.clone()).await?;
