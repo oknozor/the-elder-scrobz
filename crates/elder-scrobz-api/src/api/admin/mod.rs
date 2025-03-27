@@ -1,4 +1,4 @@
-use crate::AppState;
+use crate::state::AppState;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 

@@ -61,8 +61,9 @@ impl IntoResponse for AppError {
 
 #[cfg(test)]
 mod tests {
+    use crate::router;
+    use crate::state::AppState;
     use crate::test_helper::scrobble_fixture;
-    use crate::{router, AppState};
     use axum::{http::Request, http::StatusCode};
     use http_body_util::BodyExt;
     use tower::ServiceExt;

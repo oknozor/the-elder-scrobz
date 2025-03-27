@@ -10,7 +10,7 @@ pub struct Settings {
     pub database_url: String,
     pub oauth_client_id: String,
     pub oauth_client_secret: String,
-    pub oauth_introspection_url: String,
+    pub oauth_provider_url: String,
 }
 
 impl Settings {

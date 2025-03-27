@@ -28,6 +28,7 @@ serde.workspace = true
 futures-util.workspace = true
 config.workspace = true
 reqwest.workspace = true
+oauth2.workspace = true
 dotenv.workspace = true
 
 # see: https://github.com/juhaku/utoipa/issues/1341
