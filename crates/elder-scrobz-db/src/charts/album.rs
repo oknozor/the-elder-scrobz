@@ -27,24 +27,44 @@ pub async fn get_most_listened_albums(
     let result = match username {
         None => match period {
             Period::Week => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/week.sql", (page - 1) * page_size, page_size)
-                    .fetch_all(pool)
-                    .await?
+                sqlx::query_file_as!(
+                    TopAlbum,
+                    "queries/charts/album/week.sql",
+                    (page - 1) * page_size,
+                    page_size
+                )
+                .fetch_all(pool)
+                .await?
             }
             Period::Month => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/month.sql", (page - 1) * page_size, page_size)
-                    .fetch_all(pool)
-                    .await?
+                sqlx::query_file_as!(
+                    TopAlbum,
+                    "queries/charts/album/month.sql",
+                    (page - 1) * page_size,
+                    page_size
+                )
+                .fetch_all(pool)
+                .await?
             }
             Period::Year => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/year.sql", (page - 1) * page_size, page_size)
-                    .fetch_all(pool)
-                    .await?
+                sqlx::query_file_as!(
+                    TopAlbum,
+                    "queries/charts/album/year.sql",
+                    (page - 1) * page_size,
+                    page_size
+                )
+                .fetch_all(pool)
+                .await?
             }
             Period::Today => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/today.sql", (page - 1) * page_size, page_size)
-                    .fetch_all(pool)
-                    .await?
+                sqlx::query_file_as!(
+                    TopAlbum,
+                    "queries/charts/album/today.sql",
+                    (page - 1) * page_size,
+                    page_size
+                )
+                .fetch_all(pool)
+                .await?
             }
         },
         Some(user) => match period {

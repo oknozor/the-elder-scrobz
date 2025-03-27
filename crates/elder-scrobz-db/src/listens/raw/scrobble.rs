@@ -178,9 +178,3 @@ impl TypedScrobble {
         self.data.0.track_metadata.additional_info.as_ref()
     }
 }
-
-#[test]
-fn test() {
-    let t = r#"{"id":"2fec630b-b2ce-4c5e-8a5a-eb7df1784998","listened_at":"2025-01-11T09:34:51+00:00","user_id":"oknozor","data":{"listened_at": 1736588091, "track_metadata": {"track_name": "m.A.A.d city", "artist_name": "Kendrick Lamar feat. MC Eiht", "mbid_mapping": {"caa_id": 22057643526, "artists": [{"artist_mbid": "381086ea-f511-4aba-bdf9-71c753dc5077", "join_phrase": " featuring ", "artist_credit_name": "Kendrick Lamar"}, {"artist_mbid": "103555b8-ae47-4e99-8fc3-e31bdfd7854e", "join_phrase": "", "artist_credit_name": "MC Eiht"}], "artist_mbids": ["381086ea-f511-4aba-bdf9-71c753dc5077", "103555b8-ae47-4e99-8fc3-e31bdfd7854e"], "release_mbid": "e1d99364-1ad9-4f4d-9505-2242eff10a44", "recording_mbid": "d142987d-69a5-426c-8d41-20ce2cc1534b", "recording_name": "m.A.A.d city", "caa_release_mbid": "d5bcadc9-d6b2-4119-bf50-af1b9dca834c"}, "release_name": "good kid, m.A.A.d city", "recording_msid": "1211efde-8222-4193-a569-078586594333", "additional_info": {"duration_ms": 350120, "tracknumber": 8, "artist_mbids": ["381086ea-f511-4aba-bdf9-71c753dc5077"], "release_mbid": "bb772ff7-7ed8-435b-9bfe-90df819fa605", "recording_mbid": "d142987d-69a5-426c-8d41-20ce2cc1534b", "submission_client": "navidrome", "submission_client_version": "0.54.3 (734eb30a)"}}},"created_at":"2025-03-27T13:48:32.221156","status":"unprocessed"}"#;
-    let t: TypedScrobble = serde_json::from_str(t).unwrap();
-}

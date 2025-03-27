@@ -81,7 +81,14 @@ pub async fn album_charts(
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<Vec<TopAlbum>>> {
     Ok(Json(
-        get_most_listened_albums(query.period, query.username, query.page, query.page_size, &state.pool).await?,
+        get_most_listened_albums(
+            query.period,
+            query.username,
+            query.page,
+            query.page_size,
+            &state.pool,
+        )
+        .await?,
     ))
 }
 

@@ -47,17 +47,18 @@ pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<(
         artist.save(&pool).await?;
     }
 
-    let response = release
-        .get_coverart()
-        .execute_with_client(&MB_CLIENT)
-        .await?;
+    let cover_art_url = release.get_coverart().execute_with_client(&MB_CLIENT).await;
 
-    let coverart_url = match response {
-        CoverartResponse::Json(coverart) => Some(coverart.images[0].image.clone()),
-        CoverartResponse::Url(url) => Some(url),
-    };
+    if let Err(e) = &cover_art_url {
+        warn!("Error fetching cover art for release {release_mbid}: {e}");
+    }
 
-    if coverart_url.is_none() {
+    let cover_art_url = cover_art_url.ok().map(|response| match response {
+        CoverartResponse::Json(coverart) => coverart.images[0].image.clone(),
+        CoverartResponse::Url(url) => url,
+    });
+
+    if cover_art_url.is_none() {
         warn!("No cover art found for release {release_mbid}");
     }
 
@@ -66,7 +67,7 @@ pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<(
         name: release.title,
         artist_mbid: artists_credited_on_release.first().map(|a| a.mbid.clone()),
         description: release.annotation,
-        cover_art_url: coverart_url,
+        cover_art_url,
     };
 
     release.save(&pool).await?;
@@ -78,7 +79,7 @@ pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<(
 #[tokio::test]
 async fn test() {
     let release = MusicBrainzRelease::fetch()
-        .id("26e61359-cb9a-4464-8ec6-db44290e4d67")
+        .id("83c821d0-13b1-44a6-abc2-00815f62889f")
         .with_annotations()
         .with_genres()
         .with_artist_credits()
