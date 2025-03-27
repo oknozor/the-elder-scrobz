@@ -8,7 +8,8 @@ use tokio::spawn;
 use tracing::info;
 use utoipa::IntoParams;
 
-#[derive(Debug, serde::Deserialize, IntoParams)]
+#[derive(Debug, serde::Deserialize, IntoParams, Default)]
+#[serde(default)]
 pub struct ScanQuery {
     /// Scan all scrobbles instead of only unprocessed ones
     force: bool,

@@ -2,9 +2,9 @@ use crate::PgPool;
 use crate::listens::raw::listenbrainz::typed;
 use crate::listens::raw::listenbrainz::typed::{AdditionalInfo, MbidMapping};
 use chrono::{DateTime, Utc};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sqlx::Error;
-use sqlx::types::Json;
+use sqlx::types::{Json, JsonValue};
 
 #[derive(sqlx::FromRow, sqlx::Type, Deserialize, Debug)]
 pub struct TypedScrobble {
@@ -15,7 +15,16 @@ pub struct TypedScrobble {
     pub status: ProcessState,
 }
 
-#[derive(Debug, sqlx::Type, Deserialize)]
+#[derive(sqlx::FromRow, sqlx::Type, Deserialize, Serialize, Debug)]
+pub struct RawScrobble {
+    pub id: String,
+    pub user_id: String,
+    pub listened_at: DateTime<Utc>,
+    pub data: JsonValue,
+    pub status: ProcessState,
+}
+
+#[derive(Debug, sqlx::Type, Deserialize, Serialize)]
 #[sqlx(type_name = "scrobble_state", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum ProcessState {
@@ -34,7 +43,7 @@ impl TypedScrobble {
             WHERE id = $1"#,
             scrobble_id
         )
-            .fetch_optional(pool) // Use `fetch_optional` since it may or may not exist
+            .fetch_optional(pool)
             .await
     }
 
@@ -61,7 +70,7 @@ impl TypedScrobble {
             FROM scrobbles_raw
         "#,
         )
-        .fetch_all(pool) // Fetch all rows that match the query
+        .fetch_all(pool)
         .await
     }
 
@@ -74,7 +83,34 @@ impl TypedScrobble {
             WHERE status = 'unprocessed'
         "#,
         )
-        .fetch_all(pool) // Fetch all rows that match the query
+        .fetch_all(pool)
+        .await
+    }
+}
+
+impl RawScrobble {
+    pub async fn get_by_id(pool: &PgPool, scrobble_id: &str) -> Result<Option<RawScrobble>, Error> {
+        sqlx::query_as!(
+            RawScrobble,
+            r#"SELECT id, user_id, data, listened_at, status AS "status: ProcessState"
+            FROM scrobbles_raw
+            WHERE id = $1"#,
+            scrobble_id
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
+    // TODO: pagination
+    pub async fn get_unprocessed(pool: &PgPool) -> Result<Vec<RawScrobble>, Error> {
+        sqlx::query_as(
+            r#"
+            SELECT id, user_id, data, listened_at, status
+            FROM scrobbles_raw
+            WHERE status = 'unprocessed'
+        "#,
+        )
+        .fetch_all(pool)
         .await
     }
 }
