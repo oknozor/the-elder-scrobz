@@ -21,6 +21,8 @@ pub enum AppError {
     Internal(String),
     #[schema(example = "User not found")]
     UserNotFound { id: String },
+    #[schema(example = "User not found")]
+    ScrobbleNotFound { id: String },
     #[schema(example = "Operation not allowed")]
     Unauthorized(String),
 }
@@ -44,6 +46,12 @@ impl IntoResponse for AppError {
                 StatusCode::UNAUTHORIZED,
                 Json(json!({
                     "error": msg
+                })),
+            ),
+            AppError::ScrobbleNotFound { id } => (
+                StatusCode::NOT_FOUND,
+                Json(json!({
+                    "message": format!("Scrobble with id {id} not found")
                 })),
             ),
         }
