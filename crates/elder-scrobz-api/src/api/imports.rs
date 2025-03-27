@@ -1,6 +1,7 @@
 use crate::error::{AppError, AppResult};
-use crate::AppState;
-use axum::extract::{Path, State};
+use crate::oauth::AuthenticatedUser;
+use crate::state::AppState;
+use axum::extract::State;
 use axum_extra::extract::JsonLines;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
@@ -10,7 +11,7 @@ use futures_util::stream::StreamExt;
 #[debug_handler]
 #[utoipa::path(
     post,
-    path = "/users/{id}/import",
+    path = "/users/import",
     responses(
         (status = 200, description = "Top tracks for user", body = ()),
         (status = 404, description = "User not found", body = AppError)
@@ -18,8 +19,8 @@ use futures_util::stream::StreamExt;
     tag = crate::api::SCROBBLES_TAG
 )]
 pub async fn import_listens(
+    user: AuthenticatedUser,
     State(state): State<AppState>,
-    Path(user_name): Path<String>,
     mut stream: JsonLines<serde_json::value::Value>,
 ) -> AppResult<()> {
     const CHUNK_SIZE: usize = 50;
@@ -31,13 +32,13 @@ pub async fn import_listens(
         buffer.push(value);
 
         if buffer.len() == CHUNK_SIZE {
-            save_listens(&state, &user_name, buffer).await?;
+            save_listens(&state, &user.name, buffer).await?;
             buffer = Vec::with_capacity(CHUNK_SIZE);
         }
     }
 
     if !buffer.is_empty() {
-        save_listens(&state, &user_name, buffer).await?;
+        save_listens(&state, &user.name, buffer).await?;
     }
 
     Ok(())

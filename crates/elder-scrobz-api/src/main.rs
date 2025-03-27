@@ -1,15 +1,10 @@
 use crate::api::{router, ApiDoc};
-use crate::oauth::verify_bearer_token;
-use crate::settings::Settings;
-use axum::middleware;
-use elder_scrobz_db::build_pg_pool;
-use elder_scrobz_db::PgPool;
 use elder_scrobz_resolver::ScrobbleResolver;
+use state::AppState;
 use std::net::SocketAddr;
-use std::sync::Arc;
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
-use tracing::info;
+use tracing::{info, warn};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use utoipa::OpenApi;
@@ -18,30 +13,20 @@ use utoipa_swagger_ui::SwaggerUi;
 
 mod api;
 mod error;
-mod settings;
-
 mod oauth;
+mod settings;
+mod state;
+
 #[cfg(test)]
 mod test_helper;
 
-#[derive(Clone)]
-struct AppState {
-    pool: PgPool,
-    settings: Arc<Settings>,
-}
-
-impl AppState {
-    async fn init() -> anyhow::Result<Self> {
-        let settings = Settings::get()?;
-        let pool = build_pg_pool(&settings.database_url).await;
-        let settings = Arc::new(settings);
-        Ok(AppState { pool, settings })
-    }
-}
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenv::dotenv().ok();
+    #[cfg(debug_assertions)]
+    {
+        dotenv::dotenv().ok();
+        dotenv::from_filename(".secret.env").ok();
+    }
 
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
@@ -58,7 +43,7 @@ async fn main() -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
     info!("listening on {}", listener.local_addr()?);
-    let app = router()
+    let app = router(state.clone())
         .layer(TraceLayer::new_for_http())
         .with_state(state.clone());
 
@@ -75,12 +60,12 @@ async fn main() -> anyhow::Result<()> {
         )
     };
 
-    let (mut router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
+    let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .nest("/api/v1", app)
         .split_for_parts();
 
-    if !state.settings.debug {
-        router = router.layer(middleware::from_fn_with_state(state, verify_bearer_token))
+    if state.settings.debug {
+        warn!("Debug mode enabled, running without oauth2 security");
     }
 
     let serve_frontend = ServeDir::new("/app/frontend")
@@ -113,7 +98,7 @@ mod tests {
     #[tokio::test]
     async fn submit_listens() -> anyhow::Result<()> {
         let (state, _container) = start_postgres().await?;
-        let (app, _) = router().with_state(state).split_for_parts();
+        let (app, _) = router(state.clone()).with_state(state).split_for_parts();
 
         let body = serde_json::to_string(&CreateUser {
             username: "oknozor".to_string(),

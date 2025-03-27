@@ -1,7 +1,8 @@
 use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
-use crate::AppState;
-use axum::extract::{Path, State};
+use crate::oauth::AuthenticatedUser;
+use crate::state::AppState;
+use axum::extract::State;
 use axum::Json;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
@@ -19,7 +20,7 @@ pub struct ApiKeyCreated {
 #[debug_handler]
 #[utoipa::path(
     post,
-    path = "/users/{id}/api-key/create",
+    path = "/users/api-key/create",
     responses(
         (status = 200, description = "Create a new user ApiKey", body = ApiKeyCreated),
         (status = 404, description = "User not found", body = AppError)
@@ -27,11 +28,11 @@ pub struct ApiKeyCreated {
     tag = crate::api::API_KEYS_TAG
 )]
 pub async fn create_api_key(
+    user: AuthenticatedUser,
     State(state): State<AppState>,
-    Path(username): Path<String>,
 ) -> AppResult<Json<ApiKeyCreated>> {
-    let Some(user) = User::get_by_username(&state.pool, &username).await? else {
-        return Err(AppError::UserNotFound { id: username });
+    let Some(user) = User::get_by_username(&state.pool, &user.name).await? else {
+        return Err(AppError::UserNotFound { id: user.name });
     };
 
     let key = generate_api_key();

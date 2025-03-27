@@ -1,6 +1,6 @@
 use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
-use crate::AppState;
+use crate::state::AppState;
 use axum::extract::State;
 use axum::Json;
 use axum_extra::headers::Authorization;

@@ -1,6 +1,6 @@
+use crate::oauth::client::Oauth2Client;
 use crate::settings::Settings;
-use crate::AppState;
-use elder_scrobz_db::listens::raw::SubmitListens;
+use crate::state::AppState;
 use elder_scrobz_db::{build_pg_pool, migrate_db};
 use std::fs;
 use std::path::PathBuf;
@@ -33,5 +33,12 @@ pub async fn start_postgres() -> anyhow::Result<(AppState, ContainerAsync<Postgr
     let settings = Arc::new(Settings::get()?);
 
     migrate_db(&pool).await?;
-    Ok((AppState { pool, settings }, container))
+    Ok((
+        AppState {
+            pool,
+            settings,
+            oauth_client: Oauth2Client::noop(),
+        },
+        container,
+    ))
 }
