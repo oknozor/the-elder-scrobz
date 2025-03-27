@@ -9,6 +9,7 @@ use sqlx::postgres::PgListener;
 use tracing::{error, info, warn};
 
 mod tasks;
+pub use tasks::try_update_all_coverart;
 
 pub struct ScrobbleResolver {
     pool: PgPool,
@@ -56,7 +57,6 @@ impl ScrobbleResolver {
     }
 }
 
-// Todo: wrap everything in a transaction
 pub async fn process(scrobble: RawScrobble, pool: &PgPool) -> anyhow::Result<String> {
     let scrobble: TypedScrobble = scrobble.try_into()?;
     let pool = pool.clone();

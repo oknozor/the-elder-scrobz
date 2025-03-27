@@ -94,6 +94,12 @@ impl Release {
 
         Ok(exists.unwrap_or_default())
     }
+
+    pub async fn missing_coverart(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
+        sqlx::query_scalar!(r#"SELECT mbid FROM releases WHERE cover_art_url IS NULL"#)
+            .fetch_all(pool)
+            .await
+    }
 }
 
 #[derive(sqlx::FromRow, Debug)]

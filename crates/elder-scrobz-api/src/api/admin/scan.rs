@@ -3,7 +3,7 @@ use crate::AppState;
 use axum::extract::{Query, State};
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
-use elder_scrobz_resolver::process;
+use elder_scrobz_resolver::{process, try_update_all_coverart};
 use tokio::spawn;
 use tracing::info;
 use tracing::log::error;
@@ -14,6 +14,8 @@ use utoipa::IntoParams;
 pub struct ScanQuery {
     /// Scan all scrobbles instead of only unprocessed ones
     force: bool,
+    /// Only fetch missing coverart
+    coverart_only: bool,
 }
 
 #[debug_handler]
@@ -30,6 +32,11 @@ pub async fn scan_db(
     Query(query): Query<ScanQuery>,
     State(state): State<AppState>,
 ) -> AppResult<()> {
+    if query.coverart_only {
+        try_update_all_coverart(&state.pool).await?;
+        return Ok(());
+    }
+
     let scrobbles = if query.force {
         RawScrobble::all(&state.pool).await?
     } else {
@@ -37,7 +44,6 @@ pub async fn scan_db(
     };
 
     info!("Rescanning database for unprocessed scrobbles");
-
     let pool = state.pool.clone();
 
     spawn(async move {
