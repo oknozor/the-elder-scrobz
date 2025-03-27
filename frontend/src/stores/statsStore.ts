@@ -113,5 +113,20 @@ export const useStatsStore = defineStore('stats', {
 				console.error('Error fetching pulses:', error);
 			}
 		},
+
+		async fetchRecentTracks(username: string | null, page: number = 1, pageSize: number = 20) {
+			const usernameParam = username ? `&username=${username}&` : '';
+
+			try {
+				this.error = null;
+				const { data } = await apiClient.get(
+					`/listens/recent?${usernameParam}page=${page}&page_size=${pageSize}`
+				);
+				this.recentTracks = data;
+			} catch (error) {
+				this.error = 'Failed to fetch recent tracks';
+				console.error('Error fetching recent tracks:', error);
+			}
+		},
 	},
 });

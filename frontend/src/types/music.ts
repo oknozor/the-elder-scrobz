@@ -38,13 +38,12 @@ export interface AlbumDetails extends Album {
 }
 
 export interface RecentTrack {
-	id: string;
-	title: string;
-	artist: string;
-	imageUrl: string;
-	lastPlayed: string;
-	user: string;
-	playedAt: string;
+	track_id: string;
+	track_name: string;
+	artist_name: string;
+	cover_art_url: string;
+	listened_at: string;
+	username: string;
 	duration: number;
 }
 

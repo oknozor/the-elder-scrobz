@@ -8,6 +8,7 @@ use utoipa_axum::routes;
 pub mod admin;
 pub mod charts;
 pub mod imports;
+pub mod listens;
 pub mod listenbrainz;
 pub mod user;
 
@@ -26,6 +27,9 @@ const ADMIN_TAG: &str = "admin";
         (name = SCROBBLES_TAG, description = "Scrobbles"),
         (name = API_KEYS_TAG, description = "ApiKey"),
         (name = ADMIN_TAG, description = "Administration"),
+    ),
+    components(
+        schemas(elder_scrobz_db::listens::recent::RecentListen, PageQuery, crate::error::AppError)
     )
 )]
 pub struct ApiDoc;
@@ -67,4 +71,5 @@ pub fn router() -> OpenApiRouter<AppState> {
         .nest("/users", user::router())
         .nest("/charts", charts::router())
         .nest("/admin", admin::router())
+        .nest("/listens", listens::router())
 }

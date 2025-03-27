@@ -449,6 +449,7 @@ const fetchAllStats = async (
 		statsStore.fetchTopTracks(username, timeRanges.tracks),
 		statsStore.fetchTopAlbums(username, timeRanges.albums),
 		statsStore.fetchPulses(username, timeRanges.pulses),
+    statsStore.fetchRecentTracks(username, 1, 20),
 	]);
 };
 
