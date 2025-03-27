@@ -8,52 +8,52 @@
 			>
 				<td class="time-column">
 					<transition name="fade" mode="out-in">
-						<span :key="track.lastPlayed">{{
-							formatTimeAgo(track.lastPlayed)
-						}}</span>
+						<span :key="track.listened_at">{{
+                formatTimeAgo(track.listened_at)
+              }}</span>
 					</transition>
 				</td>
 				<td class="user-column">
 					<transition name="fade" mode="out-in">
-						<span :key="track.user" class="user-name">
-							{{ track.user }}
+						<span :key="track.username" class="user-name">
+							{{ track.username }}
 						</span>
 					</transition>
 				</td>
 				<td class="track-column">
 					<img
-						:src="track.imageUrl"
-						:alt="track.title"
+						:src="track.cover_art_url"
+						:alt="track.track_name"
 						class="track-thumbnail"
 						:class="{
-							'image-loaded': imageLoaded(track.id),
+							'image-loaded': imageLoaded(track.track_id),
 						}"
-						@load="onImageLoad(track.id)"
+						@load="onImageLoad(track.track_id)"
 					/>
 					<div class="track-info-container">
 						<transition name="fade" mode="out-in">
 							<div>
 								<router-link
-									:key="track.title"
+									:key="track.track_name"
 									:to="{
 										name: 'artist',
-										params: { id: track.artist },
+										params: { id: track.artist_name },
 									}"
 									class="link"
 								>
-									{{ track.artist }}
-								</router-link>
+                  {{ track.artist_name }}
+                </router-link>
 								-
 								<router-link
-									:key="track.title"
+									:key="track.track_name"
 									:to="{
 										name: 'track',
-										params: { id: track.title },
+										params: { id: track.track_name },
 									}"
 									class="link"
 								>
-									{{ track.title }}
-								</router-link>
+                  {{ track.track_name }}
+                </router-link>
 							</div>
 						</transition>
 					</div>

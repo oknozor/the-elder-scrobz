@@ -1,5 +1,6 @@
 use crate::PgPool;
 pub mod raw;
+pub mod recent;
 pub mod scrobble;
 
 #[derive(sqlx::FromRow, Debug)]
