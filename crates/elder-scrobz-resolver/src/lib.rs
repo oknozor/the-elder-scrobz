@@ -2,7 +2,7 @@ use crate::tasks::fetch_release;
 use anyhow::Result;
 use anyhow::anyhow;
 use elder_scrobz_db::PgPool;
-use elder_scrobz_db::listens::raw::RawScrobble;
+use elder_scrobz_db::listens::raw::scrobble::TypedScrobble;
 use elder_scrobz_db::listens::scrobble::Scrobble;
 use elder_scrobz_db::listens::{Artist, ArtistCredited, Release, Track};
 use sqlx::postgres::PgListener;
@@ -21,7 +21,7 @@ impl ScrobbleResolver {
         Ok(Self { pool, pg_listener })
     }
 
-    pub async fn listen(&mut self) -> anyhow::Result<()> {
+    pub async fn listen(&mut self) -> Result<()> {
         info!("Starting PgListener on scrobbles_raw_insert_trigger");
         self.pg_listener.listen("new_insert").await?;
 
@@ -30,7 +30,7 @@ impl ScrobbleResolver {
         while retry_count > 0 {
             while let Ok(notification) = self.pg_listener.recv().await {
                 info!("Processing new_insert");
-                let Ok(scrobble) = serde_json::from_str::<RawScrobble>(notification.payload())
+                let Ok(scrobble) = serde_json::from_str::<TypedScrobble>(notification.payload())
                 else {
                     let payload = notification.payload();
                     error!("Failed to parse scrobble: {payload}");
@@ -57,7 +57,7 @@ impl ScrobbleResolver {
 }
 
 // Todo: wrap everything in a transaction
-pub async fn process(scrobble: RawScrobble, pool: &PgPool) -> anyhow::Result<String> {
+pub async fn process(scrobble: TypedScrobble, pool: &PgPool) -> anyhow::Result<String> {
     let pool = pool.clone();
     let scrobble_id = scrobble.id();
     let user_id = scrobble.user_id();
@@ -147,6 +147,6 @@ pub async fn process(scrobble: RawScrobble, pool: &PgPool) -> anyhow::Result<Str
     .save(&pool)
     .await?;
 
-    RawScrobble::set_processed(&pool, &scrobble_id).await?;
+    TypedScrobble::set_processed(&pool, &scrobble_id).await?;
     Ok(scrobble_id)
 }

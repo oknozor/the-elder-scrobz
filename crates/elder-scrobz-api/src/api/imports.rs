@@ -3,7 +3,8 @@ use crate::AppState;
 use axum::extract::{Path, State};
 use axum_extra::extract::JsonLines;
 use axum_macros::debug_handler;
-use elder_scrobz_db::listens::raw::{CreateRawScrobble, Listen, ListenType, SubmitListensPayload};
+use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
+use elder_scrobz_db::listens::raw::listenbrainz::{raw, ListenType};
 use futures_util::stream::StreamExt;
 
 #[debug_handler]
@@ -18,7 +19,7 @@ use futures_util::stream::StreamExt;
 )]
 pub async fn import_listens(
     State(state): State<AppState>,
-    Path(user_id): Path<String>,
+    Path(user_name): Path<String>,
     mut stream: JsonLines<serde_json::value::Value>,
 ) -> AppResult<()> {
     const CHUNK_SIZE: usize = 50;
@@ -30,13 +31,13 @@ pub async fn import_listens(
         buffer.push(value);
 
         if buffer.len() == CHUNK_SIZE {
-            save_listens(&state, &user_id, buffer).await?;
+            save_listens(&state, &user_name, buffer).await?;
             buffer = Vec::with_capacity(CHUNK_SIZE);
         }
     }
 
     if !buffer.is_empty() {
-        save_listens(&state, &user_id, buffer).await?;
+        save_listens(&state, &user_name, buffer).await?;
     }
 
     Ok(())
@@ -44,22 +45,15 @@ pub async fn import_listens(
 
 async fn save_listens(
     state: &AppState,
-    user_id: &str,
-    chunk: Vec<SubmitListensPayload>,
+    username: &str,
+    chunk: Vec<raw::SubmitListensPayload>,
 ) -> AppResult<()> {
-    let chunk = chunk
-        .into_iter()
-        .map(|payload| CreateRawScrobble {
-            username: user_id.to_string(),
-            data: Listen {
-                listen_type: ListenType::Import,
-                payload,
-            }
-            .into(),
-        })
-        .collect();
+    let scrobble = raw::SubmitListens {
+        listen_type: ListenType::Import,
+        payload: chunk,
+    };
 
-    CreateRawScrobble::batch_insert(chunk, &state.pool).await?;
+    CreateRawScrobble::batch_insert(username.to_string(), scrobble, &state.pool).await?;
 
     Ok(())
 }
