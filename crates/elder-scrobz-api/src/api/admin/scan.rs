@@ -6,6 +6,7 @@ use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
 use elder_scrobz_resolver::process;
 use tokio::spawn;
 use tracing::info;
+use tracing::log::error;
 use utoipa::IntoParams;
 
 #[derive(Debug, serde::Deserialize, IntoParams, Default)]
@@ -41,10 +42,15 @@ pub async fn scan_db(
 
     spawn(async move {
         for scrobble in scrobbles {
-            info!("Resolving scrobble {}", scrobble.id);
-            let id = process(scrobble, &pool).await?;
-            info!("Processed scrobble {id}");
+            let id = scrobble.id.clone();
+
+            info!("Resolving scrobble {id}",);
+            match process(scrobble, &pool).await {
+                Ok(id) => info!("Processed scrobble {id}"),
+                Err(err) => error!("Failed to process scrobble {id}: {err}"),
+            };
         }
+
         anyhow::Ok(())
     });
 
