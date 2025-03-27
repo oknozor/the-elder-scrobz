@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT id, user_id, data as \"data: Json<Listen>\", listened_at, status AS \"status: ProcessState\"\n            FROM scrobbles_raw\n            WHERE id = $1",
+  "query": "SELECT id, user_id, data as \"data: Json<typed::SubmitListensPayload>\", listened_at, status AS \"status: ProcessState\"\n            FROM scrobbles_raw\n            WHERE id = $1",
   "describe": {
     "columns": [
       {
@@ -15,7 +15,7 @@
       },
       {
         "ordinal": 2,
-        "name": "data: Json<Listen>",
+        "name": "data: Json<typed::SubmitListensPayload>",
         "type_info": "Jsonb"
       },
       {
@@ -52,5 +52,5 @@
       false
     ]
   },
-  "hash": "fd0d36ccd0aaa0c92fc95c1264b317088621123d4c4b1c37f15d615df8ae5f92"
+  "hash": "7590643c635b78c2595d38c1516e56b5c0ca434c7747aaffaaf056739735a295"
 }

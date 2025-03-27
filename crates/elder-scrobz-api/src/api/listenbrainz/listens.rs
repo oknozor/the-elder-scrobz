@@ -6,7 +6,8 @@ use axum::Json;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
-use elder_scrobz_db::listens::raw::{CreateRawScrobble, Listen, ListenType, SubmitListens};
+use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
+use elder_scrobz_db::listens::raw::listenbrainz::{raw, typed, ListenType};
 use elder_scrobz_db::user::User;
 use serde::Serialize;
 use tracing::debug;
@@ -22,7 +23,7 @@ pub struct Empty {}
         ("Authorization" = String, Header, description = "Token to validate. Format: `Token <token>`")
     ),
     responses(
-        (status = 200, description = "Top tracks for user", body = SubmitListens, ),
+        (status = 200, description = "Top tracks for user", body = typed::SubmitListens, ),
         (status = 404, description = "User not found", body = AppError)
     ),
     tag = crate::api::SCROBBLES_TAG
@@ -30,7 +31,7 @@ pub struct Empty {}
 pub async fn submit_listens(
     State(state): State<AppState>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
-    Json(payload): Json<SubmitListens>,
+    Json(payload): Json<raw::SubmitListens>,
 ) -> AppResult<Json<Empty>> {
     match payload.listen_type {
         ListenType::Single | ListenType::Import => store_scrobble(&state, auth, payload).await?,
@@ -43,7 +44,7 @@ pub async fn submit_listens(
 async fn store_scrobble(
     state: &AppState,
     auth: Authorization<Token>,
-    payload: SubmitListens,
+    payload: raw::SubmitListens,
 ) -> Result<(), AppError> {
     let Some(token) = auth.0.token()? else {
         return Err(AppError::Unauthorized("Missing token".to_string()));
@@ -53,17 +54,7 @@ async fn store_scrobble(
         return Err(AppError::Unauthorized("Invalid token".to_string()));
     };
 
-    let listens: Vec<Listen> = payload.into();
-
-    let scrobbles = listens
-        .into_iter()
-        .map(|listen| CreateRawScrobble {
-            username: user.username.clone(),
-            data: listen.into(),
-        })
-        .collect();
-
-    CreateRawScrobble::batch_insert(scrobbles, &state.pool).await?;
+    CreateRawScrobble::batch_insert(user.username, payload, &state.pool).await?;
 
     Ok(())
 }
