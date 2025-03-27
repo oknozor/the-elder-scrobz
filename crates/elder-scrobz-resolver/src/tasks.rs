@@ -47,7 +47,11 @@ pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<(
         artist.save(&pool).await?;
     }
 
-    let cover_art_url = release.get_coverart().execute_with_client(&MB_CLIENT).await;
+    let cover_art_url = release
+        .get_coverart()
+        .front()
+        .execute_with_client(&MB_CLIENT)
+        .await;
 
     if let Err(e) = &cover_art_url {
         warn!("Error fetching cover art for release {release_mbid}: {e}");
@@ -74,20 +78,4 @@ pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<(
     info!("Finished fetching release {release_mbid} from MusicBrainz");
 
     Ok(())
-}
-
-#[tokio::test]
-async fn test() {
-    let release = MusicBrainzRelease::fetch()
-        .id("83c821d0-13b1-44a6-abc2-00815f62889f")
-        .with_annotations()
-        .with_genres()
-        .with_artist_credits()
-        .with_artists()
-        .with_recordings()
-        .execute_with_client(&MB_CLIENT)
-        .await
-        .unwrap();
-
-    println!("{:#?}", release);
 }
