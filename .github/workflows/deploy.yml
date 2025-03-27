@@ -232,7 +232,7 @@ jobs:
         env:
           SHA256: ${{ needs.docker.outputs.latest-sha }}
         run: |
-          VERSION="latest@${SHA256}" yq eval '.spec.values.controllers.main.containers.main.image.tag = strenv(VERSION)' \
+          VERSION="latest@${SHA256}" yq eval '.spec.values.controllers.the-elder-scrobz.containers.main.image.tag = strenv(VERSION)' \
             -i gitops-repo/kubernetes/apps/media/the-elder-scrobz/app/helmrelease.yaml
 
       - name: Commit & push new version
@@ -243,5 +243,5 @@ jobs:
           git config user.name "Homelab Manager"
           git config user.email "homelab@manager.org"
           git add kubernetes/apps/media/the-elder-scrobz/app/helmrelease.yaml
-          git commit -m "chore(homelab-manager): update latest to ${SHA256}"
+          git commit -m "chore(the-elder-scrobz): update latest to ${SHA256}"
           git push origin main
