@@ -33,6 +33,8 @@ In your music app, configure the Listen Brainz scrobble endpoint to the followin
 
 ## 🚀 Development
 
+- Install sqlx-cli: `cargo install sqlx-cli`
 - Start PostgreSQL: `docker compose up -d`
+- Create the database: `slqx database create`
 - Start the backend: `cargo run`
 - Start the frontend: `cd frontend && npm run dev`
