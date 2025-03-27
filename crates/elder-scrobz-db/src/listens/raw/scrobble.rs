@@ -24,6 +24,22 @@ pub struct RawScrobble {
     pub status: ProcessState,
 }
 
+impl TryFrom<RawScrobble> for TypedScrobble {
+    type Error = serde_json::Error;
+
+    fn try_from(value: RawScrobble) -> Result<Self, Self::Error> {
+        let data = serde_json::from_value::<typed::SubmitListensPayload>(value.data)?;
+
+        Ok(Self {
+            id: value.id,
+            user_id: value.user_id,
+            listened_at: value.listened_at,
+            data: Json(data),
+            status: value.status,
+        })
+    }
+}
+
 #[derive(Debug, sqlx::Type, Deserialize, Serialize)]
 #[sqlx(type_name = "scrobble_state", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
@@ -61,31 +77,6 @@ impl TypedScrobble {
 
         Ok(())
     }
-
-    // TODO: pagination
-    pub async fn all(pool: &PgPool) -> Result<Vec<TypedScrobble>, Error> {
-        sqlx::query_as(
-            r#"
-            SELECT id, user_id, data, listened_at, status
-            FROM scrobbles_raw
-        "#,
-        )
-        .fetch_all(pool)
-        .await
-    }
-
-    // TODO: pagination
-    pub async fn get_unprocessed(pool: &PgPool) -> Result<Vec<TypedScrobble>, Error> {
-        sqlx::query_as(
-            r#"
-            SELECT id, user_id, data, listened_at, status
-            FROM scrobbles_raw
-            WHERE status = 'unprocessed'
-        "#,
-        )
-        .fetch_all(pool)
-        .await
-    }
 }
 
 impl RawScrobble {
@@ -108,6 +99,18 @@ impl RawScrobble {
             SELECT id, user_id, data, listened_at, status
             FROM scrobbles_raw
             WHERE status = 'unprocessed'
+        "#,
+        )
+        .fetch_all(pool)
+        .await
+    }
+
+    // TODO: pagination
+    pub async fn all(pool: &PgPool) -> Result<Vec<RawScrobble>, Error> {
+        sqlx::query_as(
+            r#"
+            SELECT id, user_id, data, listened_at, status
+            FROM scrobbles_raw
         "#,
         )
         .fetch_all(pool)
