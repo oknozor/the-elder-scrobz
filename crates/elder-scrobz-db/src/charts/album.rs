@@ -20,27 +20,29 @@ pub struct TopAlbum {
 pub async fn get_most_listened_albums(
     period: Period,
     username: Option<String>,
+    page: i64,
+    page_size: i64,
     pool: &PgPool,
 ) -> Result<Vec<TopAlbum>, sqlx::Error> {
     let result = match username {
         None => match period {
             Period::Week => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/week.sql")
+                sqlx::query_file_as!(TopAlbum, "queries/charts/album/week.sql", (page - 1) * page_size, page_size)
                     .fetch_all(pool)
                     .await?
             }
             Period::Month => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/month.sql")
+                sqlx::query_file_as!(TopAlbum, "queries/charts/album/month.sql", (page - 1) * page_size, page_size)
                     .fetch_all(pool)
                     .await?
             }
             Period::Year => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/year.sql")
+                sqlx::query_file_as!(TopAlbum, "queries/charts/album/year.sql", (page - 1) * page_size, page_size)
                     .fetch_all(pool)
                     .await?
             }
             Period::Today => {
-                sqlx::query_file_as!(TopAlbum, "queries/charts/album/today.sql")
+                sqlx::query_file_as!(TopAlbum, "queries/charts/album/today.sql", (page - 1) * page_size, page_size)
                     .fetch_all(pool)
                     .await?
             }

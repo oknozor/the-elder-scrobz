@@ -10,4 +10,5 @@ FROM scrobbles
 WHERE EXTRACT(YEAR FROM listened_at) = EXTRACT(YEAR FROM NOW())
 GROUP BY release.mbid, release.name, release.cover_art_url
 ORDER BY listens DESC
-LIMIT 10;
+OFFSET $1
+LIMIT $2;

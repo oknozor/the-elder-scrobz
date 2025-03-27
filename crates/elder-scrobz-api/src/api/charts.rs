@@ -40,7 +40,7 @@ impl Default for ChartQuery {
             period: Period::Year,
             username: None,
             page: 1,
-            page_size: 10,
+            page_size: 15,
         }
     }
 }
@@ -71,7 +71,7 @@ pub async fn track_charts(
     path = "/albums",
     params(ChartQuery),
     responses(
-        (status = 200, description = "Top album for user", body = Vec<TopAlbum>, content_type = "application/json"),
+        (status = 200, description = "Top albums", body = Vec<TopAlbum>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
     ),
     tag = crate::api::CHARTS_TAG
@@ -81,7 +81,7 @@ pub async fn album_charts(
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<Vec<TopAlbum>>> {
     Ok(Json(
-        get_most_listened_albums(query.period, query.username, &state.pool).await?,
+        get_most_listened_albums(query.period, query.username, query.page, query.page_size, &state.pool).await?,
     ))
 }
 

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": " SELECT username, email FROM users ORDER BY username LIMIT $1 OFFSET $2",
+  "query": " SELECT username, email FROM users ORDER BY username OFFSET $2 LIMIT $1 ",
   "describe": {
     "columns": [
       {
@@ -25,5 +25,5 @@
       false
     ]
   },
-  "hash": "2f7db1c05577405a10d4fab32b16daf1ead740ee472ae181cd927a722691dfaf"
+  "hash": "e03ca818b4ebd549f20977f50f63626eeffee458a9e41520e3d2d9231f4a9b6f"
 }
