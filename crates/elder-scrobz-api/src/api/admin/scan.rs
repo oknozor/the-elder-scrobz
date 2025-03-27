@@ -33,7 +33,11 @@ pub async fn scan_db(
     State(state): State<AppState>,
 ) -> AppResult<()> {
     if query.coverart_only {
-        try_update_all_coverart(&state.pool).await?;
+        spawn(async move {
+            if let Err(err) = try_update_all_coverart(&state.pool).await {
+                error!("Failed to update coverarts: {err}");
+            }
+        });
         return Ok(());
     }
 
