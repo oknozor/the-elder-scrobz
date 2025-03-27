@@ -6,9 +6,10 @@ use axum::Json;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
-use elder_scrobz_db::listens::raw::{CreateRawScrobble, Listen, SubmitListens};
+use elder_scrobz_db::listens::raw::{CreateRawScrobble, Listen, ListenType, SubmitListens};
 use elder_scrobz_db::user::User;
 use serde::Serialize;
+use tracing::debug;
 
 #[derive(Debug, Default, Serialize)]
 pub struct Empty {}
@@ -31,6 +32,19 @@ pub async fn submit_listens(
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
     Json(payload): Json<SubmitListens>,
 ) -> AppResult<Json<Empty>> {
+    match payload.listen_type {
+        ListenType::Single | ListenType::Import => store_scrobble(&state, auth, payload).await?,
+        ListenType::PlayingNow => debug!("Received PlayingNow listen. Ignoring."),
+    };
+
+    Ok(Empty::default().into())
+}
+
+async fn store_scrobble(
+    state: &AppState,
+    auth: Authorization<Token>,
+    payload: SubmitListens,
+) -> Result<(), AppError> {
     let Some(token) = auth.0.token()? else {
         return Err(AppError::Unauthorized("Missing token".to_string()));
     };
@@ -51,5 +65,5 @@ pub async fn submit_listens(
 
     CreateRawScrobble::batch_insert(scrobbles, &state.pool).await?;
 
-    Ok(Empty::default().into())
+    Ok(())
 }
