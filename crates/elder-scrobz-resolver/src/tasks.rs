@@ -18,6 +18,8 @@ static MB_CLIENT: Lazy<MusicBrainzClient> = Lazy::new(|| {
 // TODO: unify with other update process, add discog and lastfm fallback
 pub async fn try_update_all_coverart(pool: &PgPool) -> anyhow::Result<()> {
     let releases = Release::missing_coverart(pool).await?;
+    info!("Found {} releases without coverart", releases.len());
+    let mut updated = 0;
     for release in releases {
         match try_update_coverart(release).await {
             Err(err) => {
@@ -27,9 +29,12 @@ pub async fn try_update_all_coverart(pool: &PgPool) -> anyhow::Result<()> {
             Ok(release) => {
                 info!("Updating release coverart {}", release.mbid);
                 release.save(pool).await?;
+                updated += 1;
             }
         };
     }
+
+    info!("Updated {} releases coverart", updated);
 
     Ok(())
 }
