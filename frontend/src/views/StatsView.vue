@@ -1,6 +1,6 @@
 <template>
 	<div class="stats">
-  <div class="time-range-container">
+		<div class="time-range-container">
 			<h3 class="time-range-title">Time Range</h3>
 			<TimeRangeSelector
 				v-model="sharedTimeRange"
@@ -214,10 +214,9 @@
 				/>
 			</div>
 			<RecentTracks
-				:paginatedTracks="paginatedTracks"
-				:currentPage="currentPage"
-				:totalPages="totalPages"
-				@change-page="currentPage = $event"
+				:tracks="statsStore.recentTracks.content"
+				:total-pages="statsStore.recentTracks.totalPages"
+				@load-more="handleLoadMore"
 			/>
 		</div>
 	</div>
@@ -231,11 +230,11 @@ import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
 import { formatDuration } from '@/utils/formatter';
 import StatItem from '@/components/stats/StatItem.vue';
-import RecentTracks from '@/components/stats/RecentTracks.vue';
 import OverviewCard from '@/components/stats/OverviewCard.vue';
 import PulseMixedChart from '@/components/stats/PulseMixedChart.vue';
 import { useStatsStore } from '@/stores/statsStore';
 import { AppUser, useUsersStore } from '@/stores/usersStore';
+import RecentTracks from '@/components/stats/RecentTracks.vue';
 
 interface TimeRanges {
 	artists: TimeRange;
@@ -278,21 +277,15 @@ const statsStore = useStatsStore();
 const usersStore = useUsersStore();
 
 const selectedUser = ref<AppUser | null>(usersStore.selectedUser || null);
-
-const ITEMS_PER_PAGE = 20;
-const currentPage = ref(1);
-
-const totalPages = computed(() => {
-	return Math.ceil(stats.value.recentTracks.length / ITEMS_PER_PAGE);
-});
-
-const paginatedTracks = computed(() => {
-	const start = (currentPage.value - 1) * ITEMS_PER_PAGE;
-	const end = start + ITEMS_PER_PAGE;
-	return stats.value.recentTracks.slice(start, end) as RecentTrack[];
-});
-
 const showDuration = ref(false);
+
+const handleLoadMore = async (page: number) => {
+	await statsStore.fetchRecentTracks(
+		selectedUser.value?.username || null,
+		page,
+		20
+	);
+};
 
 // Get comparison text based on the current time range
 const getComparisonText = (currentRange: TimeRange): string => {
@@ -464,7 +457,9 @@ onMounted(async () => {
 
 .time-range-container {
 	position: fixed;
-	left: calc(50% - 600px - 140px); /* 50% - half of max-width - container width - margin */
+	left: calc(
+		50% - 600px - 140px
+	); /* 50% - half of max-width - container width - margin */
 	top: 100px;
 	z-index: 10;
 	background: var(--card-background);

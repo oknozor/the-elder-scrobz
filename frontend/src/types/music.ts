@@ -43,7 +43,7 @@ export interface RecentTrack {
 	artist_name: string;
 	cover_art_url: string;
 	listened_at: string;
-	username: string;
+	user: string;
 	duration: number;
 }
 
@@ -90,4 +90,11 @@ export interface User {
 		topAlbums: Album[];
 		topTracks: Track[];
 	};
+}
+export interface Page<T> {
+	content: T[];
+	totalElements: number;
+	totalPages: number;
+	pageSize: number;
+	page: number;
 }
