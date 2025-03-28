@@ -1,7 +1,7 @@
 #:schema https://docs.cocogitto.io/cog-schema.json
 
-from_latest_tag = false
-ignore_merge_commits = false
+from_latest_tag = true
+ignore_merge_commits = true
 disable_changelog = false
 disable_bump_commit = false
 generate_mono_repository_global_tag = true
