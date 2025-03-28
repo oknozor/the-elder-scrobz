@@ -110,9 +110,9 @@ async fn try_update_coverart(release_mbid: String) -> anyhow::Result<Release> {
     })
 }
 
-pub async fn fetch_release(release_mbid: &str, pool: PgPool) -> anyhow::Result<()> {
+pub async fn fetch_release(release_mbid: &str, pool: PgPool, force: bool) -> anyhow::Result<()> {
     let done_already = Release::release_exists_with_cover_art(release_mbid, &pool).await?;
-    if done_already {
+    if done_already && !force {
         return Ok(());
     }
 
