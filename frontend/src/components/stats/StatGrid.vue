@@ -13,8 +13,6 @@
 		v-if="items.length > step"
 		class="grid-container bottom-items"
 		:style="{ height: bottomHeight }"
-		@mouseenter="handleMouseEnter"
-		@mouseleave="handleMouseLeave"
 		ref="bottomItems"
 	>
 		<StatCard
@@ -24,6 +22,8 @@
 			:rank="index + step + 1"
 			:link="link"
 			:step="step"
+			@mouseenter="handleMouseEnter"
+			@mouseleave="handleMouseLeave"
 			class="small-card"
 		/>
 	</div>
@@ -47,7 +47,7 @@ withDefaults(defineProps<Props>(), {
 });
 
 const bottomItems = ref<HTMLDivElement | null>(null);
-const bottomHeight = ref('7.5rem');
+const bottomHeight = ref('6.5rem');
 
 const handleMouseEnter = () => {
 	if (bottomItems.value) {
@@ -57,7 +57,7 @@ const handleMouseEnter = () => {
 
 const handleMouseLeave = () => {
 	if (bottomItems.value) {
-		bottomHeight.value = '7.5rem';
+		bottomHeight.value = '6.5rem';
 	}
 };
 
@@ -76,15 +76,15 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 <style scoped>
 .grid-container {
 	display: flex;
-	padding: 5px 0;
+	padding: 0;
 	--gap: 12px;
 	gap: var(--gap);
 	align-items: flex-start;
 	flex-wrap: nowrap;
+	margin-bottom: var(--gap);
 }
 
 .grid-container.top-items {
-	margin-bottom: 5px;
 	justify-content: flex-start;
 }
 

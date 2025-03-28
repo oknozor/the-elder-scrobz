@@ -7,6 +7,7 @@ import {
 	User,
 	Album,
 	Artist,
+	Page,
 } from '@/types/music';
 import apiClient from '@/services/api';
 
@@ -17,7 +18,7 @@ export const useStatsStore = defineStore('stats', {
 		topAlbums: [] as Album[],
 		topArtists: [] as Artist[],
 		topTracks: [] as Track[],
-		recentTracks: [] as RecentTrack[],
+		recentTracks: {} as Page<RecentTrack>,
 		allMusicStatistics: {} as MusicStats,
 		error: null as string | null,
 		isLoading: false,
@@ -114,15 +115,25 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		async fetchRecentTracks(username: string | null, page: number = 1, pageSize: number = 20) {
+		async fetchRecentTracks(
+			username: string | null,
+			page: number = 1,
+			pageSize: number = 20
+		) {
 			const usernameParam = username ? `&username=${username}&` : '';
-
 			try {
 				this.error = null;
 				const { data } = await apiClient.get(
 					`/listens/recent?${usernameParam}page=${page}&page_size=${pageSize}`
 				);
-				this.recentTracks = data;
+				// Will change when api is updated:
+				this.recentTracks = {
+					content: data,
+					totalElements: 100,
+					totalPages: 10,
+					pageSize: pageSize,
+					page: page,
+				};
 			} catch (error) {
 				this.error = 'Failed to fetch recent tracks';
 				console.error('Error fetching recent tracks:', error);
