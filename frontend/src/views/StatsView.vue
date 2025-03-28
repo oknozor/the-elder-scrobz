@@ -222,7 +222,6 @@ const statsStore = useStatsStore();
 const usersStore = useUsersStore();
 
 const selectedUser = ref<AppUser | null>(usersStore.selectedUser || null);
-const showDuration = ref(false);
 
 const handleLoadMore = async (page: number) => {
 	await statsStore.fetchRecentTracks(
