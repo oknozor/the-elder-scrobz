@@ -33,6 +33,9 @@ In your music app, configure the Listen Brainz scrobble endpoint to the followin
 
 ## 🚀 Development
 
+- (Optional) Install commit hooks: 
+  - `cargo install cocogitto`
+  - `cog install-hook --all`
 - Install sqlx-cli: `cargo install sqlx-cli`
 - Start PostgreSQL: `docker compose up -d`
 - Create the database: `slqx database create`
