@@ -168,14 +168,7 @@ const observeLastRow = () => {
 	observer = new IntersectionObserver(
 		(entries) => {
 			const lastEntry = entries[0];
-			console.log(
-				'Intersection:',
-				lastEntry.isIntersecting,
-				'Loading:',
-				isLoading.value
-			);
 			if (lastEntry.isIntersecting && !isLoading.value) {
-				console.log('Loading more tracks...');
 				loadMoreTracks();
 			}
 		},
@@ -190,7 +183,6 @@ const observeLastRow = () => {
 	if (trackRows.value.length > 0) {
 		const lastRow = trackRows.value[trackRows.value.length - 1];
 		if (lastRow) {
-			console.log('Observing last row:', lastRow);
 			observer.observe(lastRow);
 		}
 	}

@@ -47,7 +47,7 @@ withDefaults(defineProps<Props>(), {
 });
 
 const bottomItems = ref<HTMLDivElement | null>(null);
-const bottomHeight = ref('6.5rem');
+const bottomHeight = ref('7rem');
 
 const handleMouseEnter = () => {
 	if (bottomItems.value) {
@@ -57,7 +57,7 @@ const handleMouseEnter = () => {
 
 const handleMouseLeave = () => {
 	if (bottomItems.value) {
-		bottomHeight.value = '6.5rem';
+		bottomHeight.value = '7rem';
 	}
 };
 
@@ -114,11 +114,12 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 }
 
 .card {
-	max-height: auto;
+	max-height: 14rem;
 	max-width: calc(20% - var(--gap));
 }
 
 .small-card {
+	height: 7rem;
 	flex: 0 0 calc(10% - var(--gap));
 	max-width: calc(10% - var(--gap));
 	min-width: calc(10% - var(--gap));
@@ -126,6 +127,7 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 
 /* Override hover behavior for small cards to maintain consistent sizing */
 .small-card:hover {
+	height: 14rem;
 	flex: 0 0 calc(20% - var(--gap));
 	max-width: calc(20% - var(--gap));
 	min-width: calc(20% - var(--gap));

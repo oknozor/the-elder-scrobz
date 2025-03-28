@@ -201,18 +201,6 @@
 					</div>
 				</template>
 			</SectionHeader>
-			<div class="stats-summary">
-				<StatItem
-					v-for="(label, period) in periodLabels"
-					:key="period"
-					:label="label"
-					:value="
-						showDuration
-							? formatDuration(stats.timeStats[period].duration)
-							: stats.timeStats[period].playCount
-					"
-				/>
-			</div>
 			<RecentTracks
 				:tracks="statsStore.recentTracks.content"
 				:total-pages="statsStore.recentTracks.totalPages"
@@ -229,7 +217,6 @@ import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
 import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
 import { formatDuration } from '@/utils/formatter';
-import StatItem from '@/components/stats/StatItem.vue';
 import OverviewCard from '@/components/stats/OverviewCard.vue';
 import PulseMixedChart from '@/components/stats/PulseMixedChart.vue';
 import { useStatsStore } from '@/stores/statsStore';
@@ -243,14 +230,6 @@ interface TimeRanges {
 	recent: TimeRange;
 	pulses: TimeRange;
 }
-
-const periodLabels = {
-	today: 'Today',
-	week: 'This Week',
-	month: 'This Month',
-	year: 'This Year',
-	all: 'All Time',
-};
 
 const sharedTimeRange = ref<TimeRange>('week');
 
@@ -492,17 +471,6 @@ onMounted(async () => {
 	width: 20px;
 	height: 20px;
 	color: var(--primary-color);
-}
-
-.stats-summary {
-	display: flex;
-	gap: 20px;
-	margin-bottom: 20px;
-	padding: 16px;
-	background: var(--card-background);
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	border: 1px solid var(--border-color);
 }
 
 .view-toggle {
