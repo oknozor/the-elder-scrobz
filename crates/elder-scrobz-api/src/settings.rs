@@ -5,7 +5,9 @@ use std::path::PathBuf;
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Settings {
     pub debug: bool,
+    pub base_url: String,
     pub port: u16,
+    pub coverart_path: PathBuf,
     pub database_url: String,
     pub oauth_client_id: String,
     pub oauth_client_secret: String,
@@ -32,5 +34,19 @@ impl Settings {
         }
 
         config.build()?.try_deserialize()
+    }
+
+    pub fn coverart_url(&self, release_id: &str) -> Option<String> {
+        let release_ca = format!("{release_id}.jpg");
+        let coverart_path = self.coverart_path.join(release_ca);
+        if !coverart_path.exists() {
+            return None;
+        };
+
+        Some(format!(
+            "{url}:{port}/coverarts/{release_id}.jpg",
+            url = self.base_url,
+            port = self.port
+        ))
     }
 }

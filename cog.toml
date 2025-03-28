@@ -21,14 +21,14 @@ cog verify --file $1
 echo "[Conventional commit check]"
 cog check
 
+echo "[Refresh sql metadata]"
+cargo sqlx prepare --workspace
+
 echo "[Format code]"
 cargo fmt -v --all --check
 
 echo "[Lints]"
 cargo clippy
-
-echo "[Refresh sql metadata]"
-cargo sqlx prepare --workspace
 """
 
 [commit_types]
