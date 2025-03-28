@@ -24,6 +24,7 @@
 			:rank="index + step + 1"
 			:link="link"
 			:step="step"
+			class="small-card"
 		/>
 	</div>
 </template>
@@ -115,5 +116,18 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 .card:hover {
 	flex: 0 0 calc(20% - (var(--gap) * 9 / 10));
 	z-index: 1;
+}
+
+.small-card {
+	flex: 0 0 calc(10% - var(--gap));
+	max-width: calc(10% - var(--gap));
+	min-width: calc(10% - var(--gap));
+}
+
+/* Override hover behavior for small cards to maintain consistent sizing */
+.small-card:hover {
+	flex: 0 0 calc(20% - var(--gap));
+	max-width: calc(20% - var(--gap));
+	min-width: calc(20% - var(--gap));
 }
 </style>

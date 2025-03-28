@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://the-elder-scrobz.hoohoot.org';
 
 export default defineConfig({
 	plugins: [vue()],
