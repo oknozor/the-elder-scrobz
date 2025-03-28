@@ -1,5 +1,12 @@
 <template>
 	<div class="stats">
+  <div class="time-range-container">
+			<h3 class="time-range-title">Time Range</h3>
+			<TimeRangeSelector
+				v-model="sharedTimeRange"
+				@update:modelValue="updateAllCharts"
+			/>
+		</div>
 		<div class="stats-section">
 			<SectionHeader>
 				<template #icon>
@@ -15,12 +22,6 @@
 					</svg>
 				</template>
 				Overview
-				<template #controls>
-					<TimeRangeSelector
-						v-model="timeRanges.recent"
-						@update:modelValue=""
-					/>
-				</template>
 			</SectionHeader>
 			<div class="overview-cards">
 				<OverviewCard
@@ -59,17 +60,7 @@
 					</svg>
 				</template>
 				Artists Chart
-				<template #controls>
-					<TimeRangeSelector
-						v-model="timeRanges.artists"
-						@update:modelValue="
-							statsStore.fetchTopArtists(
-								selectedUser?.username || null,
-								timeRanges.artists
-							)
-						"
-					/>
-				</template>
+				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
 			<StatGrid
 				:items="statsStore.topArtists"
@@ -96,17 +87,7 @@
 					</svg>
 				</template>
 				Tracks Chart
-				<template #controls>
-					<TimeRangeSelector
-						v-model="timeRanges.tracks"
-						@update:modelValue="
-							statsStore.fetchTopTracks(
-								selectedUser?.username || null,
-								timeRanges.tracks
-							)
-						"
-					/>
-				</template>
+				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
 			<StatGrid
 				:items="statsStore.topTracks"
@@ -134,17 +115,7 @@
 					</svg>
 				</template>
 				Album Chart
-				<template #controls>
-					<TimeRangeSelector
-						v-model="timeRanges.albums"
-						@update:modelValue="
-							statsStore.fetchTopAlbums(
-								selectedUser?.username || null,
-								timeRanges.albums
-							)
-						"
-					/>
-				</template>
+				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
 			<StatGrid
 				:items="statsStore.topAlbums"
@@ -174,17 +145,7 @@
 					</svg>
 				</template>
 				Pulse
-				<template #controls>
-					<TimeRangeSelector
-						v-model="timeRanges.pulses"
-						@update:modelValue="
-							statsStore.fetchPulses(
-								selectedUser?.username || null,
-								timeRanges.pulses
-							)
-						"
-					/>
-				</template>
+				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
 			<div class="pulse-charts">
 				<PulseMixedChart :pulseData="statsStore.pulses" />
@@ -296,6 +257,9 @@ const periodLabels = {
 	all: 'All Time',
 };
 
+const sharedTimeRange = ref<TimeRange>('week');
+
+// Keep this for backward compatibility but use sharedTimeRange for all
 const timeRanges = ref<TimeRanges>({
 	artists: 'week',
 	tracks: 'week',
@@ -380,7 +344,7 @@ const getPreviousPeriodData = (currentRange: TimeRange) => {
 };
 
 // Computed properties for the overview cards
-const currentTimeRange = computed(() => timeRanges.value.tracks);
+const currentTimeRange = computed(() => sharedTimeRange.value);
 
 const songsListened = computed(() => {
 	// For this demo, we'll use data from the pulses array
@@ -432,6 +396,21 @@ const comparisonText = computed(() => {
 	return getComparisonText(currentTimeRange.value);
 });
 
+// Function to update all charts when the time range changes
+const updateAllCharts = () => {
+	// Update all properties in the timeRanges object to match the shared time range
+	timeRanges.value = {
+		artists: sharedTimeRange.value,
+		tracks: sharedTimeRange.value,
+		albums: sharedTimeRange.value,
+		recent: sharedTimeRange.value,
+		pulses: sharedTimeRange.value,
+	};
+
+	// Fetch all stats with the new time range
+	fetchAllStats(selectedUser.value?.username || null, timeRanges.value);
+};
+
 // Watch for changes in the selected user
 watch(
 	() => usersStore.selectedUser,
@@ -453,8 +432,22 @@ const fetchAllStats = async (
 	]);
 };
 
+// Watch for changes in the shared time range
+watch(sharedTimeRange, () => {
+	updateAllCharts();
+});
+
 onMounted(async () => {
 	try {
+		// Initialize timeRanges with sharedTimeRange
+		timeRanges.value = {
+			artists: sharedTimeRange.value,
+			tracks: sharedTimeRange.value,
+			albums: sharedTimeRange.value,
+			recent: sharedTimeRange.value,
+			pulses: sharedTimeRange.value,
+		};
+
 		await fetchAllStats(
 			selectedUser.value?.username || null,
 			timeRanges.value
@@ -470,6 +463,28 @@ onMounted(async () => {
 	padding-top: 20px;
 	max-width: 1200px;
 	margin: 0 auto;
+	position: relative;
+}
+
+.time-range-container {
+	position: fixed;
+	left: calc(50% - 600px - 140px); /* 50% - half of max-width - container width - margin */
+	top: 100px;
+	z-index: 10;
+	background: var(--card-background);
+	padding: 15px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	border: 1px solid var(--border-color);
+	width: 120px;
+}
+
+.time-range-title {
+	margin-top: 0;
+	margin-bottom: 10px;
+	font-size: 1em;
+	color: var(--text-color);
+	text-align: center;
 }
 
 .stats-section {
