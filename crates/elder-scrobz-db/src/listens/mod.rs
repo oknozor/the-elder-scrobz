@@ -1,3 +1,5 @@
+use serde::Deserialize;
+
 use crate::PgPool;
 pub mod raw;
 pub mod recent;
@@ -42,7 +44,7 @@ impl Track {
     }
 }
 
-#[derive(sqlx::FromRow, Debug)]
+#[derive(sqlx::FromRow, Deserialize, Debug)]
 pub struct Release {
     pub mbid: String,
     pub name: String,

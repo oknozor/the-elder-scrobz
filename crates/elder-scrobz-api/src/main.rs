@@ -51,6 +51,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let state = AppState::init().await?;
+    let coverart_path = state.settings.coverart_path.clone();
     let pool = state.pool.clone();
     elder_scrobz_db::migrate_db(&state.pool).await?;
     let addr = SocketAddr::from(([0, 0, 0, 0], state.settings.port));
@@ -82,14 +83,15 @@ async fn main() -> anyhow::Result<()> {
         router = router.layer(middleware::from_fn_with_state(state, verify_bearer_token))
     }
 
-    let serve_dir = ServeDir::new("/app/frontend")
+    let serve_frontend = ServeDir::new("/app/frontend")
         .not_found_service(ServeFile::new("/app/frontend/index.html"));
 
     let router = router
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
-        .fallback_service(serve_dir);
+        .nest_service("/coverarts", ServeDir::new(&coverart_path))
+        .fallback_service(serve_frontend);
 
-    let mut resolver = ScrobbleResolver::create(pool.clone()).await?;
+    let mut resolver = ScrobbleResolver::create(pool.clone(), coverart_path).await?;
 
     let (a, b) = tokio::join!(axum::serve(listener, router), resolver.listen());
     a?;

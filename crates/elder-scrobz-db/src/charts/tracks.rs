@@ -12,6 +12,7 @@ pub struct TopTrack {
     pub track_id: String,
     pub track_name: String,
     pub track_length: Option<i32>,
+    pub release_mbid: String,
     pub release_name: String,
     pub cover_art_url: Option<String>,
     pub listens: Option<i64>,

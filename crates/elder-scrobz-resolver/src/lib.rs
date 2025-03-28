@@ -1,59 +1,92 @@
-use crate::tasks::fetch_release;
+use std::path::PathBuf;
+
+use crate::releases::fetch_release;
 use anyhow::Result;
 use anyhow::anyhow;
 use elder_scrobz_db::PgPool;
 use elder_scrobz_db::listens::raw::scrobble::{RawScrobble, TypedScrobble};
 use elder_scrobz_db::listens::scrobble::Scrobble;
 use elder_scrobz_db::listens::{Artist, ArtistCredited, Release, Track};
-use sqlx::postgres::PgListener;
+use sqlx::postgres::{PgListener, PgNotification};
 use tracing::{error, info, warn};
 
-mod tasks;
-pub use tasks::try_update_all_coverart;
+mod coverart;
+mod releases;
+pub use releases::try_update_all_coverart;
 
 pub struct ScrobbleResolver {
     pool: PgPool,
     pg_listener: PgListener,
+    client: reqwest::Client,
+    coverart_path: PathBuf,
 }
 
 impl ScrobbleResolver {
-    pub async fn create(pool: PgPool) -> Result<Self> {
+    pub async fn create(pool: PgPool, coverart_path: PathBuf) -> Result<Self> {
         let pg_listener = PgListener::connect_with(&pool).await?;
-        Ok(Self { pool, pg_listener })
+        Ok(Self {
+            pool,
+            pg_listener,
+            client: reqwest::Client::new(),
+            coverart_path,
+        })
     }
 
     pub async fn listen(&mut self) -> Result<()> {
         info!("Starting PgListener on scrobbles_raw_insert_trigger");
-        self.pg_listener.listen("new_insert").await?;
+        self.pg_listener
+            .listen_all(["new_insert", "coverart_updated"])
+            .await?;
 
         let mut retry_count = 3;
 
         while retry_count > 0 {
             while let Ok(notification) = self.pg_listener.recv().await {
-                info!("Processing new_insert");
-                let Ok(scrobble) = serde_json::from_str::<RawScrobble>(notification.payload())
-                else {
-                    let payload = notification.payload();
-                    error!("Failed to parse scrobble: {payload}");
-                    continue;
-                };
-
-                match process(scrobble, &self.pool).await {
-                    Ok(id) => {
-                        info!("Processed scrobble {id}");
+                match notification.channel() {
+                    "new_insert" => {
+                        if self.handle_scrobble_insert(notification).await {
+                            continue;
+                        }
                     }
-                    Err(err) => {
-                        error!("Error processing scrobble: {err}");
+                    "coverart_updated" => {
+                        let release: Release = serde_json::from_str(notification.payload())?;
+                        if let Some(coverart) = release.cover_art_url {
+                            if let Err(err) =
+                                self.download_cover_art(&coverart, &release.mbid).await
+                            {
+                                error!("Failed to download cover art: {}", err);
+                            }
+                        }
                     }
-                };
+                    _ => {}
+                }
             }
 
             warn!("pg listener failed, trying to reconnect");
             retry_count -= 1;
         }
 
-        error!("PgListener on scrobbles_raw_insert_trigger exited");
+        error!("PgListener exited");
         Ok(())
+    }
+
+    async fn handle_scrobble_insert(&mut self, notification: PgNotification) -> bool {
+        info!("Processing new_insert");
+        let Ok(scrobble) = serde_json::from_str::<RawScrobble>(notification.payload()) else {
+            let payload = notification.payload();
+            error!("Failed to parse scrobble: {payload}");
+            return true;
+        };
+
+        match process(scrobble, &self.pool).await {
+            Ok(id) => {
+                info!("Processed scrobble {id}");
+            }
+            Err(err) => {
+                error!("Error processing scrobble: {err}");
+            }
+        };
+        false
     }
 }
 

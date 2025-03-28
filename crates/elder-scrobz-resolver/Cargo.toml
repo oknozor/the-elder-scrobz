@@ -5,10 +5,13 @@ edition = "2024"
 
 [dependencies]
 elder-scrobz-db.workspace = true
-tokio.workspace = true
+reqwest.workspace = true
 musicbrainz_rs.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
 once_cell.workspace = true
 sqlx.workspace = true
 serde_json.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
