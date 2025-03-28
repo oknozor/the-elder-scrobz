@@ -5,7 +5,6 @@ use std::path::PathBuf;
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Settings {
     pub debug: bool,
-    pub base_url: String,
     pub port: u16,
     pub coverart_path: PathBuf,
     pub database_url: String,
@@ -43,10 +42,6 @@ impl Settings {
             return None;
         };
 
-        Some(format!(
-            "{url}:{port}/coverarts/{release_id}.jpg",
-            url = self.base_url,
-            port = self.port
-        ))
+        Some(format!("/coverarts/{release_id}.jpg"))
     }
 }
