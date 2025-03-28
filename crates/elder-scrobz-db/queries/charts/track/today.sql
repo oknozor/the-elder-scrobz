@@ -3,7 +3,6 @@ SELECT track_id as track_id,
        track.length as track_length,
        release.name as release_name,
        release.cover_art_url as cover_art_url,
-       raw.listened_at as listened_at,
        count(*) as listens
 FROM
     scrobbles
@@ -13,7 +12,7 @@ FROM
 WHERE
     DATE(listened_at) = CURRENT_DATE
 GROUP BY
-    track_id, track.name, track.length, release.name, release.cover_art_url, raw.listened_at
+    track_id, track.name, track.length, release.name, release.cover_art_url
 ORDER BY
     listens DESC
 LIMIT 10

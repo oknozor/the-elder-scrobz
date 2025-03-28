@@ -1,7 +1,6 @@
 use crate::Period;
 use serde::Serialize;
 use sqlx::PgPool;
-use sqlx::types::chrono::{DateTime, Utc};
 use std::result::Result;
 use utoipa::ToSchema;
 
@@ -15,7 +14,6 @@ pub struct TopTrack {
     pub track_length: Option<i32>,
     pub release_name: String,
     pub cover_art_url: Option<String>,
-    pub listened_at: DateTime<Utc>,
     pub listens: Option<i64>,
 }
 
