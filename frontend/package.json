@@ -4,13 +4,14 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "vite --config vite.config.dev.ts",
+		"dev": "vite",
 		"build": "vue-tsc && vite build",
 		"preview": "vite preview"
 	},
 	"dependencies": {
 		"axios": "^1.6.7",
 		"chart.js": "^4.4.1",
+		"oidc-client-ts": "^2.4.0",
 		"pinia": "^2.1.7",
 		"vue": "^3.4.15",
 		"vue-chartjs": "^5.3.0",

@@ -6,6 +6,8 @@ import ImportView from '@/views/ImportView.vue';
 import UsersView from '@/views/UsersView.vue';
 import ApiKeysView from '@/views/ApiKeysView.vue';
 import TrackView from '@/views/TrackView.vue';
+import CallbackView from '@/views/CallbackView.vue';
+import { useAuthStore } from '@/stores/authStore';
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,38 +16,74 @@ const router = createRouter({
 			path: '/',
 			name: 'stats',
 			component: StatsView,
+			meta: { requiresAuth: true },
 		},
 		{
 			path: '/artist/:id',
 			name: 'artist',
 			component: ArtistView,
+			meta: { requiresAuth: true },
 		},
 		{
 			path: '/album/:id',
 			name: 'album',
 			component: AlbumView,
+			meta: { requiresAuth: true },
 		},
 		{
 			path: '/track/:id',
 			name: 'track',
 			component: TrackView,
+			meta: { requiresAuth: true },
 		},
 		{
 			path: '/import',
 			name: 'import',
 			component: ImportView,
+			meta: { requiresAuth: true },
 		},
 		{
 			path: '/users',
 			name: 'users',
 			component: UsersView,
+			meta: { requiresAuth: true },
 		},
 		{
 			path: '/api-keys',
 			name: 'apiKeys',
 			component: ApiKeysView,
+			meta: { requiresAuth: true },
+		},
+		{
+			path: '/callback',
+			name: 'callback',
+			component: CallbackView,
+			meta: { requiresAuth: false },
 		},
 	],
+});
+
+router.beforeEach(async (to, _, next) => {
+	const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+	if (!requiresAuth) {
+		return next();
+	}
+
+	const authStore = useAuthStore();
+
+	if (authStore.isLoading) {
+		await authStore.initialize();
+	}
+
+	const isAuthenticated = authStore.isAuthenticated;
+
+	if (requiresAuth && !isAuthenticated) {
+		await authStore.login();
+		return;
+	}
+
+	next();
 });
 
 export default router;
