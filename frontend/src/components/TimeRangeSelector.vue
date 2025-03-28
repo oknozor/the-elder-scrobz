@@ -29,12 +29,13 @@ defineEmits<{
 <style scoped>
 .time-range-selector {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .time-range-btn {
-  padding: 6px 12px;
+  padding: 6px 8px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   background: var(--card-background);
@@ -42,6 +43,8 @@ defineEmits<{
   cursor: pointer;
   font-size: 0.9em;
   transition: all 0.2s;
+  text-align: center;
+  width: 100%;
 }
 
 .time-range-btn:hover {
