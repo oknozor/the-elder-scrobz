@@ -166,40 +166,6 @@
 					</svg>
 				</template>
 				Recent Tracks
-				<template #controls>
-					<div class="view-toggle">
-						<button
-							class="toggle-btn"
-							:class="{ active: showDuration }"
-							@click="showDuration = !showDuration"
-							:title="
-								showDuration ? 'Show Plays' : 'Show Duration'
-							"
-						>
-							<svg
-								v-if="showDuration"
-								class="icon"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-							>
-								<circle cx="12" cy="12" r="10" />
-								<path d="M12 6v6l4 2" />
-							</svg>
-							<svg
-								v-else
-								class="icon"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-							>
-								<path d="M8 5v14l11-7z" />
-							</svg>
-						</button>
-					</div>
-				</template>
 			</SectionHeader>
 			<RecentTracks
 				:tracks="statsStore.recentTracks.content"
@@ -471,39 +437,6 @@ onMounted(async () => {
 	width: 20px;
 	height: 20px;
 	color: var(--primary-color);
-}
-
-.view-toggle {
-	display: flex;
-	align-items: center;
-}
-
-.toggle-btn {
-	padding: 8px;
-	border: 1px solid var(--border-color);
-	border-radius: 4px;
-	background: var(--card-background);
-	color: var(--text-color);
-	cursor: pointer;
-	transition: all 0.2s;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.toggle-btn:hover {
-	background: var(--background-color);
-}
-
-.toggle-btn.active {
-	background: var(--primary-color);
-	color: var(--background-color);
-	border-color: var(--primary-color);
-}
-
-.icon {
-	width: 20px;
-	height: 20px;
 }
 
 .pulse-charts {
