@@ -13,7 +13,23 @@ post_bump_hooks = []
 pre_package_bump_hooks = []
 post_package_bump_hooks = []
 
-[git_hooks]
+[git_hooks.commit-msg]
+script = """
+echo "[Check current commit message]"
+cog verify --file $1
+
+echo "[Conventional commit check]"
+cog check
+
+echo "[Format code]"
+cargo fmt -v --all --check
+
+echo "[Lints]"
+cargo clippy
+
+echo "[Refresh sql metadata]"
+cargo sqlx prepare --workspace
+"""
 
 [commit_types]
 
