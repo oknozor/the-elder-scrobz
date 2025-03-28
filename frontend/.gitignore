@@ -38,3 +38,6 @@ yarn-error.log*
 
 # Optional: Misc
 .eslintcache 
+
+# Local environment variables
+.env.local

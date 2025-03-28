@@ -4,26 +4,49 @@
 			<span class="user-name">{{
 				modelValue?.username || 'All Users'
 			}}</span>
-			<span class="dropdown-icon">{{ isOpen ? '▼' : '▶' }}</span>
+			<span class="dropdown-icon">
+				<svg
+					:style="{
+						transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+					}"
+					class="dropdown-icon"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					width="24"
+					height="24"
+					stroke-width="2"
+				>
+					<path d="M9 6l6 6l-6 6"></path>
+				</svg>
+			</span>
 		</div>
-		<div v-if="isOpen" class="user-dropdown">
-			<div
-				class="user-option"
-				:class="{ selected: !modelValue }"
-				@click="selectAll"
-			>
-				<span class="user-name">All Users</span>
+
+		<transition name="dropdown" @enter="onEnter" @leave="onLeave">
+			<div v-if="isOpen" class="user-dropdown">
+				<div
+					class="user-option"
+					:class="{ selected: !modelValue }"
+					@click="selectAll"
+				>
+					<span class="user-name">All Users</span>
+				</div>
+				<div
+					v-for="user in users"
+					:key="user.username"
+					class="user-option"
+					:class="{
+						selected: modelValue?.username === user.username,
+					}"
+					@click="selectUser(user)"
+				>
+					<span class="user-name">{{ user.username }}</span>
+				</div>
 			</div>
-			<div
-				v-for="user in users"
-				:key="user.username"
-				class="user-option"
-				:class="{ selected: modelValue?.username === user.username }"
-				@click="selectUser(user)"
-			>
-				<span class="user-name">{{ user.username }}</span>
-			</div>
-		</div>
+		</transition>
 	</div>
 </template>
 
@@ -69,6 +92,19 @@ const selectAll = () => {
 	emit('update:modelValue', null);
 	isOpen.value = false;
 };
+
+const onEnter = (el: Element) => {
+	(el as HTMLElement).style.height = 'auto';
+	const height = (el as HTMLElement).offsetHeight;
+	(el as HTMLElement).style.height = '0';
+	requestAnimationFrame(() => {
+		(el as HTMLElement).style.height = `${height}px`;
+	});
+};
+
+const onLeave = (el: Element) => {
+	(el as HTMLElement).style.height = '0';
+};
 </script>
 
 <style scoped>
@@ -104,6 +140,25 @@ const selectAll = () => {
 	font-size: 0.8em;
 }
 
+.dropdown-enter-active,
+.dropdown-leave-active {
+	transition: all 0.2s ease-out;
+	overflow: hidden;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+	opacity: 0;
+	transform: translateY(-10px);
+	height: 0;
+}
+
+.dropdown-enter-to,
+.dropdown-leave-from {
+	opacity: 1;
+	transform: translateY(0);
+}
+
 .user-dropdown {
 	position: absolute;
 	top: 100%;
@@ -117,6 +172,13 @@ const selectAll = () => {
 	z-index: 1000;
 	max-height: 300px;
 	overflow-y: auto;
+	transform-origin: top;
+	scrollbar-width: none;
+}
+
+.dropdown-icon {
+	padding-top: 2px;
+	transition: transform 0.2s;
 }
 
 .user-option {
