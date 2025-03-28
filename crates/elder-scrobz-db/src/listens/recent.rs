@@ -10,13 +10,13 @@ pub struct RecentListen {
     pub track_id: Option<String>,
     #[serde(rename = "user")]
     pub username: Option<String>,
-    #[serde(rename = "imageUrl")]
+    #[serde(rename = "cover_art_url")]
     pub cover_art_url: Option<String>,
-    #[serde(rename = "playedAt")]
+    #[serde(rename = "listened_at")]
     pub listened_at: Option<DateTime<Utc>>,
-    #[serde(rename = "artist")]
+    #[serde(rename = "artist_name")]
     pub artist_name: Option<String>,
-    #[serde(rename = "title")]
+    #[serde(rename = "track_name")]
     pub track_name: Option<String>,
     #[serde(rename = "duration")]
     pub duration: Option<i32>,
