@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT track_id as track_id,\n       track.name as track_name,\n       track.length as track_length,\n       release.name as release_name,\n       release.cover_art_url as cover_art_url,\n       count(*) as listens\nFROM\n    scrobbles\n        JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n        JOIN tracks track ON track.mbid = scrobbles.track_id\n        JOIN releases release ON track.release_mbid = release.mbid\nWHERE\n    DATE(listened_at) = CURRENT_DATE\nGROUP BY\n    track_id, track.name, track.length, release.name, release.cover_art_url\nORDER BY\n    listens DESC\nLIMIT 10",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "track_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "track_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "track_length",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "release_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "cover_art_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "listens",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "f60de0dbe1bd0b97e5869a892568c2fd33935ef21d54acd44de426f48dcb636f"
+}

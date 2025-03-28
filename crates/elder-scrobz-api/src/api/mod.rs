@@ -8,8 +8,8 @@ use utoipa_axum::routes;
 pub mod admin;
 pub mod charts;
 pub mod imports;
-pub mod listens;
 pub mod listenbrainz;
+pub mod listens;
 pub mod user;
 
 const USERS_TAG: &str = "users";

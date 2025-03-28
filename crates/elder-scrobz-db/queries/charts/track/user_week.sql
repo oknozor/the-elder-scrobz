@@ -3,7 +3,6 @@ SELECT track_id              as track_id,
        track.length          as track_length,
        release.name          as release_name,
        release.cover_art_url as cover_art_url,
-       raw.listened_at       as listened_at,
        count(*)              as listens
 FROM scrobbles
          JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id
@@ -12,6 +11,6 @@ FROM scrobbles
          JOIN users u on scrobbles.user_id = u.username
 WHERE DATE_TRUNC('week', listened_at) = DATE_TRUNC('week', NOW())
   AND u.username = $1
-GROUP BY track_id, track.name, track.length, release.name, release.cover_art_url, raw.listened_at
+GROUP BY track_id, track.name, track.length, release.name, release.cover_art_url
 ORDER BY listens DESC
 LIMIT 10
