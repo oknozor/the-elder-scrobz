@@ -78,7 +78,7 @@ impl ScrobbleResolver {
             return true;
         };
 
-        match process(scrobble, &self.pool).await {
+        match process(scrobble, &self.pool, false).await {
             Ok(id) => {
                 info!("Processed scrobble {id}");
             }
@@ -90,7 +90,7 @@ impl ScrobbleResolver {
     }
 }
 
-pub async fn process(scrobble: RawScrobble, pool: &PgPool) -> anyhow::Result<String> {
+pub async fn process(scrobble: RawScrobble, pool: &PgPool, force: bool) -> anyhow::Result<String> {
     let scrobble: TypedScrobble = scrobble.try_into()?;
     let pool = pool.clone();
     let scrobble_id = scrobble.id();
@@ -171,7 +171,7 @@ pub async fn process(scrobble: RawScrobble, pool: &PgPool) -> anyhow::Result<Str
 
     let pool_copy = pool.clone();
 
-    fetch_release(&release_mbid, pool_copy).await?;
+    fetch_release(&release_mbid, pool_copy, force).await?;
 
     Scrobble {
         source_id: scrobble_id.clone(),
