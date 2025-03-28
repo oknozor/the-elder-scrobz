@@ -5,8 +5,6 @@ use axum::http::request::Parts;
 use axum::http::HeaderMap;
 use oauth2::basic::BasicTokenIntrospectionResponse;
 use oauth2::TokenIntrospectionResponse;
-use tracing::log::error;
-use tracing::warn;
 
 pub mod client;
 
@@ -17,7 +15,6 @@ pub struct AuthenticatedUser {
 
 impl AuthenticatedUser {
     fn from_introspection(value: BasicTokenIntrospectionResponse) -> Option<AuthenticatedUser> {
-        warn!("{value:?}");
         value.active().then(|| AuthenticatedUser {
             name: value
                 .sub()
@@ -55,9 +52,6 @@ fn extract_bearer_token(headers: &HeaderMap) -> Option<String> {
         Ok(value) => value
             .strip_prefix("Bearer ")
             .map(|token: &str| token.to_string()),
-        Err(err) => {
-            error!("{err}");
-            None
-        }
+        Err(_) => None,
     }
 }
