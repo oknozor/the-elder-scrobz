@@ -264,11 +264,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
-import {
-	TimeRange,
-	MusicStats,
-	RecentTrack,
-} from '@/types/music';
+import { TimeRange, MusicStats, RecentTrack } from '@/types/music';
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
 import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
@@ -449,7 +445,7 @@ const fetchAllStats = async (
 		statsStore.fetchTopTracks(username, timeRanges.tracks),
 		statsStore.fetchTopAlbums(username, timeRanges.albums),
 		statsStore.fetchPulses(username, timeRanges.pulses),
-    statsStore.fetchRecentTracks(username, 1, 20),
+		statsStore.fetchRecentTracks(username, 1, 20),
 	]);
 };
 
