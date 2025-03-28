@@ -85,7 +85,7 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 
 .grid-container.top-items {
 	margin-bottom: 5px;
-	justify-content: center;
+	justify-content: flex-start;
 }
 
 .grid-container.top-items .card {
@@ -113,9 +113,9 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 	transform: translateY(-4px);
 }
 
-.card:hover {
-	flex: 0 0 calc(20% - (var(--gap) * 9 / 10));
-	z-index: 1;
+.card {
+	max-height: auto;
+	max-width: calc(20% - var(--gap));
 }
 
 .small-card {
