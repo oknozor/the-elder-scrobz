@@ -1,0 +1,12 @@
+[package]
+name = "elder-scrobz-docgen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+elder-scrobz-api.workspace = true
+utoipa-axum.workspace = true
+utoipa.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+clap = { version = "4.5.34", features = ["derive"] }
