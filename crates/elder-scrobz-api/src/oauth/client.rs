@@ -73,26 +73,3 @@ pub async fn get_oauth2_client(settings: &Settings) -> anyhow::Result<Oauth2Clie
         oauth2_client,
     })
 }
-
-#[cfg(test)]
-pub mod fixture {
-    use crate::oauth::client::Oauth2Client;
-    use oauth2::basic::BasicClient;
-    use oauth2::{ClientId, ClientSecret, IntrospectionUrl};
-
-    impl Oauth2Client {
-        pub fn noop() -> Self {
-            let client_id = ClientId::new("noop".to_string());
-            let client_secret = ClientSecret::new("noop".to_string());
-            let introspection = IntrospectionUrl::new("https://noop.com".to_string()).unwrap();
-            let client = BasicClient::new(client_id)
-                .set_client_secret(client_secret)
-                .set_introspection_url(introspection);
-
-            Self {
-                client: Default::default(),
-                oauth2_client: client,
-            }
-        }
-    }
-}

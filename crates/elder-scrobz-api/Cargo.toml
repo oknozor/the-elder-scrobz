@@ -3,10 +3,6 @@ name = "elder-scrobz-api"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "scrobz"
-path = "src/main.rs"
-
 [dependencies]
 axum.workspace = true
 axum-extra.workspace = true
@@ -18,7 +14,7 @@ tokio.workspace = true
 axum-macros.workspace = true
 tower-http.workspace = true
 elder-scrobz-db.workspace = true
-elder-scrobz-resolver.workspace = true
+elder-scrobz-crawler.workspace = true
 anyhow.workspace = true
 serde_json.workspace = true
 tracing-subscriber.workspace = true

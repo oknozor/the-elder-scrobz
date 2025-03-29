@@ -2,7 +2,6 @@ use crate::api::charts::albums::*;
 use crate::api::charts::artists::*;
 use crate::api::charts::pulses::*;
 use crate::api::charts::tracks::*;
-use crate::AppState;
 use elder_scrobz_db::Period;
 use serde::Deserialize;
 use utoipa::IntoParams;
@@ -14,7 +13,7 @@ pub mod artists;
 pub mod pulses;
 pub mod tracks;
 
-pub fn router() -> OpenApiRouter<AppState> {
+pub fn router() -> OpenApiRouter {
     OpenApiRouter::new()
         .routes(routes!(track_charts))
         .routes(routes!(album_charts))

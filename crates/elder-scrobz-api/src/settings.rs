@@ -14,7 +14,7 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub(crate) fn get() -> Result<Self, config::ConfigError> {
+    pub fn get() -> Result<Self, config::ConfigError> {
         let mut config = Config::builder().add_source(
             Environment::with_prefix("SCROBZ")
                 .try_parsing(true)
