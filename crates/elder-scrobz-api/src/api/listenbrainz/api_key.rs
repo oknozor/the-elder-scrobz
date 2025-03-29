@@ -19,6 +19,7 @@ pub struct ApiKeyCreated {
 #[debug_handler]
 #[utoipa::path(
     post,
+    summary = "Create ApiKey",
     path = "/users/api-key/create",
     responses(
         (status = 200, description = "Create a new user ApiKey", body = ApiKeyCreated),
@@ -58,6 +59,7 @@ pub struct TokenValidation {
 #[utoipa::path(
     get,
     path = "/validate-token",
+    summary = "Validate token",
     params(
         ("Authorization" = String, Header, description = "Token to validate. Format: `Token <token>`")
     ),

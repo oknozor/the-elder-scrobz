@@ -1,6 +1,6 @@
 use clap::Parser;
 use elder_scrobz_api::api::ApiDoc;
-use std::fs::File;
+use std::fs;
 use std::path::PathBuf;
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
@@ -20,8 +20,7 @@ fn main() -> anyhow::Result<()> {
 
     match cli.out {
         Some(out) => {
-            let file = File::open(&out)?;
-            serde_json::to_writer_pretty(file, &openapi)?;
+            fs::write(&out, &openapi)?;
         }
         None => {
             println!("{}", openapi);

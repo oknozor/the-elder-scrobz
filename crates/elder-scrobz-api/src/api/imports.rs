@@ -12,6 +12,7 @@ use futures_util::stream::StreamExt;
 #[utoipa::path(
     post,
     path = "/users/import",
+    summary = "Import listens",
     responses(
         (status = 200, description = "Top tracks for user", body = ()),
         (status = 404, description = "User not found", body = AppError)

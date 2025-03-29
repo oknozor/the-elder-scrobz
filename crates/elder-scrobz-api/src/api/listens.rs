@@ -16,6 +16,7 @@ pub fn router() -> OpenApiRouter {
 #[utoipa::path(
     get,
     path = "/recent",
+    summary = "Recent listens",
     params(PageQuery),
     responses(
         (status = 200, description = "Recent tracks listened", body = Vec<RecentListen>, content_type = "application/json"),

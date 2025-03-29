@@ -18,6 +18,7 @@ pub fn router() -> OpenApiRouter {
 #[utoipa::path(
     post,
     path = "/",
+    summary = "Create user",
     responses(
         (status = 200, description = "User Created", body = User, content_type = "application/json"),
     ),
@@ -34,6 +35,7 @@ pub async fn create_user(
 #[utoipa::path(
     get,
     path = "/",
+    summary = "Get user",
     responses(
         (status = 200, description = "All users", body = Vec<User>, content_type = "application/json"),
     ),

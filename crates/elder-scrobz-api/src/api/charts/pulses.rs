@@ -17,6 +17,7 @@ pub struct PulseQuery {
 #[utoipa::path(
     get,
     path = "/pulses",
+    summary = "Pulses",
     params(PulseQuery),
     responses(
         (status = 200, description = "Top album for user", body = Vec<Pulse>, content_type = "application/json"),

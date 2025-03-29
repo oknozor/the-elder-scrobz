@@ -18,6 +18,7 @@ pub struct Empty {}
 #[utoipa::path(
     post,
     path = "/submit-listens",
+    summary = "Submit listens",
     params(
         ("Authorization" = String, Header, description = "Token to validate. Format: `Token <token>`")
     ),
