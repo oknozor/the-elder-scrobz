@@ -23,6 +23,8 @@ pub struct ScanQuery {
 #[utoipa::path(
     post,
     path = "/scan",
+    summary = "Scan database",
+    description = "Scan database and fetch medatada",
     params(ScanQuery),
     responses(
         (status = 200, description = "Launch an asynchronous scrobble scan", content_type = "application/json"),

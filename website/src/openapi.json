@@ -1,0 +1,1361 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "elder-scrobz-api",
+    "description": "",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/admin/scan": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Scan database",
+        "description": "Scan database and fetch medatada",
+        "operationId": "scan_db",
+        "parameters": [
+          {
+            "name": "force",
+            "in": "query",
+            "description": "Scan all scrobbles instead of only unprocessed ones",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "coverart_only",
+            "in": "query",
+            "description": "Only fetch missing coverart",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Launch an asynchronous scrobble scan",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/scrobbles/{id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get scrobble by id",
+        "operationId": "get_by_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get a raw scrobble by id",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/charts/albums": {
+      "get": {
+        "tags": [
+          "charts"
+        ],
+        "summary": "Album charts",
+        "operationId": "album_charts",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Period"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top albums",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopAlbum"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/charts/artists": {
+      "get": {
+        "tags": [
+          "charts"
+        ],
+        "summary": "Artist charts",
+        "operationId": "artist_charts",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Period"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top album for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopArtist"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/charts/pulses": {
+      "get": {
+        "tags": [
+          "charts"
+        ],
+        "summary": "Pulses",
+        "operationId": "pulses",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Period"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top album for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pulse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/charts/tracks": {
+      "get": {
+        "tags": [
+          "charts"
+        ],
+        "summary": "Track charts",
+        "operationId": "track_charts",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Period"
+            }
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top tracks for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopTrack"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/listens/recent": {
+      "get": {
+        "tags": [
+          "scrobbles"
+        ],
+        "summary": "Recent listens",
+        "operationId": "recent_listens",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent tracks listened",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecentListen"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/submit-listens": {
+      "post": {
+        "tags": [
+          "scrobbles"
+        ],
+        "summary": "Submit listens",
+        "operationId": "submit_listens",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Token to validate. Format: `Token <token>`",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitListens"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Top tracks for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitListens"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get user",
+        "operationId": "get_users",
+        "responses": {
+          "200": {
+            "description": "All users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Create user",
+        "operationId": "create_user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUser"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/api-key/create": {
+      "post": {
+        "tags": [
+          "apikey"
+        ],
+        "summary": "Create ApiKey",
+        "operationId": "create_api_key",
+        "responses": {
+          "200": {
+            "description": "Create a new user ApiKey",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyCreated"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/import": {
+      "post": {
+        "tags": [
+          "scrobbles"
+        ],
+        "summary": "Import listens",
+        "operationId": "import_listens",
+        "responses": {
+          "200": {
+            "description": "Top tracks for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/validate-token": {
+      "get": {
+        "tags": [
+          "apikey"
+        ],
+        "summary": "Validate token",
+        "operationId": "validate_token",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Token to validate. Format: `Token <token>`",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user token is valid/invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenValidation"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdditionalInfo": {
+        "type": "object",
+        "properties": {
+          "albumartist": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "artist_mbids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "artist_names": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "discnumber": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "duration": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "duration_ms": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "genre": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isrc": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "listening_from": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "media_player": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "media_player_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "music_service": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "music_service_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "origin_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recording_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recording_msid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "release_artist_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "release_artist_names": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "release_group_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "release_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "spotify_album_artist_ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "spotify_album_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "spotify_artist_ids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "spotify_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "submission_client": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "submission_client_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tags": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "track_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "track_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tracknumber": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "work_mbids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "youtube_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "ApiKeyCreated": {
+        "type": "object",
+        "required": [
+          "api_key"
+        ],
+        "properties": {
+          "api_key": {
+            "type": "string"
+          }
+        }
+      },
+      "AppError": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "Internal"
+            ],
+            "properties": {
+              "Internal": {
+                "type": "string"
+              }
+            },
+            "example": "Internal error"
+          },
+          {
+            "type": "object",
+            "required": [
+              "UserNotFound"
+            ],
+            "properties": {
+              "UserNotFound": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "example": "User not found"
+          },
+          {
+            "type": "object",
+            "required": [
+              "ScrobbleNotFound"
+            ],
+            "properties": {
+              "ScrobbleNotFound": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "example": "User not found"
+          },
+          {
+            "type": "object",
+            "required": [
+              "Unauthorized"
+            ],
+            "properties": {
+              "Unauthorized": {
+                "type": "string"
+              }
+            },
+            "example": "Operation not allowed"
+          }
+        ]
+      },
+      "CreateUser": {
+        "type": "object",
+        "required": [
+          "username",
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "ListenType": {
+        "type": "string",
+        "enum": [
+          "single",
+          "playing_now",
+          "import"
+        ]
+      },
+      "MbidMapping": {
+        "type": "object",
+        "properties": {
+          "artist_mbids": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "artists": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/TopReleasesForUserPayloadReleasesInnerArtistsInner"
+            }
+          },
+          "caa_id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "caa_release_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recording_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recording_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "release_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PageQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int64",
+            "default": 100
+          }
+        }
+      },
+      "Pulse": {
+        "type": "object",
+        "properties": {
+          "listens": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "period": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "RecentListen": {
+        "type": "object",
+        "properties": {
+          "artist_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cover_art_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duration": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "listened_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "track_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "user": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "SubmitListens": {
+        "type": "object",
+        "required": [
+          "listen_type",
+          "payload"
+        ],
+        "properties": {
+          "listen_type": {
+            "$ref": "#/components/schemas/ListenType"
+          },
+          "payload": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubmitListensPayload"
+            }
+          }
+        },
+        "example": "{\n  \"listen_type\": \"single\",\n  \"payload\": [\n    {\n      \"inserted_at\": 1736503839.79322,\n      \"listened_at\": 1736503811,\n      \"track_metadata\": {\n        \"track_name\": \"Lotus\",\n        \"artist_name\": \"Sonic Area\",\n        \"mbid_mapping\": {\n          \"caa_id\": 28429645674,\n          \"artists\": [\n            {\n              \"artist_mbid\": \"133c77d4-f8a8-4d26-92e2-6729a9264750\",\n              \"join_phrase\": \"\",\n              \"artist_credit_name\": \"Sonic Area\"\n            }\n          ],\n          \"artist_mbids\": [\n            \"133c77d4-f8a8-4d26-92e2-6729a9264750\"\n          ],\n          \"release_mbid\": \"7a82e8bd-a384-49e6-8aa8-d68b8194e535\",\n          \"recording_mbid\": \"6591c359-f7ce-409b-93a8-e39571834cdc\",\n          \"recording_name\": \"Lotus\",\n          \"caa_release_mbid\": \"7a82e8bd-a384-49e6-8aa8-d68b8194e535\"\n        },\n        \"release_name\": \"Ki\",\n        \"recording_msid\": \"8beb36df-cf65-4c29-9cad-a09ca8577904\",\n        \"additional_info\": {\n          \"duration_ms\": 246730,\n          \"tracknumber\": 4,\n          \"artist_mbids\": [\n            \"133c77d4-f8a8-4d26-92e2-6729a9264750\"\n          ],\n          \"release_mbid\": \"7a82e8bd-a384-49e6-8aa8-d68b8194e535\",\n          \"recording_mbid\": \"6591c359-f7ce-409b-93a8-e39571834cdc\",\n          \"submission_client\": \"navidrome\",\n          \"submission_client_version\": \"0.54.3 (734eb30a)\"\n        }\n      }\n    }\n  ]\n}\n"
+      },
+      "SubmitListensPayload": {
+        "type": "object",
+        "required": [
+          "listened_at",
+          "track_metadata"
+        ],
+        "properties": {
+          "listened_at": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "track_metadata": {
+            "$ref": "#/components/schemas/TrackMetadata"
+          }
+        }
+      },
+      "TokenValidation": {
+        "type": "object",
+        "required": [
+          "valid",
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
+          },
+          "user_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TopAlbum": {
+        "type": "object",
+        "required": [
+          "release_id",
+          "release_name"
+        ],
+        "properties": {
+          "cover_art_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_listened_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "listens": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "release_name": {
+            "type": "string"
+          }
+        },
+        "example": "[\n  {\n    \"release_id\": \"7a82e8bd-a384-49e6-8aa8-d68b8194e535\",\n    \"release_name\": \"Ki\",\n    \"cover_art_url\": \"http://coverartarchive.org/release/7a82e8bd-a384-49e6-8aa8-d68b8194e535/28429645674.jpg\",\n    \"last_listened_at\": \"2025-01-10T10:35:57Z\",\n    \"listens\": 10\n  },\n  {\n    \"release_id\": \"e1d99364-1ad9-4f4d-9505-2242eff10a44\",\n    \"release_name\": \"good kid, m.A.A.d city\",\n    \"cover_art_url\": \"http://coverartarchive.org/release/e1d99364-1ad9-4f4d-9505-2242eff10a44/2361576294.jpg\",\n    \"last_listened_at\": \"2025-01-11T09:40:04Z\",\n    \"listens\": 9\n  },\n  {\n    \"release_id\": \"7639890c-70ad-49c3-8b2f-46da97724e2c\",\n    \"release_name\": \"Inscryption Original Soundtrack\",\n    \"cover_art_url\": \"http://coverartarchive.org/release/7639890c-70ad-49c3-8b2f-46da97724e2c/30878662920.png\",\n    \"last_listened_at\": \"2025-01-11T08:55:18Z\",\n    \"listens\": 1\n  },\n  {\n    \"release_id\": \"de3f9a1a-fedd-4e98-a0bf-4f37a3a0aaf9\",\n    \"release_name\": \"For Ever\",\n    \"cover_art_url\": \"http://coverartarchive.org/release/de3f9a1a-fedd-4e98-a0bf-4f37a3a0aaf9/20510904847.jpg\",\n    \"last_listened_at\": \"2025-01-10T15:51:23Z\",\n    \"listens\": 1\n  }\n]"
+      },
+      "TopArtist": {
+        "type": "object",
+        "required": [
+          "artist_id"
+        ],
+        "properties": {
+          "artist_id": {
+            "type": "string"
+          },
+          "artist_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_listened_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "listens": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        },
+        "example": "[\n  {\n    \"artist_id\": \"133c77d4-f8a8-4d26-92e2-6729a9264750\",\n    \"artist_name\": \"Sonic Area\",\n    \"last_listened_at\": \"2025-01-10T10:35:57Z\",\n    \"listens\": 10\n  },\n  {\n    \"artist_id\": \"381086ea-f511-4aba-bdf9-71c753dc5077\",\n    \"artist_name\": \"Kendrick Lamar\",\n    \"last_listened_at\": \"2025-01-11T09:40:04Z\",\n    \"listens\": 9\n  },\n  {\n    \"artist_id\": \"6bbb3983-ce8a-4971-96e0-7cae73268fc4\",\n    \"artist_name\": \"Jungle\",\n    \"last_listened_at\": \"2025-01-10T15:51:23Z\",\n    \"listens\": 1\n  },\n  {\n    \"artist_id\": \"c204d74b-fe8b-41a9-b9d2-d7c953bbe2fc\",\n    \"artist_name\": \"Jonah Senzel\",\n    \"last_listened_at\": \"2025-01-11T08:55:18Z\",\n    \"listens\": 1\n  }\n]"
+      },
+      "TopReleasesForUserPayloadReleasesInnerArtistsInner": {
+        "type": "object",
+        "properties": {
+          "artist_credit_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "artist_mbid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "join_phrase": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "TopTrack": {
+        "type": "object",
+        "required": [
+          "track_id",
+          "track_name",
+          "release_mbid",
+          "release_name"
+        ],
+        "properties": {
+          "cover_art_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "listens": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "release_mbid": {
+            "type": "string"
+          },
+          "release_name": {
+            "type": "string"
+          },
+          "track_id": {
+            "type": "string"
+          },
+          "track_length": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "track_name": {
+            "type": "string"
+          }
+        },
+        "example": "[\n  {\n    \"track_id\": \"10ff5e2b-d956-44c0-85b8-1e9f9ebda40d\",\n    \"track_name\": \"The Silent Way\",\n    \"track_length\": 266370,\n    \"release_name\": \"Ki\",\n    \"cover_art_url\": \"http://coverartarchive.org/release/7a82e8bd-a384-49e6-8aa8-d68b8194e535/28429645674.jpg\",\n    \"listened_at\": \"2025-01-10T10:00:07Z\",\n    \"listens\": 1\n  },\n  {\n    \"track_id\": \"1954aa66-5f9c-4fab-906f-366dfcab5eb6\",\n    \"track_name\": \"Gardens\",\n    \"track_length\": 302550,\n    \"release_name\": \"Ki\",\n    \"cover_art_url\": \"http://coverartarchive.org/release/7a82e8bd-a384-49e6-8aa8-d68b8194e535/28429645674.jpg\",\n    \"listened_at\": \"2025-01-10T10:26:45Z\",\n    \"listens\": 1\n  },\n  {\n    \"track_id\": \"1b3a5bf1-1f67-4339-be91-77d07d2c9d65\",\n    \"track_name\": \"Soot Spirit\",\n    \"track_length\": 213990,\n    \"release_name\": \"Ki\",\n    \"cover_art_url\": \"http://coverartarchive.org/release/7a82e8bd-a384-49e6-8aa8-d68b8194e535/28429645674.jpg\",\n    \"listened_at\": \"2025-01-10T09:55:41Z\",\n    \"listens\": 1\n  }\n]"
+      },
+      "TrackMetadata": {
+        "type": "object",
+        "required": [
+          "artist_name",
+          "release_name",
+          "track_name"
+        ],
+        "properties": {
+          "additional_info": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AdditionalInfo"
+              }
+            ]
+          },
+          "artist_name": {
+            "type": "string"
+          },
+          "mbid_mapping": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MbidMapping"
+              }
+            ]
+          },
+          "release_name": {
+            "type": "string"
+          },
+          "track_name": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "username",
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "todo_apikey"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "users",
+      "description": "Users"
+    },
+    {
+      "name": "charts",
+      "description": "Charts"
+    },
+    {
+      "name": "scrobbles",
+      "description": "Scrobbles"
+    },
+    {
+      "name": "apikey",
+      "description": "ApiKey"
+    },
+    {
+      "name": "admin",
+      "description": "Administration"
+    }
+  ]
+}

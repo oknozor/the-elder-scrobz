@@ -2,3 +2,4 @@ target/
 .idea/
 .secret.env
 coverarts/
+**/node_modules

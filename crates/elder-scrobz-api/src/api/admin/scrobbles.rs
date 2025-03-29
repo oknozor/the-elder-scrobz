@@ -9,6 +9,7 @@ use elder_scrobz_db::PgPool;
 #[utoipa::path(
     get,
     path = "/scrobbles/{id}",
+    summary = "Get scrobble by id",
     responses(
         (status = 200, description = "Get a raw scrobble by id", content_type = "application/json"),
     ),

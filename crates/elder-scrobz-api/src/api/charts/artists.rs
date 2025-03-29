@@ -10,6 +10,7 @@ use elder_scrobz_db::PgPool;
 #[utoipa::path(
     get,
     path = "/artists",
+    summary = "Artist charts",
     params(ChartQuery),
     responses(
         (status = 200, description = "Top album for user", body = Vec<TopArtist>, content_type = "application/json"),

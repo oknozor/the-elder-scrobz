@@ -12,6 +12,7 @@ use std::sync::Arc;
 #[utoipa::path(
     get,
     path = "/albums",
+    summary = "Album charts",
     params(ChartQuery),
     responses(
         (status = 200, description = "Top albums", body = Vec<TopAlbum>, content_type = "application/json"),
