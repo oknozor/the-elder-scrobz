@@ -10,7 +10,7 @@ use tracing::{info, warn};
 
 static MB_CLIENT: Lazy<MusicBrainzClient> = Lazy::new(|| {
     let mut client = MusicBrainzClient::default();
-    client.set_user_agent("elder-scrobz-resolver").unwrap();
+    client.set_user_agent("elder-scrobz-crawler").unwrap();
     client.max_retries = 5;
     client
 });

@@ -1,4 +1,3 @@
-use crate::state::AppState;
 use api_key::*;
 use axum::http::header::ToStrError;
 use axum::http::HeaderValue;
@@ -10,7 +9,7 @@ use utoipa_axum::routes;
 mod api_key;
 mod listens;
 
-pub fn router() -> OpenApiRouter<AppState> {
+pub fn router() -> OpenApiRouter {
     OpenApiRouter::new()
         .routes(routes!(submit_listens))
         .routes(routes!(create_api_key))

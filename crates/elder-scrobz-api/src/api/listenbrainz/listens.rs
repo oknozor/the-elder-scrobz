@@ -1,14 +1,13 @@
 use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
-use crate::state::AppState;
-use axum::extract::State;
-use axum::Json;
+use axum::{Extension, Json};
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
 use elder_scrobz_db::listens::raw::listenbrainz::{raw, typed, ListenType};
 use elder_scrobz_db::user::User;
+use elder_scrobz_db::PgPool;
 use serde::Serialize;
 use tracing::debug;
 
@@ -29,12 +28,12 @@ pub struct Empty {}
     tag = crate::api::SCROBBLES_TAG
 )]
 pub async fn submit_listens(
-    State(state): State<AppState>,
+    Extension(db): Extension<PgPool>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
     Json(payload): Json<raw::SubmitListens>,
 ) -> AppResult<Json<Empty>> {
     match payload.listen_type {
-        ListenType::Single | ListenType::Import => store_scrobble(&state, auth, payload).await?,
+        ListenType::Single | ListenType::Import => store_scrobble(&db, auth, payload).await?,
         ListenType::PlayingNow => debug!("Received PlayingNow listen. Ignoring."),
     };
 
@@ -42,7 +41,7 @@ pub async fn submit_listens(
 }
 
 async fn store_scrobble(
-    state: &AppState,
+    db: &PgPool,
     auth: Authorization<Token>,
     payload: raw::SubmitListens,
 ) -> Result<(), AppError> {
@@ -50,11 +49,11 @@ async fn store_scrobble(
         return Err(AppError::Unauthorized("Missing token".to_string()));
     };
 
-    let Some(user) = User::get_user_id_by_api_key(&state.pool, token).await? else {
+    let Some(user) = User::get_user_id_by_api_key(db, token).await? else {
         return Err(AppError::Unauthorized("Invalid token".to_string()));
     };
 
-    CreateRawScrobble::batch_insert(user.username, payload, &state.pool).await?;
+    CreateRawScrobble::batch_insert(user.username, payload, db).await?;
 
     Ok(())
 }

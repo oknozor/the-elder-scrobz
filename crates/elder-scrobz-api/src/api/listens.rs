@@ -1,14 +1,14 @@
 use crate::api::PageQuery;
 use crate::error::{AppError, AppResult};
-use crate::AppState;
-use axum::extract::{Query, State};
-use axum::Json;
+use axum::extract::Query;
+use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::recent::{get_recent_listens, RecentListen};
+use elder_scrobz_db::PgPool;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
-pub fn router() -> OpenApiRouter<AppState> {
+pub fn router() -> OpenApiRouter {
     OpenApiRouter::new().routes(routes!(recent_listens))
 }
 
@@ -24,10 +24,10 @@ pub fn router() -> OpenApiRouter<AppState> {
     tag = crate::api::SCROBBLES_TAG
 )]
 pub async fn recent_listens(
-    State(state): State<AppState>,
+    Extension(db): Extension<PgPool>,
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<Vec<RecentListen>>> {
     Ok(Json(
-        get_recent_listens(query.page, query.page_size, &state.pool).await?,
+        get_recent_listens(query.page, query.page_size, &db).await?,
     ))
 }

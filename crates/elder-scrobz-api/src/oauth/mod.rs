@@ -1,5 +1,5 @@
 use crate::error::AppError;
-use crate::state::AppState;
+use crate::oauth::client::Oauth2Client;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::http::HeaderMap;
@@ -24,14 +24,15 @@ impl AuthenticatedUser {
     }
 }
 
-impl FromRequestParts<AppState> for AuthenticatedUser {
+impl FromRequestParts<()> for AuthenticatedUser {
     type Rejection = AppError;
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &AppState,
-    ) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, _: &()) -> Result<Self, Self::Rejection> {
+        let oauth2_client = parts
+            .extensions
+            .get::<Oauth2Client>()
+            .expect("Missing Oauth2Client extension");
         match extract_bearer_token(&parts.headers) {
-            Some(auth_value) => match state.oauth_client.introspect(auth_value).await {
+            Some(auth_value) => match oauth2_client.introspect(auth_value).await {
                 Ok(response) => match AuthenticatedUser::from_introspection(response) {
                     None => Err(AppError::Unauthorized(
                         "Token is invalid or inactive".to_string(),

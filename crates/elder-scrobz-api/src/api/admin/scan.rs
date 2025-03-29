@@ -1,9 +1,10 @@
 use crate::error::AppResult;
-use crate::state::AppState;
-use axum::extract::{Query, State};
+use axum::extract::Query;
+use axum::Extension;
 use axum_macros::debug_handler;
+use elder_scrobz_crawler::{process, try_update_all_coverart};
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
-use elder_scrobz_resolver::{process, try_update_all_coverart};
+use elder_scrobz_db::PgPool;
 use tokio::spawn;
 use tracing::info;
 use tracing::log::error;
@@ -30,11 +31,11 @@ pub struct ScanQuery {
 )]
 pub async fn scan_db(
     Query(query): Query<ScanQuery>,
-    State(state): State<AppState>,
+    Extension(db): Extension<PgPool>,
 ) -> AppResult<()> {
     if query.coverart_only {
         spawn(async move {
-            if let Err(err) = try_update_all_coverart(&state.pool).await {
+            if let Err(err) = try_update_all_coverart(&db).await {
                 error!("Failed to update coverarts: {err}");
             }
         });
@@ -42,13 +43,13 @@ pub async fn scan_db(
     }
 
     let scrobbles = if query.force {
-        RawScrobble::all(&state.pool).await?
+        RawScrobble::all(&db).await?
     } else {
-        RawScrobble::get_unprocessed(&state.pool).await?
+        RawScrobble::get_unprocessed(&db).await?
     };
 
     info!("Rescanning database for unprocessed scrobbles");
-    let pool = state.pool.clone();
+    let pool = db.clone();
 
     spawn(async move {
         for scrobble in scrobbles {

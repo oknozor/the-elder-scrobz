@@ -16,7 +16,7 @@ pub fn scrobble_fixture() -> anyhow::Result<String> {
     Ok(scrobble)
 }
 
-pub async fn start_postgres() -> anyhow::Result<(AppState, ContainerAsync<Postgres>)> {
+pub async fn start_postgres() -> anyhow::Result<ContainerAsync<Postgres>> {
     let container = Postgres::default()
         .with_db_name("scrobz")
         .with_user("scrobz")
@@ -33,12 +33,5 @@ pub async fn start_postgres() -> anyhow::Result<(AppState, ContainerAsync<Postgr
     let settings = Arc::new(Settings::get()?);
 
     migrate_db(&pool).await?;
-    Ok((
-        AppState {
-            pool,
-            settings,
-            oauth_client: Oauth2Client::noop(),
-        },
-        container,
-    ))
+    Ok(container)
 }

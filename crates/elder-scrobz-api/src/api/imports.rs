@@ -1,11 +1,11 @@
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
-use crate::state::AppState;
-use axum::extract::State;
+use axum::Extension;
 use axum_extra::extract::JsonLines;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
 use elder_scrobz_db::listens::raw::listenbrainz::{raw, ListenType};
+use elder_scrobz_db::PgPool;
 use futures_util::stream::StreamExt;
 
 #[debug_handler]
@@ -20,7 +20,7 @@ use futures_util::stream::StreamExt;
 )]
 pub async fn import_listens(
     user: AuthenticatedUser,
-    State(state): State<AppState>,
+    Extension(db): Extension<PgPool>,
     mut stream: JsonLines<serde_json::value::Value>,
 ) -> AppResult<()> {
     const CHUNK_SIZE: usize = 50;
@@ -32,20 +32,20 @@ pub async fn import_listens(
         buffer.push(value);
 
         if buffer.len() == CHUNK_SIZE {
-            save_listens(&state, &user.name, buffer).await?;
+            save_listens(&db, &user.name, buffer).await?;
             buffer = Vec::with_capacity(CHUNK_SIZE);
         }
     }
 
     if !buffer.is_empty() {
-        save_listens(&state, &user.name, buffer).await?;
+        save_listens(&db, &user.name, buffer).await?;
     }
 
     Ok(())
 }
 
 async fn save_listens(
-    state: &AppState,
+    db: &PgPool,
     username: &str,
     chunk: Vec<raw::SubmitListensPayload>,
 ) -> AppResult<()> {
@@ -54,7 +54,7 @@ async fn save_listens(
         payload: chunk,
     };
 
-    CreateRawScrobble::batch_insert(username.to_string(), scrobble, &state.pool).await?;
+    CreateRawScrobble::batch_insert(username.to_string(), scrobble, db).await?;
 
     Ok(())
 }

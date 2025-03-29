@@ -1,7 +1,6 @@
 use crate::api::imports::*;
 use crate::oauth::AuthenticatedUser;
-use crate::state::AppState;
-use axum::middleware::from_extractor_with_state;
+use axum::middleware::from_extractor;
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
 use utoipa::{IntoParams, Modify, OpenApi, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
@@ -65,15 +64,13 @@ impl Default for PageQuery {
     }
 }
 
-pub fn router(state: AppState) -> OpenApiRouter<AppState> {
+pub fn router() -> OpenApiRouter {
     OpenApiRouter::new()
         .routes(routes!(import_listens))
         .nest("/users", user::router())
         .nest("/charts", charts::router())
         .nest("/admin", admin::router())
         .nest("/listens", listens::router())
-        .layer(from_extractor_with_state::<AuthenticatedUser, AppState>(
-            state,
-        ))
+        .layer(from_extractor::<AuthenticatedUser>())
         .merge(listenbrainz::router())
 }

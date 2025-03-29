@@ -61,6 +61,7 @@ impl IntoResponse for AppError {
 
 #[cfg(test)]
 mod tests {
+    use crate::api::admin::router;
     use crate::router;
     use crate::state::AppState;
     use crate::test_helper::scrobble_fixture;
@@ -78,8 +79,7 @@ mod tests {
             .header("Content-Type", "application/json")
             .body(scrobble)?;
 
-        let state = AppState::init().await?;
-        let (app, _) = router().with_state(state).split_for_parts();
+        let (app, _) = router().split_for_parts();
 
         let response = app.oneshot(request).await?;
 
