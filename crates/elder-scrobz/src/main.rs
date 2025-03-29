@@ -33,9 +33,10 @@ async fn main() -> anyhow::Result<()> {
     let settings = Settings::get()?;
     let settings = Arc::new(settings);
     let pool = build_pg_pool(&settings.database_url).await;
-
     let coverart_path = settings.coverart_path.clone();
+
     elder_scrobz_db::migrate_db(&pool).await?;
+
     let addr = SocketAddr::from(([0, 0, 0, 0], settings.port));
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
