@@ -3,3 +3,4 @@ target/
 .secret.env
 coverarts/
 **/node_modules
+website/.vitepress/cache
