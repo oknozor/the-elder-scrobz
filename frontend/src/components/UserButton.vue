@@ -19,20 +19,22 @@
 				<circle cx="12" cy="12" r="3"></circle>
 			</svg>
 		</div>
-		<div v-if="isOpen" class="user-dropdown">
-			<div class="user-option" @click="handleImport">
-				<span class="option-text">Import</span>
+		<transition name="user-dropdown">
+			<div v-if="isOpen" class="user-dropdown">
+				<div class="user-option" @click="handleImport">
+					<span class="option-text">Import</span>
+				</div>
+				<div class="user-option" @click="handleUsers">
+					<span class="option-text">Users</span>
+				</div>
+				<div class="user-option" @click="handleApiKeys">
+					<span class="option-text">API Keys</span>
+				</div>
+				<div class="user-option" @click="handleLogout">
+					<span class="option-text">Logout</span>
+				</div>
 			</div>
-			<div class="user-option" @click="handleUsers">
-				<span class="option-text">Users</span>
-			</div>
-			<div class="user-option" @click="handleApiKeys">
-				<span class="option-text">API Keys</span>
-			</div>
-			<div class="user-option" @click="handleLogout">
-				<span class="option-text">Logout</span>
-			</div>
-		</div>
+		</transition>
 	</div>
 </template>
 
@@ -143,5 +145,21 @@ const handleApiKeys = () => {
 .option-text {
 	color: var(--text-color);
 	font-size: 0.9em;
+}
+
+.user-dropdown-enter-active,
+.user-dropdown-leave-active {
+	transition: opacity 0.2s ease-out;
+	overflow: hidden;
+}
+
+.user-dropdown-enter-from,
+.user-dropdown-leave-to {
+	opacity: 0;
+}
+
+.user-dropdown-enter-to,
+.user-dropdown-leave-from {
+	opacity: 1;
 }
 </style>
