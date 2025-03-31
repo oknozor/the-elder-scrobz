@@ -62,11 +62,20 @@
 				Artists Chart
 				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
-			<StatGrid
-				:items="statsStore.topArtists"
-				:limit="15"
-				:link="{ name: 'artist' }"
-			/>
+			<Suspense>
+				<template #default>
+					<StatGrid
+						:items="statsStore.topArtists"
+						:limit="15"
+						:link="{ name: 'artist' }"
+					/>
+				</template>
+				<template #fallback>
+					<div class="loading-placeholder">
+						<span class="loader-animation"></span>
+					</div>
+				</template>
+			</Suspense>
 		</div>
 
 		<div class="stats-section">
@@ -89,11 +98,20 @@
 				Tracks Chart
 				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
-			<StatGrid
-				:items="statsStore.topTracks"
-				:limit="15"
-				:link="{ name: 'track' }"
-			/>
+			<Suspense>
+				<template #default>
+					<StatGrid
+						:items="statsStore.topTracks"
+						:limit="15"
+						:link="{ name: 'track' }"
+					/>
+				</template>
+				<template #fallback>
+					<div class="loading-placeholder">
+						<span class="loader-animation"></span>
+					</div>
+				</template>
+			</Suspense>
 		</div>
 
 		<div class="stats-section">
@@ -117,11 +135,20 @@
 				Album Chart
 				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
-			<StatGrid
-				:items="statsStore.topAlbums"
-				:limit="15"
-				:link="{ name: 'album' }"
-			/>
+			<Suspense>
+				<template #default>
+					<StatGrid
+						:items="statsStore.topAlbums"
+						:limit="15"
+						:link="{ name: 'album' }"
+					/>
+				</template>
+				<template #fallback>
+					<div class="loading-placeholder">
+						<span class="loader-animation"></span>
+					</div>
+				</template>
+			</Suspense>
 		</div>
 
 		<div class="stats-section">
@@ -147,9 +174,18 @@
 				Pulse
 				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
-			<div class="pulse-charts">
-				<PulseMixedChart :pulseData="statsStore.pulses" />
-			</div>
+			<Suspense>
+				<template #default>
+					<div class="pulse-charts">
+						<PulseMixedChart :pulseData="statsStore.pulses" />
+					</div>
+				</template>
+				<template #fallback>
+					<div class="loading-placeholder">
+						<span class="loader-animation"></span>
+					</div>
+				</template>
+			</Suspense>
 		</div>
 
 		<div class="stats-section">
@@ -167,11 +203,20 @@
 				</template>
 				Recent Tracks
 			</SectionHeader>
-			<RecentTracks
-				:tracks="statsStore.recentTracks.content"
-				:total-pages="statsStore.recentTracks.totalPages"
-				@load-more="handleLoadMore"
-			/>
+			<Suspense>
+				<template #default>
+					<RecentTracks
+						:tracks="statsStore.recentTracks.content"
+						:total-pages="statsStore.recentTracks.totalPages"
+						@load-more="handleLoadMore"
+					/>
+				</template>
+				<template #fallback>
+					<div class="loading-placeholder">
+						<span class="loader-animation"></span>
+					</div>
+				</template>
+			</Suspense>
 		</div>
 	</div>
 </template>
@@ -443,5 +488,32 @@ onMounted(async () => {
 	justify-content: space-between;
 	align-items: center;
 	gap: 20px;
+}
+
+.loading-placeholder {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	border-radius: 8px;
+	padding: 20px;
+	height: 150px;
+}
+.loader-animation {
+	border: 4px solid var(--border-color);
+	border-top: 4px solid var(--primary-color);
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 </style>
