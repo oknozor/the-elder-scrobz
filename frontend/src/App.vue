@@ -17,7 +17,9 @@
 				<slot name="header-right"></slot>
 			</template>
 		</PageHeader>
-		<router-view></router-view>
+		<Transition name="slide" mode="out-in">
+			<RouterView />
+		</Transition>
 	</div>
 </template>
 
@@ -72,5 +74,17 @@ onMounted(async () => {
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 20px;
+}
+.slide-enter-active,
+.slide-leave-active {
+	transition: transform 0.5s ease-in-out, opacity 0.5s;
+}
+.slide-enter-from {
+	transform: translateX(100%);
+	opacity: 0;
+}
+.slide-leave-to {
+	transform: translateX(-100%);
+	opacity: 0;
 }
 </style>
