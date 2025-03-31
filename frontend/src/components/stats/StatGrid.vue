@@ -24,7 +24,7 @@
 			></div>
 		</div>
 		<div
-			v-if="items.length > step && currentWidth > 500"
+			v-if="items.length > step && windowWidth > 500"
 			class="grid-container bottom-items"
 			:style="{ height: bottomHeight }"
 			ref="bottomItems"
@@ -48,6 +48,7 @@
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import StatCard from './StatCard.vue';
 import type { Artist, Track, Album } from '@/types/music';
+import { useWindowWidth } from '@/composables/useWindowWidth';
 interface Props {
 	items: Artist[] | Track[] | Album[];
 	limit?: number;
@@ -61,12 +62,12 @@ const props = withDefaults(defineProps<Props>(), {
 	step: 5,
 });
 
-const currentWidth = ref(window.innerWidth);
 const gridContainer = ref<HTMLDivElement | null>(null);
 const bottomItems = ref<HTMLDivElement | null>(null);
 const bottomHeight = ref('7rem');
 const canScrollRight = ref(false);
 const canScrollLeft = ref(false);
+const windowWidth = useWindowWidth();
 
 const checkScroll = () => {
 	if (!gridContainer.value) return;
@@ -77,7 +78,7 @@ const checkScroll = () => {
 };
 
 const handleMouseEnter = () => {
-	if (window.innerWidth < 650) {
+	if (windowWidth.value < 650) {
 		return;
 	} else {
 		bottomHeight.value = '7rem';
@@ -85,7 +86,7 @@ const handleMouseEnter = () => {
 };
 
 const handleMouseLeave = () => {
-	if (window.innerWidth < 650) {
+	if (windowWidth.value < 650) {
 		return;
 	} else {
 		bottomHeight.value = '7rem';

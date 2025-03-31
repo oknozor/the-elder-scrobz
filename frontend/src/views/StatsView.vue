@@ -502,4 +502,16 @@ onMounted(async () => {
 		flex-wrap: wrap;
 	}
 }
+
+@media screen and (max-width: 650px) {
+	.time-range-container {
+		position: relative;
+		background: none;
+		left: 0;
+		top: 0;
+		width: 100%;
+		z-index: 10;
+		margin-bottom: 10px;
+	}
+}
 </style>
