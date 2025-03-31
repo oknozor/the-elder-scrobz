@@ -15,6 +15,8 @@ pub struct TopAlbum {
     pub cover_art_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
+    #[serde(skip)]
+    total: Option<i64>,
 }
 
 pub async fn get_most_listened_albums(
@@ -23,7 +25,7 @@ pub async fn get_most_listened_albums(
     page: i64,
     page_size: i64,
     pool: &PgPool,
-) -> Result<Vec<TopAlbum>, sqlx::Error> {
+) -> Result<(i64, Vec<TopAlbum>), sqlx::Error> {
     let result = match username {
         None => match period {
             Period::Week => {
@@ -91,5 +93,6 @@ pub async fn get_most_listened_albums(
         },
     };
 
-    Ok(result)
+    let total = result.first().and_then(|r| r.total).unwrap_or_default();
+    Ok((total, result))
 }

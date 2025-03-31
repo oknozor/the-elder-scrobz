@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT track_id              as track_id,\n       track.name            as track_name,\n       track.length          as track_length,\n       release.mbid          as release_mbid,\n       release.name          as release_name,\n       release.cover_art_url as cover_art_url,\n       count(*)              as listens,\n       COUNT(*) OVER()       as total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE DATE_TRUNC('month', listened_at) = DATE_TRUNC('month', NOW())\n  AND u.username = $1\n\nGROUP BY track_id, track.name, track.length, release.mbid, release.name, release.cover_art_url\nORDER BY listens DESC\nLIMIT 10\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "track_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "track_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "track_length",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "release_mbid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "release_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "cover_art_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "listens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "total",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "a75afa4f618de57413e40cd7db4bdb549ea285b0c9e396327d793a801f7f4f3b"
+}

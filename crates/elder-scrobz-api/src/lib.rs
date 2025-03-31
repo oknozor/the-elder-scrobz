@@ -20,7 +20,7 @@ mod tests {
     #[tokio::test]
     async fn submit_listens() -> anyhow::Result<()> {
         let _container = start_postgres().await?;
-        let (app, _) = router().split_for_parts();
+        let (app, _) = router(true).split_for_parts();
 
         let body = serde_json::to_string(&CreateUser {
             username: "oknozor".to_string(),

@@ -4,7 +4,8 @@ SELECT track_id              as track_id,
        release.mbid          as release_mbid,
        release.name          as release_name,
        release.cover_art_url as cover_art_url,
-       count(*)              as listens
+       count(*)              as listens,
+       COUNT(*) OVER()       as total
 FROM scrobbles
          JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id
          JOIN tracks track ON track.mbid = scrobbles.track_id

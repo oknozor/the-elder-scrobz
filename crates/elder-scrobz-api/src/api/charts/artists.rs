@@ -1,4 +1,5 @@
 use crate::api::charts::ChartQuery;
+use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::Query;
@@ -23,8 +24,13 @@ use elder_scrobz_db::PgPool;
 pub async fn artist_charts(
     Query(query): Query<ChartQuery>,
     Extension(db): Extension<PgPool>,
-) -> AppResult<Json<Vec<TopArtist>>> {
-    Ok(Json(
-        get_most_listened_artists(query.period, query.username, &db).await?,
-    ))
+) -> AppResult<Json<PaginatedResponse<TopArtist>>> {
+    let (total, artists) = get_most_listened_artists(query.period, query.username, &db).await?;
+    let response = PaginatedResponse {
+        data: artists,
+        page: query.page,
+        page_size: query.page_size,
+        total,
+    };
+    Ok(Json(response))
 }

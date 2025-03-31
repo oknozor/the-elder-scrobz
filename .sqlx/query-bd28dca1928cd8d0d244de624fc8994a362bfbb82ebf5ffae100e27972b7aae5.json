@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT release.mbid           AS release_id,\n       release.name           AS release_name,\n       release.cover_art_url  AS cover_art_url,\n       MAX(raw.listened_at)   AS last_listened_at,\n       COUNT(DISTINCT raw.id) AS listens,\n       count(*) OVER()        as total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\nWHERE DATE(listened_at) = CURRENT_DATE\nGROUP BY release.mbid, release.name, release.cover_art_url\nORDER BY listens DESC\nOFFSET $1\nLIMIT $2;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "release_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "release_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "cover_art_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_listened_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "listens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "total",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "bd28dca1928cd8d0d244de624fc8994a362bfbb82ebf5ffae100e27972b7aae5"
+}
