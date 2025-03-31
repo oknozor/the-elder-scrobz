@@ -78,7 +78,7 @@
 				<template #default>
 					<StatGrid
 						:items="statsStore.topArtists"
-						:limit="15"
+						:limit="currentWidth > 500 ? 15 : 10"
 						:link="{ name: 'artist' }"
 					/>
 				</template>
@@ -114,7 +114,7 @@
 				<template #default>
 					<StatGrid
 						:items="statsStore.topTracks"
-						:limit="15"
+						:limit="currentWidth > 500 ? 15 : 10"
 						:link="{ name: 'track' }"
 					/>
 				</template>
@@ -151,7 +151,7 @@
 				<template #default>
 					<StatGrid
 						:items="statsStore.topAlbums"
-						:limit="15"
+						:limit="currentWidth > 500 ? 15 : 10"
 						:link="{ name: 'album' }"
 					/>
 				</template>
@@ -181,8 +181,10 @@
 			<Suspense>
 				<template #default>
 					<RecentTracks
-						:tracks="statsStore.recentTracks.content"
-						:total-pages="statsStore.recentTracks.totalPages"
+						:tracks="statsStore.recentTracks.data"
+						:total-pages="
+							Math.ceil(statsStore.recentTracks.total / 15)
+						"
 						@load-more="handleLoadMore"
 					/>
 				</template>
@@ -227,6 +229,8 @@ const timeRanges = ref<TimeRanges>({
 	recent: 'week',
 	pulses: 'week',
 });
+
+const currentWidth = ref(window.innerWidth);
 
 const stats = ref<MusicStats>({
 	recentTracks: [] as RecentTrack[],
@@ -489,6 +493,13 @@ onMounted(async () => {
 	}
 	100% {
 		transform: rotate(360deg);
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.overview-cards {
+		gap: 10px;
+		flex-wrap: wrap;
 	}
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
 	<div class="grid-container top-items">
 		<StatCard
+			v-if="items.length > 0"
 			v-for="(item, index) in items.slice(0, step)"
 			:key="generateKey(item, index)"
 			:item="item"
@@ -10,7 +11,7 @@
 		/>
 	</div>
 	<div
-		v-if="items.length > step"
+		v-if="items.length > step && currentWidth > 500"
 		class="grid-container bottom-items"
 		:style="{ height: bottomHeight }"
 		ref="bottomItems"
@@ -46,17 +47,23 @@ withDefaults(defineProps<Props>(), {
 	step: 5,
 });
 
+const currentWidth = ref(window.innerWidth);
+
 const bottomItems = ref<HTMLDivElement | null>(null);
 const bottomHeight = ref('7rem');
 
 const handleMouseEnter = () => {
-	if (bottomItems.value) {
-		bottomHeight.value = '14rem';
+	if (window.innerWidth < 650) {
+		return;
+	} else {
+		bottomHeight.value = '7rem';
 	}
 };
 
 const handleMouseLeave = () => {
-	if (bottomItems.value) {
+	if (window.innerWidth < 650) {
+		return;
+	} else {
 		bottomHeight.value = '7rem';
 	}
 };
@@ -119,7 +126,7 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 }
 
 .small-card {
-	height: 7rem;
+	height: auto;
 	flex: 0 0 calc(10% - var(--gap));
 	max-width: calc(10% - var(--gap));
 	min-width: calc(10% - var(--gap));
@@ -127,9 +134,43 @@ const generateKey = (item: Artist | Track | Album, index: number) => {
 
 /* Override hover behavior for small cards to maintain consistent sizing */
 .small-card:hover {
-	height: 14rem;
 	flex: 0 0 calc(20% - var(--gap));
 	max-width: calc(20% - var(--gap));
 	min-width: calc(20% - var(--gap));
+}
+
+@media screen and (max-width: 650px) {
+	.small-card {
+		height: auto;
+		flex: 1;
+		max-width: calc(20% - var(--gap));
+		min-width: calc(20% - var(--gap));
+	}
+	.small-card:hover {
+		flex: 1;
+		max-width: calc(20% - var(--gap));
+		min-width: calc(20% - var(--gap));
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.grid-container.top-items {
+		overflow-x: auto;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+		--gap: 10px;
+		gap: var(--gap);
+	}
+	.card {
+		height: auto;
+		flex: 0 0 calc(37.5% - var(--gap));
+		max-width: calc(37.5% - var(--gap));
+		min-width: calc(37.5% - var(--gap));
+	}
+	.small-card:hover {
+		flex: 1;
+		max-width: calc(20% - var(--gap));
+		min-width: calc(20% - var(--gap));
+	}
 }
 </style>
