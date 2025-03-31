@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /guide/getting-started
+      link: /guide/
     - theme: alt
       text: View on GitHub
       link: https://github.com/oknozor/elder-scrobz
@@ -57,7 +57,7 @@ Elder Scrobz helps you understand and explore your music listening habits in det
 2. Configure your music player to send scrobbles
 3. Start tracking your listening history
 
-Check out our [quickstart guide](/guide/getting-started) to begin your journey.
+Check out our [quickstart guide](/guide/) to begin your journey.
 
 ## Community
 

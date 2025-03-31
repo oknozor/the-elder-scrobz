@@ -13,13 +13,13 @@ export default defineConfig({
     nav: [
       { text: "Home", link: "/" },
       { text: "API docs", link: "/api-docs" },
-      { text: "Getting Started", link: "/guide/getting-started" },
+      { text: "Getting Started", link: "/guide/" },
     ],
 
     sidebar: {
       "/guide": [
         {
-          items: [{ text: "Getting Started", link: "/guide/getting-started" }],
+          items: [{ text: "Getting Started" }],
         },
       ],
       "/api-docs": [
