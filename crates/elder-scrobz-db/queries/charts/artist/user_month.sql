@@ -1,7 +1,8 @@
 SELECT artist.mbid            AS artist_id,
        artist.name            AS artist_name,
        MAX(raw.listened_at)   AS last_listened_at,
-       COUNT(DISTINCT raw.id) AS listens
+       COUNT(DISTINCT raw.id) AS listens,
+       COUNT(*) OVER ()       AS total
 FROM scrobbles
          JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id
          JOIN tracks track ON track.mbid = scrobbles.track_id

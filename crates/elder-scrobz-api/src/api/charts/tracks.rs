@@ -1,4 +1,5 @@
 use crate::api::charts::ChartQuery;
+use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
 use autometrics::autometrics;
@@ -16,7 +17,7 @@ use std::sync::Arc;
     summary = "Track charts",
     params(ChartQuery),
     responses(
-        (status = 200, description = "Top tracks for user", body = Vec<TopTrack>, content_type = "application/json"),
+        (status = 200, description = "Top tracks for user", body = PaginatedResponse<TopTrack>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
     ),
     tag = crate::api::CHARTS_TAG
@@ -26,8 +27,8 @@ pub async fn track_charts(
     Query(query): Query<ChartQuery>,
     Extension(db): Extension<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
-) -> AppResult<Json<Vec<TopTrack>>> {
-    let tracks = get_most_listened_tracks(query.period, query.username, &db).await?;
+) -> AppResult<Json<PaginatedResponse<TopTrack>>> {
+    let (total, tracks) = get_most_listened_tracks(query.period, query.username, &db).await?;
     let tracks: Vec<_> = tracks
         .into_iter()
         .map(|mut track| {
@@ -38,5 +39,13 @@ pub async fn track_charts(
             track
         })
         .collect();
-    Ok(Json(tracks))
+
+    let response = PaginatedResponse {
+        data: tracks,
+        page: query.page,
+        page_size: query.page_size,
+        total,
+    };
+
+    Ok(Json(response))
 }

@@ -1,4 +1,5 @@
 use crate::api::charts::ChartQuery;
+use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
 use autometrics::autometrics;
@@ -16,7 +17,7 @@ use std::sync::Arc;
     summary = "Album charts",
     params(ChartQuery),
     responses(
-        (status = 200, description = "Top albums", body = Vec<TopAlbum>, content_type = "application/json"),
+        (status = 200, description = "Top albums", body = PaginatedResponse<TopAlbum>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
     ),
     tag = crate::api::CHARTS_TAG
@@ -26,8 +27,8 @@ pub async fn album_charts(
     Extension(db): Extension<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
     Query(query): Query<ChartQuery>,
-) -> AppResult<Json<Vec<TopAlbum>>> {
-    let albums = get_most_listened_albums(
+) -> AppResult<Json<PaginatedResponse<TopAlbum>>> {
+    let (total, albums) = get_most_listened_albums(
         query.period,
         query.username,
         query.page,
@@ -47,5 +48,12 @@ pub async fn album_charts(
         })
         .collect();
 
-    Ok(Json(albums))
+    let response = PaginatedResponse {
+        data: albums,
+        page: query.page,
+        page_size: query.page_size,
+        total,
+    };
+
+    Ok(Json(response))
 }

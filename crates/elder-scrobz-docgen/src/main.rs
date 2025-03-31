@@ -13,7 +13,7 @@ struct Cli {
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let (_, openapi) = OpenApiRouter::with_openapi(ApiDoc::openapi())
-        .nest("/api/v1", elder_scrobz_api::api::router())
+        .nest("/api/v1", elder_scrobz_api::api::router(true))
         .split_for_parts();
 
     let openapi = openapi.to_pretty_json()?;

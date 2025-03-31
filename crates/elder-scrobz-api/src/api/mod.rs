@@ -1,6 +1,7 @@
 use crate::api::imports::*;
 use crate::oauth::AuthenticatedUser;
 use axum::middleware::from_extractor;
+use serde::Serialize;
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
 use utoipa::{IntoParams, Modify, OpenApi, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
@@ -48,6 +49,14 @@ impl Modify for SecurityAddon {
     }
 }
 
+#[derive(Serialize, ToSchema, Debug)]
+pub struct PaginatedResponse<T> {
+    data: Vec<T>,
+    page: i64,
+    page_size: i64,
+    total: i64,
+}
+
 #[derive(serde::Deserialize, ToSchema, IntoParams, Debug)]
 #[serde(default)]
 pub struct PageQuery {
@@ -64,13 +73,17 @@ impl Default for PageQuery {
     }
 }
 
-pub fn router() -> OpenApiRouter {
-    OpenApiRouter::new()
+pub fn router(no_oauth: bool) -> OpenApiRouter {
+    let mut router = OpenApiRouter::new()
         .routes(routes!(import_listens))
         .nest("/users", user::router())
         .nest("/charts", charts::router())
         .nest("/admin", admin::router())
-        .nest("/listens", listens::router())
-        .layer(from_extractor::<AuthenticatedUser>())
-        .merge(listenbrainz::router())
+        .nest("/listens", listens::router());
+
+    if !no_oauth {
+        router = router.layer(from_extractor::<AuthenticatedUser>())
+    }
+
+    router.merge(listenbrainz::router())
 }

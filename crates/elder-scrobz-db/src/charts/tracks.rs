@@ -16,13 +16,15 @@ pub struct TopTrack {
     pub release_name: String,
     pub cover_art_url: Option<String>,
     pub listens: Option<i64>,
+    #[serde(skip)]
+    pub total: Option<i64>,
 }
 
 pub async fn get_most_listened_tracks(
     period: Period,
     username: Option<String>,
     pool: &PgPool,
-) -> Result<Vec<TopTrack>, sqlx::Error> {
+) -> Result<(i64, Vec<TopTrack>), sqlx::Error> {
     let result = match username {
         None => match period {
             Period::Week => {
@@ -70,5 +72,6 @@ pub async fn get_most_listened_tracks(
         },
     };
 
-    Ok(result)
+    let total = result.first().and_then(|t| t.total).unwrap_or_default();
+    Ok((total, result))
 }
