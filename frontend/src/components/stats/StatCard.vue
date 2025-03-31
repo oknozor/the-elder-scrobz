@@ -16,34 +16,11 @@
 			:to="link ? { name: link.name, params: { id: id } } : undefined"
 		>
 			<img
-				v-if="imageUrl"
-				:src="imageUrl"
+				:src="imageUrl || 'will-trigger-error'"
 				:alt="title"
 				class="card-image"
+				@error="onImageError"
 			/>
-			<div v-else class="card-image-placeholder">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					width="50"
-					height="50"
-					stroke-width="2"
-				>
-					<path d="M15 8h.01"></path>
-					<path
-						d="M7 3h11a3 3 0 0 1 3 3v11m-.856 3.099a2.991 2.991 0 0 1 -2.144 .901h-12a3 3 0 0 1 -3 -3v-12c0 -.845 .349 -1.608 .91 -2.153"
-					></path>
-					<path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"></path>
-					<path
-						d="M16.33 12.338c.574 -.054 1.155 .166 1.67 .662l3 3"
-					></path>
-					<path d="M3 3l18 18"></path>
-				</svg>
-			</div>
 		</component>
 		<div class="card-content">
 			<h3>{{ title }}</h3>
@@ -146,6 +123,13 @@ const duration = computed(() => {
 	}
 	return null;
 });
+
+const onImageError = (event: Event) => {
+	const target = event.target as HTMLImageElement;
+	target.src = '/img/photo-off.svg';
+	target.style.opacity = '0.5';
+	target.style.transform = 'scale(0.4)';
+};
 </script>
 
 <style scoped>
@@ -227,5 +211,22 @@ const duration = computed(() => {
 	align-items: center;
 	justify-content: center;
 	color: var(--text-color);
+}
+
+@media screen and (max-width: 500px) {
+	.card-content {
+		opacity: 1;
+		transform: translateY(0);
+		background: rgba(0, 0, 0, 0.3);
+	}
+	.card-content h3 {
+		font-size: 0.75em;
+		text-wrap: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.card-content p {
+		font-size: 0.7em;
+	}
 }
 </style>

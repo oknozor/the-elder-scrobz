@@ -15,7 +15,7 @@
 					>
 						<tr
 							v-for="(track, index) in tableElements"
-							:key="track.track_id || index"
+							:key="track.id || index"
 							class="track-row"
 							:data-index="index"
 							ref="trackRows"
@@ -34,11 +34,10 @@
 									:alt="track.track_name"
 									class="track-thumbnail"
 									:class="{
-										'image-loaded': imageLoaded(
-											track.track_id
-										),
+										'image-loaded': imageLoaded(track.id),
 									}"
-									@load="onImageLoad(track.track_id)"
+									@load="onImageLoad(track.id)"
+									@error="onImageError"
 								/>
 								<div class="track-info-container">
 									<router-link
@@ -58,7 +57,9 @@
 										}"
 										class="link"
 									>
-										{{ track.track_name }}
+										<span class="song-name">
+											{{ track.track_name }}
+										</span>
 									</router-link>
 								</div>
 							</td>
@@ -122,11 +123,17 @@ const props = defineProps({
 });
 
 const onImageLoad = (trackId: string) => {
+	console.log('image loaded', trackId);
 	loadedImages.value.add(trackId);
 };
 
 const imageLoaded = (trackId: string) => {
 	return loadedImages.value.has(trackId);
+};
+
+const onImageError = (event: Event) => {
+	const target = event.target as HTMLImageElement;
+	target.src = '/img/photo-off.svg';
 };
 
 const scrollToTop = () => {
@@ -291,6 +298,10 @@ const emit = defineEmits(['load-more']);
 	text-decoration: none;
 }
 
+.song-name {
+	font-style: italic;
+}
+
 .link:hover {
 	color: var(--text-secondary);
 	text-decoration: underline;
@@ -404,5 +415,20 @@ const emit = defineEmits(['load-more']);
 
 .track-fade-move {
 	transition: transform 0.2s ease;
+}
+
+@media screen and (max-width: 500px) {
+	.track-row {
+		grid-template-columns: 70px 60px 1fr;
+		overflow-x: scroll;
+	}
+	.time-column,
+	.user-column {
+		text-align: start;
+		text-wrap: nowrap;
+	}
+	.track-info-container {
+		overflow-x: scroll;
+	}
 }
 </style>

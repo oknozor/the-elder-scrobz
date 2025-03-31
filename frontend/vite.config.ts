@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 
 export default ({ mode }) => {
-	process.env = {...process.env, ...loadEnv(mode, process.cwd())};
+	process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
 	return defineConfig({
 		plugins: [vue()],
@@ -20,6 +20,8 @@ export default ({ mode }) => {
 					changeOrigin: true,
 				},
 			},
+			port: 5173,
+			host: '0.0.0.0',
 		},
 	});
-}
+};
