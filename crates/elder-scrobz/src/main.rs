@@ -1,4 +1,6 @@
+use autometrics::prometheus_exporter;
 use axum::Extension;
+use axum::routing::get;
 use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
 use elder_scrobz_api::settings::Settings;
@@ -17,6 +19,8 @@ use utoipa_swagger_ui::SwaggerUi;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    prometheus_exporter::init();
+
     #[cfg(debug_assertions)]
     {
         dotenv::dotenv().ok();
@@ -65,6 +69,11 @@ async fn main() -> anyhow::Result<()> {
     let (router, api) = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .nest("/api/v1", app)
         .split_for_parts();
+
+    let router = router.route(
+        "/metrics",
+        get(|| async { prometheus_exporter::encode_http_response() }),
+    );
 
     if settings.debug {
         warn!("Debug mode enabled, running without oauth2 security");

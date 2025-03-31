@@ -1,5 +1,6 @@
 use crate::api::charts::ChartQuery;
 use crate::error::{AppError, AppResult};
+use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
@@ -18,6 +19,7 @@ use elder_scrobz_db::PgPool;
     ),
     tag = crate::api::CHARTS_TAG
 )]
+#[autometrics]
 pub async fn artist_charts(
     Query(query): Query<ChartQuery>,
     Extension(db): Extension<PgPool>,

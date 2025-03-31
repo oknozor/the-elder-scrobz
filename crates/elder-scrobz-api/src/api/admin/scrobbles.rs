@@ -1,4 +1,5 @@
 use crate::error::{AppError, AppResult};
+use autometrics::autometrics;
 use axum::extract::Path;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
@@ -15,6 +16,7 @@ use elder_scrobz_db::PgPool;
     ),
     tag = crate::api::ADMIN_TAG
 )]
+#[autometrics]
 pub async fn get_by_id(
     Path(id): Path<String>,
     Extension(db): Extension<PgPool>,

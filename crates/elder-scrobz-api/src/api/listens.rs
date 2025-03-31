@@ -1,5 +1,6 @@
 use crate::api::PageQuery;
 use crate::error::{AppError, AppResult};
+use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
@@ -24,6 +25,7 @@ pub fn router() -> OpenApiRouter {
     ),
     tag = crate::api::SCROBBLES_TAG
 )]
+#[autometrics]
 pub async fn recent_listens(
     Extension(db): Extension<PgPool>,
     Query(query): Query<PageQuery>,

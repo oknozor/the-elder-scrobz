@@ -1,5 +1,6 @@
 use crate::api::PageQuery;
 use crate::error::AppResult;
+use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
@@ -24,6 +25,7 @@ pub fn router() -> OpenApiRouter {
     ),
     tag = crate::api::USERS_TAG
 )]
+#[autometrics]
 pub async fn create_user(
     Extension(db): Extension<PgPool>,
     Json(user): Json<CreateUser>,
@@ -41,6 +43,7 @@ pub async fn create_user(
     ),
     tag = crate::api::USERS_TAG
 )]
+#[autometrics]
 pub async fn get_users(
     Extension(db): Extension<PgPool>,
     Query(query): Query<PageQuery>,
