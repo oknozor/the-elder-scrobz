@@ -123,7 +123,6 @@ const props = defineProps({
 });
 
 const onImageLoad = (trackId: string) => {
-	console.log('image loaded', trackId);
 	loadedImages.value.add(trackId);
 };
 
@@ -221,9 +220,6 @@ onMounted(() => {
 	setTimeout(() => {
 		observeLastRow();
 	}, 100);
-	if (table.value) {
-		table.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	}
 	if (tableContainer.value) {
 		tableContainer.value.addEventListener('scroll', handleScroll);
 	}
