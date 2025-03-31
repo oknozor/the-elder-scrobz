@@ -1,34 +1,36 @@
-import {defineConfig} from 'vitepress'
-import {useSidebar} from 'vitepress-openapi'
-import spec from '../src/openapi.json' with {type: 'json'}
+import { defineConfig } from "vitepress";
+import { useSidebar } from "vitepress-openapi";
+import spec from "../api-docs/openapi.json" with { type: "json" };
 
-const sidebar = useSidebar({spec})
+const sidebar = useSidebar({ spec });
 
 export default defineConfig({
-    title: "The Elder Scrobz",
-    description: "A music tracking application that helps you monitor and analyze your listening habits.",
-    themeConfig: {
-        // https://vitepress.dev/reference/default-theme-config
-        nav: [
-            {text: 'Home', link: '/'},
-            {text: 'Examples', link: '/markdown-examples'}
-        ],
+  title: "The Elder Scrobz",
+  description:
+    "A music tracking application that helps you monitor and analyze your listening habits.",
+  themeConfig: {
+    // https://vitepress.dev/reference/default-theme-config
+    nav: [
+      { text: "Home", link: "/" },
+      { text: "API docs", link: "/api-docs" },
+      { text: "Getting Started", link: "/guide/getting-started" },
+    ],
 
-        sidebar: [
-            {
-                text: 'Examples',
-                items: [
-                    {text: 'Markdown Examples', link: '/markdown-examples'},
-                    {text: 'Runtime API Examples', link: '/api-examples'}
-                ]
-            },
-            ...sidebar.generateSidebarGroups({
-                linkPrefix: "/operations/"
-            }),
-        ],
+    sidebar: {
+      "/guide": [
+        {
+          items: [{ text: "Getting Started", link: "/guide/getting-started" }],
+        },
+      ],
+      "/api-docs": [
+        ...sidebar.generateSidebarGroups({
+          linkPrefix: "/operations/",
+        }),
+      ],
+    },
 
-        socialLinks: [
-            {icon: 'github', link: 'https://github.com/vuejs/vitepress'}
-        ]
-    }
-})
+    socialLinks: [
+      { icon: "github", link: "https://github.com/oknozor/the-elder-scrobz" },
+    ],
+  },
+});
