@@ -1,6 +1,7 @@
 use crate::api::charts::ChartQuery;
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
+use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
@@ -20,6 +21,7 @@ use std::sync::Arc;
     ),
     tag = crate::api::CHARTS_TAG
 )]
+#[autometrics]
 pub async fn album_charts(
     Extension(db): Extension<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,

@@ -1,5 +1,6 @@
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
+use autometrics::autometrics;
 use axum::Extension;
 use axum_extra::extract::JsonLines;
 use axum_macros::debug_handler;
@@ -19,6 +20,7 @@ use futures_util::stream::StreamExt;
     ),
     tag = crate::api::SCROBBLES_TAG
 )]
+#[autometrics]
 pub async fn import_listens(
     user: AuthenticatedUser,
     Extension(db): Extension<PgPool>,

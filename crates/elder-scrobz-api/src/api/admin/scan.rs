@@ -1,4 +1,5 @@
 use crate::error::AppResult;
+use autometrics::autometrics;
 use axum::extract::Query;
 use axum::Extension;
 use axum_macros::debug_handler;
@@ -31,6 +32,7 @@ pub struct ScanQuery {
     ),
     tag = crate::api::ADMIN_TAG
 )]
+#[autometrics]
 pub async fn scan_db(
     Query(query): Query<ScanQuery>,
     Extension(db): Extension<PgPool>,

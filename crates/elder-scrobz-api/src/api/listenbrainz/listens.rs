@@ -1,5 +1,6 @@
 use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
+use autometrics::autometrics;
 use axum::{Extension, Json};
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
@@ -28,6 +29,7 @@ pub struct Empty {}
     ),
     tag = crate::api::SCROBBLES_TAG
 )]
+#[autometrics]
 pub async fn submit_listens(
     Extension(db): Extension<PgPool>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,

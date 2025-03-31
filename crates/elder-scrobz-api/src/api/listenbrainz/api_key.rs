@@ -1,6 +1,7 @@
 use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
+use autometrics::autometrics;
 use axum::{Extension, Json};
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
@@ -27,6 +28,7 @@ pub struct ApiKeyCreated {
     ),
     tag = crate::api::API_KEYS_TAG
 )]
+#[autometrics]
 pub async fn create_api_key(
     user: AuthenticatedUser,
     Extension(db): Extension<PgPool>,

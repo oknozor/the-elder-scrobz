@@ -9,6 +9,7 @@ axum-extra.workspace = true
 utoipa-axum.workspace = true
 utoipa.workspace = true
 tokio.workspace = true
+autometrics.workspace = true
 
 axum-macros.workspace = true
 elder-scrobz-db.workspace = true

@@ -1,4 +1,5 @@
 use crate::error::{AppError, AppResult};
+use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
@@ -25,6 +26,7 @@ pub struct PulseQuery {
     ),
     tag = crate::api::CHARTS_TAG
 )]
+#[autometrics]
 pub async fn pulses(
     Query(query): Query<PulseQuery>,
     Extension(db): Extension<PgPool>,
