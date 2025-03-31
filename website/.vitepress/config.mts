@@ -8,6 +8,7 @@ export default defineConfig({
   title: "The Elder Scrobz",
   description:
     "A music tracking application that helps you monitor and analyze your listening habits.",
+  base: "/the-elder-scrobz/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -28,7 +29,16 @@ export default defineConfig({
         }),
       ],
     },
-
+    search: {
+      provider: "local",
+      options: {
+        detailedView: true,
+      },
+    },
+    editLink: {
+      pattern:
+        "https://github.com/oknozor/the-elder-scrobz/edit/main/website/:path",
+    },
     socialLinks: [
       { icon: "github", link: "https://github.com/oknozor/the-elder-scrobz" },
     ],
