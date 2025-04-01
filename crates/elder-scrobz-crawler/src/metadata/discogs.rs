@@ -7,6 +7,10 @@ impl MetadataClient {
             .client
             .get(format!("https://api.discogs.com/artists/{}", id))
             .header("User-Agent", "MyDiscogsClient/1.0")
+            .header(
+                "Authorization",
+                &format!("Discogs token={}", self.discogs_token),
+            )
             .send()
             .await?
             .json()
@@ -20,6 +24,10 @@ impl MetadataClient {
             .client
             .get(format!("https://api.discogs.com/releases/{}", id))
             .header("User-Agent", "MyDiscogsClient/1.0")
+            .header(
+                "Authorization",
+                &format!("Discogs token={}", self.discogs_token),
+            )
             .send()
             .await?
             .json()
@@ -43,6 +51,7 @@ pub struct DiscogsArtist {
 pub struct DiscogsRelease {
     pub id: i64,
     pub title: String,
+    pub thumb: Option<String>,
     pub images: Option<Vec<DiscogsImage>>,
     pub year: u32,
 }

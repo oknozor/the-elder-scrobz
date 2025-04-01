@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 
-use crate::releases::{process_artist, process_release};
+use crate::releases::process_release;
 use anyhow::Result;
 use anyhow::anyhow;
+use artists::process_artist;
 use elder_scrobz_db::PgPool;
 use elder_scrobz_db::listens::raw::scrobble::{RawScrobble, TypedScrobble};
 use elder_scrobz_db::listens::scrobble::Scrobble;
@@ -12,12 +13,14 @@ use tokio::select;
 use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 
+mod artists;
 mod coverart;
 mod metadata;
 mod releases;
 
+pub use artists::try_update_all_artists;
 pub use metadata::MetadataClient;
-pub use releases::{try_update_all_artists, try_update_all_releases};
+pub use releases::try_update_all_releases;
 
 pub struct ScrobbleResolver {
     pool: PgPool,
@@ -32,6 +35,7 @@ impl ScrobbleResolver {
     pub async fn create(
         pool: PgPool,
         coverart_path: PathBuf,
+        discogs_token: String,
         cancellation_token: CancellationToken,
     ) -> Result<Self> {
         let pg_listener = PgListener::connect_with(&pool).await?;
@@ -40,7 +44,7 @@ impl ScrobbleResolver {
             pg_listener,
             client: reqwest::Client::new(),
             coverart_path,
-            metadata_client: MetadataClient::default(),
+            metadata_client: MetadataClient::new(discogs_token),
             cancellation_token,
         })
     }
