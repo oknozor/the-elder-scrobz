@@ -12,6 +12,8 @@ const DOCS: &str = include_str!("../../docs/artist_charts.example.json");
 pub struct TopArtist {
     pub artist_id: String,
     pub artist_name: Option<String>,
+    pub description: Option<String>,
+    pub thumbnail_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
     #[serde(skip)]

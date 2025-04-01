@@ -977,7 +977,6 @@ dependencies = [
  "anyhow",
  "clap",
  "elder-scrobz-api",
- "serde_json",
  "utoipa",
  "utoipa-axum",
 ]
