@@ -55,45 +55,48 @@ pub async fn scan_db(
     Extension(client): Extension<MetadataClient>,
 ) -> AppResult<()> {
     if query.releases {
+        let db = db.clone();
+        let client = client.clone();
         spawn(async move {
             if let Err(err) = try_update_all_releases(&client, &db, query.force).await {
                 error!("Failed to update releases: {err}");
             }
         });
-        return Ok(());
     }
 
     if query.artists {
+        let db = db.clone();
+        let client = client.clone();
         spawn(async move {
             if let Err(err) = try_update_all_artists(&client, &db, query.force).await {
                 error!("Failed to update artists: {err}");
             }
         });
-        return Ok(());
     }
 
-    let scrobbles = if query.force {
-        RawScrobble::all(&db).await?
-    } else {
-        RawScrobble::get_unprocessed(&db).await?
-    };
+    if query.scrobbles {
+        let scrobbles = if query.force {
+            RawScrobble::all(&db).await?
+        } else {
+            RawScrobble::get_unprocessed(&db).await?
+        };
 
-    info!("Rescanning database for unprocessed scrobbles");
-    let pool = db.clone();
+        info!("Rescanning database for unprocessed scrobbles");
 
-    spawn(async move {
-        for scrobble in scrobbles {
-            let id = scrobble.id.clone();
+        spawn(async move {
+            for scrobble in scrobbles {
+                let id = scrobble.id.clone();
 
-            info!("Resolving scrobble {id}",);
-            match process_scrobble(scrobble, &pool).await {
-                Ok(id) => info!("Processed scrobble {id}"),
-                Err(err) => error!("Failed to process scrobble {id}: {err}"),
-            };
-        }
+                info!("Resolving scrobble {id}",);
+                match process_scrobble(scrobble, &db).await {
+                    Ok(id) => info!("Processed scrobble {id}"),
+                    Err(err) => error!("Failed to process scrobble {id}: {err}"),
+                };
+            }
 
-        anyhow::Ok(())
-    });
+            anyhow::Ok(())
+        });
+    }
 
     Ok(())
 }
