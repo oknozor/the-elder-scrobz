@@ -3,7 +3,7 @@ use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
-use elder_scrobz_crawler::{process, try_update_all_coverart};
+use elder_scrobz_crawler::{process_scrobble, try_update_all_coverart, MetadataClient};
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
 use elder_scrobz_db::stats::Stats;
 use elder_scrobz_db::PgPool;
@@ -37,10 +37,11 @@ pub struct ScanQuery {
 pub async fn scan_db(
     Query(query): Query<ScanQuery>,
     Extension(db): Extension<PgPool>,
+    Extension(client): Extension<MetadataClient>,
 ) -> AppResult<()> {
     if query.coverart_only {
         spawn(async move {
-            if let Err(err) = try_update_all_coverart(&db).await {
+            if let Err(err) = try_update_all_coverart(&client, &db).await {
                 error!("Failed to update coverarts: {err}");
             }
         });
@@ -61,7 +62,7 @@ pub async fn scan_db(
             let id = scrobble.id.clone();
 
             info!("Resolving scrobble {id}",);
-            match process(scrobble, &pool, query.force).await {
+            match process_scrobble(scrobble, &pool).await {
                 Ok(id) => info!("Processed scrobble {id}"),
                 Err(err) => error!("Failed to process scrobble {id}: {err}"),
             };

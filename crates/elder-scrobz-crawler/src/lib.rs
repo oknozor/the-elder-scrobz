@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::releases::fetch_release;
+use crate::releases::{process_artist, process_release};
 use anyhow::Result;
 use anyhow::anyhow;
 use elder_scrobz_db::PgPool;
@@ -8,12 +8,15 @@ use elder_scrobz_db::listens::raw::scrobble::{RawScrobble, TypedScrobble};
 use elder_scrobz_db::listens::scrobble::Scrobble;
 use elder_scrobz_db::listens::{Artist, ArtistCredited, Release, Track};
 use sqlx::postgres::{PgListener, PgNotification};
+use tokio::select;
+use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 
 mod coverart;
 mod metadata;
 mod releases;
 
+pub use metadata::MetadataClient;
 pub use releases::try_update_all_coverart;
 
 pub struct ScrobbleResolver {
@@ -21,23 +24,44 @@ pub struct ScrobbleResolver {
     pg_listener: PgListener,
     client: reqwest::Client,
     coverart_path: PathBuf,
+    metadata_client: MetadataClient,
+    cancellation_token: CancellationToken,
 }
 
 impl ScrobbleResolver {
-    pub async fn create(pool: PgPool, coverart_path: PathBuf) -> Result<Self> {
+    pub async fn create(
+        pool: PgPool,
+        coverart_path: PathBuf,
+        cancellation_token: CancellationToken,
+    ) -> Result<Self> {
         let pg_listener = PgListener::connect_with(&pool).await?;
         Ok(Self {
             pool,
             pg_listener,
             client: reqwest::Client::new(),
             coverart_path,
+            metadata_client: MetadataClient::default(),
+            cancellation_token,
         })
     }
 
-    pub async fn listen(&mut self) -> Result<()> {
+    pub async fn run(&mut self) -> Result<()> {
+        let token = self.cancellation_token.clone();
+        select! {
+            _ = token.cancelled() => Ok(()),
+            result = self.listen() => result, // Correctly propagate the result
+        }
+    }
+
+    async fn listen(&mut self) -> Result<()> {
         info!("Starting PgListener on scrobbles_raw_insert_trigger");
         self.pg_listener
-            .listen_all(["new_insert", "coverart_updated"])
+            .listen_all([
+                "new_insert",
+                "coverart_updated",
+                "release_inserted",
+                "artist_inserted",
+            ])
             .await?;
 
         let mut retry_count = 3;
@@ -47,6 +71,16 @@ impl ScrobbleResolver {
                 match notification.channel() {
                     "new_insert" => {
                         if self.handle_scrobble_insert(notification).await {
+                            continue;
+                        }
+                    }
+                    "release_inserted" => {
+                        if self.handle_release_insert(notification).await {
+                            continue;
+                        }
+                    }
+                    "artist_inserted" => {
+                        if self.handle_artist_insert(notification).await {
                             continue;
                         }
                     }
@@ -73,14 +107,14 @@ impl ScrobbleResolver {
     }
 
     async fn handle_scrobble_insert(&mut self, notification: PgNotification) -> bool {
-        info!("Processing new_insert");
+        info!("Processing new scrobble");
         let Ok(scrobble) = serde_json::from_str::<RawScrobble>(notification.payload()) else {
             let payload = notification.payload();
             error!("Failed to parse scrobble: {payload}");
             return true;
         };
 
-        match process(scrobble, &self.pool, false).await {
+        match process_scrobble(scrobble, &self.pool).await {
             Ok(id) => {
                 info!("Processed scrobble {id}");
             }
@@ -90,9 +124,47 @@ impl ScrobbleResolver {
         };
         false
     }
+
+    async fn handle_release_insert(&mut self, notification: PgNotification) -> bool {
+        info!("Processing new release");
+        let Ok(release) = serde_json::from_str::<Release>(notification.payload()) else {
+            let payload = notification.payload();
+            error!("Failed to parse release: {payload}");
+            return true;
+        };
+
+        match process_release(&release.mbid, &self.metadata_client, &self.pool).await {
+            Ok(_) => {
+                info!("Processed release {}", &release.mbid);
+            }
+            Err(err) => {
+                error!("Error processing release: {err}");
+            }
+        };
+        false
+    }
+
+    async fn handle_artist_insert(&mut self, notification: PgNotification) -> bool {
+        info!("Processing new artist");
+        let Ok(artist) = serde_json::from_str::<Artist>(notification.payload()) else {
+            let payload = notification.payload();
+            error!("Failed to parse artist: {payload}");
+            return true;
+        };
+
+        match process_artist(&artist.mbid, &self.metadata_client, &self.pool).await {
+            Ok(_) => {
+                info!("Processed artist {}", artist.mbid);
+            }
+            Err(err) => {
+                error!("Error processing artist: {err}");
+            }
+        };
+        false
+    }
 }
 
-pub async fn process(scrobble: RawScrobble, pool: &PgPool, force: bool) -> anyhow::Result<String> {
+pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<String> {
     let scrobble: TypedScrobble = scrobble.try_into()?;
     let pool = pool.clone();
     let scrobble_id = scrobble.id();
@@ -122,6 +194,7 @@ pub async fn process(scrobble: RawScrobble, pool: &PgPool, force: bool) -> anyho
             mbid,
             name: None,
             description: None,
+            thumbnail_url: None,
         })
         .collect();
 
@@ -170,10 +243,6 @@ pub async fn process(scrobble: RawScrobble, pool: &PgPool, force: bool) -> anyho
     for artist_release in artist_credited {
         artist_release.save(&pool).await?;
     }
-
-    let pool_copy = pool.clone();
-
-    fetch_release(&release_mbid, pool_copy, force).await?;
 
     Scrobble {
         source_id: scrobble_id.clone(),
