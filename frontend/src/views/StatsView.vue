@@ -23,26 +23,38 @@
 				</template>
 				Overview
 			</SectionHeader>
-			<div class="overview-cards">
-				<OverviewCard
-					title="Songs listened"
-					:value="songsListened"
-					:percentageChange="songsPercentageChange ?? undefined"
-					:comparisonText="comparisonText"
-				/>
-				<OverviewCard
-					title="Time listened"
-					:value="formatDuration(timeListened)"
-					:percentageChange="timePercentageChange ?? undefined"
-					:comparisonText="comparisonText"
-				/>
-				<OverviewCard
-					title="Artists listened"
-					:value="artistsListened"
-					:percentageChange="artistsPercentageChange ?? undefined"
-					:comparisonText="comparisonText"
-				/>
-			</div>
+ 		<div class="overview-cards">
+ 			<OverviewCard
+ 				title="Songs listened"
+ 				:value="songsListened"
+ 				:percentageChange="songsPercentageChange ?? undefined"
+ 				:comparisonText="comparisonText"
+ 			/>
+ 			<OverviewCard
+ 				title="Time listened"
+ 				:value="formatDuration(timeListened)"
+ 				:percentageChange="timePercentageChange ?? undefined"
+ 				:comparisonText="comparisonText"
+ 			/>
+ 			<OverviewCard
+ 				title="Artists listened"
+ 				:value="artistsListened"
+ 				:percentageChange="artistsPercentageChange ?? undefined"
+ 				:comparisonText="comparisonText"
+ 			/>
+ 		</div>
+ 		<Suspense>
+ 			<template #default>
+ 				<div class="pulse-charts">
+ 					<PulseMixedChart :pulseData="statsStore.pulses" />
+ 				</div>
+ 			</template>
+ 			<template #fallback>
+ 				<div class="loading-placeholder">
+ 					<span class="loader-animation"></span>
+ 				</div>
+ 			</template>
+ 		</Suspense>
 		</div>
 
 		<div class="stats-section">
@@ -142,43 +154,6 @@
 						:limit="15"
 						:link="{ name: 'album' }"
 					/>
-				</template>
-				<template #fallback>
-					<div class="loading-placeholder">
-						<span class="loader-animation"></span>
-					</div>
-				</template>
-			</Suspense>
-		</div>
-
-		<div class="stats-section">
-			<SectionHeader>
-				<template #icon>
-					<svg
-						class="title-icon"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path d="M12 2v4" />
-						<path d="M12 18v4" />
-						<path d="M4.93 4.93l2.83 2.83" />
-						<path d="M16.24 16.24l2.83 2.83" />
-						<path d="M2 12h4" />
-						<path d="M18 12h4" />
-						<path d="M4.93 19.07l2.83-2.83" />
-						<path d="M16.24 7.76l2.83-2.83" />
-					</svg>
-				</template>
-				Pulse
-				<!-- Time range selector moved to top of page -->
-			</SectionHeader>
-			<Suspense>
-				<template #default>
-					<div class="pulse-charts">
-						<PulseMixedChart :pulseData="statsStore.pulses" />
-					</div>
 				</template>
 				<template #fallback>
 					<div class="loading-placeholder">
