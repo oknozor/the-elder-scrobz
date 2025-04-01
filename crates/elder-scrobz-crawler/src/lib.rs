@@ -86,10 +86,18 @@ impl ScrobbleResolver {
                     }
                     "coverart_updated" => {
                         let release: Release = serde_json::from_str(notification.payload())?;
+                        info!("Downloading coverart for release {}", release.mbid);
                         if let Some(coverart) = release.cover_art_url {
-                            if let Err(err) =
-                                self.download_cover_art(&coverart, &release.mbid).await
-                            {
+                            if let Err(err) = self.download_image(&coverart, &release.mbid).await {
+                                error!("Failed to download cover art: {}", err);
+                            }
+                        }
+                    }
+                    "thumbnail_updated" => {
+                        let artist: Artist = serde_json::from_str(notification.payload())?;
+                        info!("Downloading thumbnail for artist {}", artist.mbid);
+                        if let Some(thumbnail) = artist.thumbnail_url {
+                            if let Err(err) = self.download_image(&thumbnail, &artist.mbid).await {
                                 error!("Failed to download cover art: {}", err);
                             }
                         }

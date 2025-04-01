@@ -5,7 +5,7 @@ use tracing::{error, info};
 use crate::ScrobbleResolver;
 
 impl ScrobbleResolver {
-    pub async fn download_cover_art(&self, url: &str, release_mbid: &str) -> anyhow::Result<()> {
+    pub async fn download_image(&self, url: &str, release_mbid: &str) -> anyhow::Result<()> {
         let response = self.client.get(url).send().await?;
         if response.status().is_success() {
             let bytes = response.bytes().await?;
