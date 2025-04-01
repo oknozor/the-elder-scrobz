@@ -4,7 +4,7 @@
 			v-if="rank"
 			class="rank-badge"
 			:style="
-				rank > step
+				step && rank > step
 					? { fontSize: '0.7em', width: '30px' }
 					: { fontSize: '0.9em', width: '24px' }
 			"
@@ -46,7 +46,7 @@ interface Props {
 	link?: {
 		name: string;
 	};
-	step: number;
+	step?: number;
 }
 
 const props = defineProps<Props>();

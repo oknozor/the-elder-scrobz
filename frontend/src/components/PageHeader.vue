@@ -50,7 +50,7 @@ const handleBack = () => {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 20px;
+	height: var(--header-height);
 }
 
 .header-left {

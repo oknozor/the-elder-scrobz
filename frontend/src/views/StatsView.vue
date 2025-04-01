@@ -58,7 +58,7 @@
 		</div>
 
 		<div class="stats-section">
-			<SectionHeader>
+			<SectionHeader :link="{ name: 'topArtists' }">
 				<template #icon>
 					<svg
 						class="title-icon"
@@ -77,7 +77,7 @@
 			<Suspense>
 				<template #default>
 					<StatGrid
-						:items="statsStore.topArtists"
+						:items="statsStore.topArtistsForStatsView"
 						:limit="currentWidth > 500 ? 15 : 10"
 						:link="{ name: 'artist' }"
 					/>
@@ -91,7 +91,7 @@
 		</div>
 
 		<div class="stats-section">
-			<SectionHeader>
+			<SectionHeader :link="{ name: 'topTracks' }">
 				<template #icon>
 					<svg
 						class="title-icon"
@@ -113,7 +113,7 @@
 			<Suspense>
 				<template #default>
 					<StatGrid
-						:items="statsStore.topTracks"
+						:items="statsStore.topTracksForStatsView"
 						:limit="currentWidth > 500 ? 15 : 10"
 						:link="{ name: 'track' }"
 					/>
@@ -127,7 +127,7 @@
 		</div>
 
 		<div class="stats-section">
-			<SectionHeader>
+			<SectionHeader :link="{ name: 'topAlbums' }">
 				<template #icon>
 					<svg
 						class="title-icon"
@@ -150,7 +150,7 @@
 			<Suspense>
 				<template #default>
 					<StatGrid
-						:items="statsStore.topAlbums"
+						:items="statsStore.topAlbumsForStatsView"
 						:limit="currentWidth > 500 ? 15 : 10"
 						:link="{ name: 'album' }"
 					/>
@@ -295,7 +295,7 @@ const getPreviousPeriodData = (currentRange: TimeRange) => {
 		duration: Math.round(currentDuration * randomFactor),
 		// For artists count, we'll use a different random factor
 		artistsCount: Math.round(
-			(statsStore.topArtists.length * randomFactor) / 2
+			(statsStore.topArtistsForStatsView.length * randomFactor) / 2
 		),
 	};
 };
@@ -315,7 +315,7 @@ const timeListened = computed(() => {
 const artistsListened = computed(() => {
 	// In a real app, this would be the count of unique artists in the current time range
 	// For this demo, we'll use a portion of the topArtists array length
-	return Math.round(statsStore.topArtists.length / 2);
+	return Math.round(statsStore.topArtistsForStatsView.length / 2);
 });
 
 const previousPeriodData = computed(() => {
@@ -381,9 +381,9 @@ const fetchAllStats = async (
 	timeRanges: TimeRanges
 ) => {
 	await Promise.all([
-		statsStore.fetchTopArtists(username, timeRanges.artists),
-		statsStore.fetchTopTracks(username, timeRanges.tracks),
-		statsStore.fetchTopAlbums(username, timeRanges.albums),
+		statsStore.fetchTopArtistsForStatsView(username, timeRanges.artists),
+		statsStore.fetchTopTracksForStatsView(username, timeRanges.tracks),
+		statsStore.fetchTopAlbumsForStatsView(username, timeRanges.albums),
 		statsStore.fetchPulses(username, timeRanges.pulses),
 		statsStore.fetchRecentTracks(username, 1, 20),
 	]);
@@ -421,29 +421,6 @@ onMounted(async () => {
 	max-width: 1200px;
 	margin: 0 auto;
 	position: relative;
-}
-
-.time-range-container {
-	position: fixed;
-	left: calc(
-		50% - 600px - 140px
-	); /* 50% - half of max-width - container width - margin */
-	top: 100px;
-	z-index: 10;
-	background: var(--card-background);
-	padding: 15px;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	border: 1px solid var(--border-color);
-	width: 120px;
-}
-
-.time-range-title {
-	margin-top: 0;
-	margin-bottom: 10px;
-	font-size: 1em;
-	color: var(--text-color);
-	text-align: center;
 }
 
 .stats-section {
@@ -500,18 +477,6 @@ onMounted(async () => {
 	.overview-cards {
 		gap: 10px;
 		flex-wrap: wrap;
-	}
-}
-
-@media screen and (max-width: 650px) {
-	.time-range-container {
-		position: relative;
-		background: none;
-		left: 0;
-		top: 0;
-		width: 100%;
-		z-index: 10;
-		margin-bottom: 10px;
 	}
 }
 </style>

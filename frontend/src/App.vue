@@ -73,7 +73,10 @@ onMounted(async () => {
 .app {
 	max-width: 1200px;
 	margin: 0 auto;
-	padding: 20px;
+	padding: var(--app-padding);
+	display: flex;
+	flex-direction: column;
+	gap: var(--app-padding);
 }
 .slide-enter-active,
 .slide-leave-active {

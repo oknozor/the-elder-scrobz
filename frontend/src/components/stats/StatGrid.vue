@@ -5,7 +5,7 @@
 			ref="gridContainer"
 			@scroll="checkScroll"
 		>
-			<StatCard
+			<Card
 				v-if="items.length > 0"
 				v-for="(item, index) in items.slice(0, step)"
 				:key="generateKey(item, index)"
@@ -15,10 +15,12 @@
 				:step="step"
 			/>
 			<div
+				v-if="items.length > step && windowWidth < 500"
 				class="blur-overlay blur-right"
 				:class="{ active: canScrollRight }"
 			></div>
 			<div
+				v-if="items.length > step && windowWidth < 500"
 				class="blur-overlay blur-left"
 				:class="{ active: canScrollLeft }"
 			></div>
@@ -29,7 +31,7 @@
 			:style="{ height: bottomHeight }"
 			ref="bottomItems"
 		>
-			<StatCard
+			<Card
 				v-for="(item, index) in items.slice(step, limit)"
 				:key="generateKey(item, index)"
 				:item="item"
@@ -46,7 +48,7 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-import StatCard from './StatCard.vue';
+import Card from '../Card.vue';
 import type { Artist, Track, Album } from '@/types/music';
 import { useWindowWidth } from '@/composables/useWindowWidth';
 interface Props {
@@ -81,7 +83,7 @@ const handleMouseEnter = () => {
 	if (windowWidth.value < 650) {
 		return;
 	} else {
-		bottomHeight.value = '7rem';
+		bottomHeight.value = '14rem';
 	}
 };
 
