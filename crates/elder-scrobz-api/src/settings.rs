@@ -11,6 +11,7 @@ pub struct Settings {
     pub oauth_client_id: String,
     pub oauth_client_secret: String,
     pub oauth_provider_url: String,
+    pub discogs_token: String,
 }
 
 impl Settings {

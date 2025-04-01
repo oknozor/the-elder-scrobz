@@ -18,9 +18,19 @@ static MB_CLIENT: Lazy<MusicBrainzClient> = Lazy::new(|| {
     client
 });
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct MetadataClient {
     client: reqwest::Client,
+    discogs_token: String,
+}
+
+impl MetadataClient {
+    pub fn new(discogs_token: String) -> Self {
+        Self {
+            client: Default::default(),
+            discogs_token,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -66,14 +76,21 @@ impl MetadataClient {
         let discogs_id: Option<String> = extract_relation_id(&relations, "discogs");
         let mut artist_metadata = ArtistMetadata::new(artist_mbid);
 
+        artist_metadata.name = Some(artist.name);
         if let Some(discogs_id) = discogs_id {
             let artist = self.get_discogs_artist(&discogs_id).await?;
+            artist_metadata.thumbnail_url = artist_metadata.thumbnail_url.or_else(|| {
+                artist
+                    .images
+                    .unwrap_or_default()
+                    .into_iter()
+                    .filter(|image| image.r#type == "primary")
+                    .filter(|image| !image.resource_url.is_empty())
+                    .map(|image| image.resource_url)
+                    .next()
+            });
 
-            artist_metadata.thumbnail_url = artist
-                .images
-                .unwrap_or_default()
-                .first()
-                .map(|image| image.resource_url.clone());
+            artist_metadata.description = Some(artist.profile);
         }
 
         if let Some(wikidata_id) = wikidata_id {
@@ -105,6 +122,7 @@ impl MetadataClient {
             .with_artists()
             .with_recordings()
             .with_release_groups()
+            .with_url_relations()
             .execute_with_client(&MB_CLIENT)
             .await?;
 
@@ -124,6 +142,7 @@ impl MetadataClient {
         let cover_art_url = release
             .get_coverart()
             .front()
+            .res_250()
             .execute_with_client(&MB_CLIENT)
             .await;
 
@@ -138,6 +157,7 @@ impl MetadataClient {
                     Some(group) => Ok(group
                         .get_coverart()
                         .front()
+                        .res_250()
                         .execute_with_client(&MB_CLIENT)
                         .await?),
                 }
@@ -146,35 +166,41 @@ impl MetadataClient {
         };
 
         let cover_art_url = cover_art_url
-            .map(|coverart| match coverart {
-                CoverartResponse::Json(coverart) => coverart.images[0].image.clone(),
-                CoverartResponse::Url(url) => url,
-            })
             .ok()
-            .filter(|coverart| coverart.ends_with(".jpg"));
+            .and_then(|coverart| match coverart {
+                CoverartResponse::Json(coverart) => coverart
+                    .images
+                    .into_iter()
+                    .find_map(|ca| ca.thumbnails.res_250),
+                CoverartResponse::Url(url) => Some(url),
+            })
+            .filter(|coverart| coverart.ends_with(".jpg") || coverart.ends_with(".jpeg"));
 
         let relations = release.relations.unwrap_or_default();
-
         let wikidata_id: Option<String> = extract_relation_id(&relations, "wikidata");
         let discogs_id: Option<String> = extract_relation_id(&relations, "discogs");
+
         let mut metadata = ReleaseMetadata {
             mbid: release_mbid.to_string(),
             name: release.title,
             artist_mbid: artists_credited.first().map(|a| a.mbid.clone()),
             description: None,
-            cover_art_url: None,
+            cover_art_url,
             artists_credited,
         };
 
         if let Some(discogs_id) = discogs_id {
             let release = self.get_discogs_release(&discogs_id).await?;
 
-            metadata.cover_art_url = cover_art_url.or_else(|| {
+            metadata.cover_art_url = metadata.cover_art_url.or(release.thumb).or_else(|| {
                 release
                     .images
                     .unwrap_or_default()
-                    .first()
-                    .map(|image| image.resource_url.clone())
+                    .into_iter()
+                    .filter(|image| image.r#type == "primary")
+                    .filter(|image| !image.resource_url.is_empty())
+                    .map(|image| image.resource_url)
+                    .next()
             });
         }
 
@@ -207,15 +233,34 @@ fn extract_relation_id(rels: &[Relation], relation_type: &str) -> Option<String>
 
 #[cfg(test)]
 mod test {
-    use crate::metadata::{ArtistMetadata, MetadataClient};
+    use crate::metadata::MetadataClient;
+    use musicbrainz_rs::entity::release::Release;
+    use musicbrainz_rs::{Fetch, FetchCoverart};
 
     #[tokio::test]
     async fn test_get_item() {
-        let client = MetadataClient::new();
+        let client = MetadataClient::default();
         let metadata = client
-            .get_artist_metadata("5b11f4ce-a62d-471e-81fc-a69a8278c7da")
+            .get_artist_metadata("381086ea-f511-4aba-bdf9-71c753dc5077")
             .await
             .unwrap();
         println!("{:?}", metadata);
+    }
+
+    #[tokio::test]
+    async fn release() {
+        let metadata = Release::fetch()
+            .id("7639890c-70ad-49c3-8b2f-46da97724e2c")
+            .execute()
+            .await
+            .unwrap();
+        let ca = metadata
+            .get_coverart()
+            .front()
+            .res_250()
+            .execute()
+            .await
+            .unwrap();
+        println!("{:?}", ca);
     }
 }

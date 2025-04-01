@@ -51,7 +51,9 @@ async fn main() -> anyhow::Result<()> {
     let app = router(settings.debug)
         .layer(TraceLayer::new_for_http())
         .layer(Extension(pool.clone()))
-        .layer(Extension(MetadataClient::default()))
+        .layer(Extension(MetadataClient::new(
+            settings.discogs_token.clone(),
+        )))
         .layer(Extension(oauth_client))
         .layer(Extension(settings.clone()));
 
@@ -91,8 +93,13 @@ async fn main() -> anyhow::Result<()> {
 
     // TODO: cancel condition
     let token = CancellationToken::new();
-    let mut resolver =
-        ScrobbleResolver::create(pool.clone(), coverart_path, token.child_token()).await?;
+    let mut resolver = ScrobbleResolver::create(
+        pool.clone(),
+        coverart_path,
+        settings.discogs_token.clone(),
+        token.child_token(),
+    )
+    .await?;
     let (a, b) = tokio::join!(axum::serve(listener, router), resolver.run());
     a?;
     b?;
