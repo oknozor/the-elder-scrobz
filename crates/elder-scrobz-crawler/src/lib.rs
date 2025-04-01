@@ -17,7 +17,7 @@ mod metadata;
 mod releases;
 
 pub use metadata::MetadataClient;
-pub use releases::try_update_all_coverart;
+pub use releases::{try_update_all_artists, try_update_all_releases};
 
 pub struct ScrobbleResolver {
     pool: PgPool,

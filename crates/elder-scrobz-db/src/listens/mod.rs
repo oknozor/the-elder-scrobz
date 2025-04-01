@@ -77,25 +77,12 @@ impl Release {
         Ok(())
     }
 
-    pub async fn release_exists_with_cover_art(
-        mbid: &str,
-        pool: &PgPool,
-    ) -> Result<bool, sqlx::Error> {
-        let exists = sqlx::query_scalar!(
-            r#"
-        SELECT EXISTS(
-            SELECT 1
-            FROM releases
-            WHERE mbid = $1
-              AND cover_art_url IS NOT NULL
-        )
-        "#,
-            mbid
-        )
-        .fetch_one(pool)
-        .await?;
+    pub async fn all_ids(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
+        let ids = sqlx::query_scalar!(r#"SELECT mbid FROM releases"#)
+            .fetch_all(pool)
+            .await?;
 
-        Ok(exists.unwrap_or_default())
+        Ok(ids)
     }
 
     pub async fn missing_coverart(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
@@ -132,6 +119,22 @@ impl Artist {
         .execute(pool)
         .await?;
         Ok(())
+    }
+
+    pub async fn all_ids(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
+        let ids = sqlx::query_scalar!(r#"SELECT mbid FROM artists"#)
+            .fetch_all(pool)
+            .await?;
+
+        Ok(ids)
+    }
+
+    pub async fn with_missing_metadata(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
+        sqlx::query_scalar!(
+            r#"SELECT mbid FROM artists WHERE thumbnail_url IS NULL OR description IS NULL"#
+        )
+        .fetch_all(pool)
+        .await
     }
 }
 
