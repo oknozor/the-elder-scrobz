@@ -5,6 +5,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
 use sqlx::types::{Json, JsonValue};
+use utoipa::ToSchema;
 
 #[derive(sqlx::FromRow, sqlx::Type, Deserialize, Debug)]
 pub struct TypedScrobble {
@@ -15,7 +16,7 @@ pub struct TypedScrobble {
     pub status: ProcessState,
 }
 
-#[derive(sqlx::FromRow, sqlx::Type, Deserialize, Serialize, Debug)]
+#[derive(sqlx::FromRow, sqlx::Type, Deserialize, Serialize, ToSchema, Debug)]
 pub struct RawScrobble {
     pub id: String,
     pub user_id: String,
@@ -40,7 +41,7 @@ impl TryFrom<RawScrobble> for TypedScrobble {
     }
 }
 
-#[derive(Debug, sqlx::Type, Deserialize, Serialize)]
+#[derive(Debug, sqlx::Type, Deserialize, Serialize, ToSchema)]
 #[sqlx(type_name = "scrobble_state", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum ProcessState {

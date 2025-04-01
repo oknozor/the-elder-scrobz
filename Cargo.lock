@@ -944,10 +944,12 @@ dependencies = [
  "musicbrainz_rs",
  "once_cell",
  "reqwest",
+ "serde",
  "serde_json",
  "sqlx",
  "tokio",
  "tracing",
+ "wikidata",
 ]
 
 [[package]]
@@ -4616,6 +4618,18 @@ checksum = "372d5b87f58ec45c384ba03563b03544dc5fadc3983e434b286913f5b4a9bb6d"
 dependencies = [
  "redox_syscall 0.5.8",
  "wasite",
+]
+
+[[package]]
+name = "wikidata"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a34b80c94c1d2e5df9e3e7dcb886e646b2cf148773f689da670d8f11849d8c72"
+dependencies = [
+ "chrono",
+ "lazy_static",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

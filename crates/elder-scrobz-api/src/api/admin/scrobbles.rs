@@ -12,7 +12,7 @@ use elder_scrobz_db::PgPool;
     path = "/scrobbles/{id}",
     summary = "Get scrobble by id",
     responses(
-        (status = 200, description = "Get a raw scrobble by id", content_type = "application/json"),
+        (status = 200, body = RawScrobble, description = "Get a raw scrobble by id", content_type = "application/json"),
     ),
     tag = crate::api::ADMIN_TAG
 )]
