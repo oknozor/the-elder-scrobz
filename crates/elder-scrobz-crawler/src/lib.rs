@@ -11,7 +11,9 @@ use sqlx::postgres::{PgListener, PgNotification};
 use tracing::{error, info, warn};
 
 mod coverart;
+mod metadata;
 mod releases;
+
 pub use releases::try_update_all_coverart;
 
 pub struct ScrobbleResolver {

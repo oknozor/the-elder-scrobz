@@ -2,6 +2,7 @@ pub mod api_key;
 pub mod charts;
 pub mod listens;
 pub mod pulses;
+pub mod stats;
 pub mod user;
 
 use serde::{Deserialize, Serialize};

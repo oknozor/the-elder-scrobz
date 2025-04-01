@@ -13,5 +13,8 @@ once_cell.workspace = true
 sqlx.workspace = true
 serde_json.workspace = true
 tokio.workspace = true
+wikidata.workspace = true
+serde.workspace = true
+
 
 [dev-dependencies]

@@ -1,8 +1,6 @@
-use crate::settings::Settings;
 use elder_scrobz_db::{build_pg_pool, migrate_db};
 use std::fs;
 use std::path::PathBuf;
-use std::sync::Arc;
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::testcontainers::runners::AsyncRunner;
 use testcontainers_modules::testcontainers::ContainerAsync;
@@ -25,6 +23,7 @@ pub async fn start_postgres() -> anyhow::Result<ContainerAsync<Postgres>> {
     let host_ip = container.get_host().await?;
     let admin_db_url = format!("postgres://scrobz:scrobz@{host_ip}:{host_port}/scrobz");
     let pool = build_pg_pool(&admin_db_url).await;
+
     migrate_db(&pool).await?;
     Ok(container)
 }
