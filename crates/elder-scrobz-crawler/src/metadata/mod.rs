@@ -150,7 +150,8 @@ impl MetadataClient {
                 CoverartResponse::Json(coverart) => coverart.images[0].image.clone(),
                 CoverartResponse::Url(url) => url,
             })
-            .ok();
+            .ok()
+            .filter(|coverart| coverart.ends_with(".jpg"));
 
         let relations = release.relations.unwrap_or_default();
 
