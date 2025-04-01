@@ -13,4 +13,4 @@ WHERE DATE_TRUNC('week', listened_at) = DATE_TRUNC('week', NOW())
 GROUP BY artist.mbid,
          artist.name
 ORDER BY listens DESC
-LIMIT 10;
+LIMIT $1 OFFSET $2;

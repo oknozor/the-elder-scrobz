@@ -1,4 +1,5 @@
 use crate::api::charts::ChartQuery;
+use crate::api::pagination::ToOffset;
 use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
@@ -25,7 +26,10 @@ pub async fn artist_charts(
     Query(query): Query<ChartQuery>,
     Extension(db): Extension<PgPool>,
 ) -> AppResult<Json<PaginatedResponse<TopArtist>>> {
-    let (total, artists) = get_most_listened_artists(query.period, query.username, &db).await?;
+    let offset = query.to_offset();
+    let (total, artists) =
+        get_most_listened_artists(query.period, query.username, query.page_size, offset, &db)
+            .await?;
     let response = PaginatedResponse {
         data: artists,
         page: query.page,

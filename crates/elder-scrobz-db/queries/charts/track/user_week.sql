@@ -15,4 +15,4 @@ WHERE DATE_TRUNC('week', listened_at) = DATE_TRUNC('week', NOW())
   AND u.username = $1
 GROUP BY track_id, track.name, track.length, release.mbid, release.name, release.cover_art_url
 ORDER BY listens DESC
-LIMIT 10
+LIMIT $2 OFFSET $3;

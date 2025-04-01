@@ -2,6 +2,7 @@ use crate::api::charts::albums::*;
 use crate::api::charts::artists::*;
 use crate::api::charts::pulses::*;
 use crate::api::charts::tracks::*;
+use crate::api::pagination::ToOffset;
 use elder_scrobz_db::Period;
 use serde::Deserialize;
 use utoipa::IntoParams;
@@ -32,6 +33,16 @@ pub struct ChartQuery {
     page: i64,
     // Number of item in a page
     page_size: i64,
+}
+
+impl ToOffset for ChartQuery {
+    fn page(&self) -> i64 {
+        self.page
+    }
+
+    fn per_page(&self) -> i64 {
+        self.page_size
+    }
 }
 
 impl Default for ChartQuery {

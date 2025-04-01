@@ -76,7 +76,7 @@ impl User {
     pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<Vec<Self>, Error> {
         let user = sqlx::query_as!(
             User,
-            r#" SELECT username, email FROM users ORDER BY username OFFSET $2 LIMIT $1 "#,
+            r#" SELECT username, email FROM users ORDER BY username LIMIT $1 OFFSET $2"#,
             limit,
             offset,
         )

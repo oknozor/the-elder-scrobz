@@ -1,4 +1,4 @@
-use crate::api::PageQuery;
+use crate::api::pagination::{PageQuery, ToOffset};
 use crate::error::AppResult;
 use autometrics::autometrics;
 use axum::extract::Query;
@@ -49,6 +49,6 @@ pub async fn get_users(
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<Vec<User>>> {
     Ok(Json(
-        DbUser::all(&db, query.page_size, query.page - 1).await?,
+        DbUser::all(&db, query.per_page(), query.to_offset()).await?,
     ))
 }
