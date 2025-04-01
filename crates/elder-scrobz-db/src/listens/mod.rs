@@ -105,26 +105,29 @@ impl Release {
     }
 }
 
-#[derive(sqlx::FromRow, Debug)]
+#[derive(sqlx::FromRow, Deserialize, Debug)]
 pub struct Artist {
     pub mbid: String,
     pub name: Option<String>,
     pub description: Option<String>,
+    pub thumbnail_url: Option<String>,
 }
 
 impl Artist {
     pub async fn save(&self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
-            INSERT INTO artists (mbid, name, description)
-            VALUES ($1, $2, $3)
+            INSERT INTO artists (mbid, name, description, thumbnail_url)
+            VALUES ($1, $2, $3, $4)
             ON CONFLICT (mbid) DO UPDATE
             SET name = COALESCE(EXCLUDED.name, artists.name),
-                description = COALESCE(EXCLUDED.description, artists.description);
+                description = COALESCE(EXCLUDED.description, artists.description),
+                thumbnail_url = COALESCE(EXCLUDED.thumbnail_url, artists.thumbnail_url);
             "#,
             self.mbid,
             self.name,
             self.description,
+            self.thumbnail_url,
         )
         .execute(pool)
         .await?;

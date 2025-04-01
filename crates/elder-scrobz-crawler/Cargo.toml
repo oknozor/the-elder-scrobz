@@ -13,7 +13,7 @@ once_cell.workspace = true
 sqlx.workspace = true
 serde_json.workspace = true
 tokio.workspace = true
-wikidata.workspace = true
+tokio-util.workspace = true
 serde.workspace = true
 
 

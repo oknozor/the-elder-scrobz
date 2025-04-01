@@ -14,6 +14,19 @@ impl MetadataClient {
 
         Ok(artist)
     }
+
+    pub async fn get_discogs_release(&self, id: &str) -> Result<DiscogsRelease, reqwest::Error> {
+        let artist = self
+            .client
+            .get(format!("https://api.discogs.com/releases/{}", id))
+            .header("User-Agent", "MyDiscogsClient/1.0")
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        Ok(artist)
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -24,6 +37,14 @@ pub struct DiscogsArtist {
     pub profile: String,
     pub urls: Vec<String>,
     pub images: Option<Vec<DiscogsImage>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DiscogsRelease {
+    pub id: i64,
+    pub title: String,
+    pub images: Option<Vec<DiscogsImage>>,
+    pub year: u32,
 }
 
 #[derive(Debug, Deserialize)]

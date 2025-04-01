@@ -4,10 +4,11 @@ use axum::routing::get;
 use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
 use elder_scrobz_api::settings::Settings;
-use elder_scrobz_crawler::ScrobbleResolver;
+use elder_scrobz_crawler::{MetadataClient, ScrobbleResolver};
 use elder_scrobz_db::build_pg_pool;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use tokio_util::sync::CancellationToken;
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
 use tracing::{info, warn};
@@ -50,6 +51,7 @@ async fn main() -> anyhow::Result<()> {
     let app = router(settings.debug)
         .layer(TraceLayer::new_for_http())
         .layer(Extension(pool.clone()))
+        .layer(Extension(MetadataClient::default()))
         .layer(Extension(oauth_client))
         .layer(Extension(settings.clone()));
 
@@ -87,9 +89,11 @@ async fn main() -> anyhow::Result<()> {
         .nest_service("/coverarts", ServeDir::new(&coverart_path))
         .fallback_service(serve_frontend);
 
-    let mut resolver = ScrobbleResolver::create(pool.clone(), coverart_path).await?;
-
-    let (a, b) = tokio::join!(axum::serve(listener, router), resolver.listen());
+    // TODO: cancel condition
+    let token = CancellationToken::new();
+    let mut resolver =
+        ScrobbleResolver::create(pool.clone(), coverart_path, token.child_token()).await?;
+    let (a, b) = tokio::join!(axum::serve(listener, router), resolver.run());
     a?;
     b?;
     Ok(())
