@@ -3,7 +3,9 @@ use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
-use elder_scrobz_crawler::{process_scrobble, try_update_all_coverart, MetadataClient};
+use elder_scrobz_crawler::{
+    process_scrobble, try_update_all_artists, try_update_all_releases, MetadataClient,
+};
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
 use elder_scrobz_db::stats::Stats;
 use elder_scrobz_db::PgPool;
@@ -12,13 +14,26 @@ use tracing::info;
 use tracing::log::error;
 use utoipa::IntoParams;
 
-#[derive(Debug, serde::Deserialize, IntoParams, Default)]
+#[derive(Debug, serde::Deserialize, IntoParams)]
 #[serde(default)]
 pub struct ScanQuery {
     /// Scan all scrobbles instead of only unprocessed ones
     force: bool,
     /// Only fetch missing coverart
-    coverart_only: bool,
+    artists: bool,
+    releases: bool,
+    scrobbles: bool,
+}
+
+impl Default for ScanQuery {
+    fn default() -> Self {
+        Self {
+            force: false,
+            artists: false,
+            releases: false,
+            scrobbles: true,
+        }
+    }
 }
 
 #[debug_handler]
@@ -39,10 +54,19 @@ pub async fn scan_db(
     Extension(db): Extension<PgPool>,
     Extension(client): Extension<MetadataClient>,
 ) -> AppResult<()> {
-    if query.coverart_only {
+    if query.releases {
         spawn(async move {
-            if let Err(err) = try_update_all_coverart(&client, &db).await {
-                error!("Failed to update coverarts: {err}");
+            if let Err(err) = try_update_all_releases(&client, &db, query.force).await {
+                error!("Failed to update releases: {err}");
+            }
+        });
+        return Ok(());
+    }
+
+    if query.artists {
+        spawn(async move {
+            if let Err(err) = try_update_all_artists(&client, &db, query.force).await {
+                error!("Failed to update artists: {err}");
             }
         });
         return Ok(());
