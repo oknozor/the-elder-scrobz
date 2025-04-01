@@ -8,6 +8,7 @@ import ApiKeysView from '@/views/ApiKeysView.vue';
 import TrackView from '@/views/TrackView.vue';
 import CallbackView from '@/views/CallbackView.vue';
 import { useAuthStore } from '@/stores/authStore';
+import TopDetailView from '@/views/TopDetailView.vue';
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,15 +26,33 @@ const router = createRouter({
 			meta: { requiresAuth: true },
 		},
 		{
+			path: '/top-artists',
+			name: 'topArtists',
+			component: TopDetailView,
+			meta: { requiresAuth: true },
+		},
+		{
 			path: '/album/:id',
 			name: 'album',
 			component: AlbumView,
 			meta: { requiresAuth: true },
 		},
 		{
+			path: '/top-albums',
+			name: 'topAlbums',
+			component: TopDetailView,
+			meta: { requiresAuth: true },
+		},
+		{
 			path: '/track/:id',
 			name: 'track',
 			component: TrackView,
+			meta: { requiresAuth: true },
+		},
+		{
+			path: '/top-tracks',
+			name: 'topTracks',
+			component: TopDetailView,
 			meta: { requiresAuth: true },
 		},
 		{
@@ -64,7 +83,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, _, next) => {
-	const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+	const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
 	if (!requiresAuth) {
 		return next();

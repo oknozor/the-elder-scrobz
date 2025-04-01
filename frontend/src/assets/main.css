@@ -5,6 +5,8 @@
 	--background-color: #1a1a1a;
 	--card-background: #2d2d2d;
 	--border-color: #404040;
+	--header-height: 50px;
+	--app-padding: 20px;
 }
 
 * {
@@ -23,4 +25,39 @@ body {
 
 #app {
 	min-height: 100vh;
+}
+
+.time-range-container {
+	position: fixed;
+	left: calc(
+		50% - 600px - 140px
+	); /* 50% - half of max-width - container width - margin */
+	top: 100px;
+	z-index: 10;
+	background: var(--card-background);
+	padding: 15px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	border: 1px solid var(--border-color);
+	width: 120px;
+}
+
+.time-range-title {
+	margin-top: 0;
+	margin-bottom: 10px;
+	font-size: 1em;
+	color: var(--text-color);
+	text-align: center;
+}
+
+@media screen and (max-width: 650px) {
+	.time-range-container {
+		position: relative;
+		background: none;
+		left: 0;
+		top: 0;
+		width: 100%;
+		z-index: 10;
+		margin-bottom: 10px;
+	}
 }

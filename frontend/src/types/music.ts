@@ -1,5 +1,4 @@
 export type TimeRange = 'today' | 'week' | 'month' | 'year' | 'all';
-export type PulseTimeRange = '12days' | '12weeks' | '12months' | '12years';
 
 export interface PaginatedResponse<T> {
 	data: T[];
