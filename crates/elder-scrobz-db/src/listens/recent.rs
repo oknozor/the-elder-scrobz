@@ -23,12 +23,10 @@ pub struct RecentListen {
 }
 
 pub async fn get_recent_listens(
-    page: i64,
-    page_size: i64,
+    limit: i64,
+    offset: i64,
     pool: &PgPool,
 ) -> Result<Vec<RecentListen>, Error> {
-    let offset = (page - 1) * page_size;
-
     sqlx::query_as!(
         RecentListen,
         r#"
@@ -52,7 +50,7 @@ pub async fn get_recent_listens(
         LIMIT $1
         OFFSET $2
         "#,
-        page_size,
+        limit,
         offset
     )
     .fetch_all(pool)

@@ -11,5 +11,4 @@ FROM scrobbles
 WHERE DATE(listened_at) = CURRENT_DATE
 GROUP BY release.mbid, release.name, release.cover_art_url
 ORDER BY listens DESC
-OFFSET $1
-LIMIT $2;
+LIMIT $1 OFFSET $2;

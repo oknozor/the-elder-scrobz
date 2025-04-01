@@ -3,7 +3,7 @@ use crate::oauth::AuthenticatedUser;
 use axum::middleware::from_extractor;
 use serde::Serialize;
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
-use utoipa::{IntoParams, Modify, OpenApi, ToSchema};
+use utoipa::{Modify, OpenApi, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -12,6 +12,7 @@ pub mod charts;
 pub mod imports;
 pub mod listenbrainz;
 pub mod listens;
+pub mod pagination;
 pub mod user;
 
 const USERS_TAG: &str = "users";
@@ -31,7 +32,7 @@ const ADMIN_TAG: &str = "admin";
         (name = ADMIN_TAG, description = "Administration"),
     ),
     components(
-        schemas(elder_scrobz_db::listens::recent::RecentListen, PageQuery, crate::error::AppError)
+        schemas(elder_scrobz_db::listens::recent::RecentListen, pagination::PageQuery, crate::error::AppError)
     )
 )]
 pub struct ApiDoc;
@@ -55,22 +56,6 @@ pub struct PaginatedResponse<T> {
     page: i64,
     page_size: i64,
     total: i64,
-}
-
-#[derive(serde::Deserialize, ToSchema, IntoParams, Debug)]
-#[serde(default)]
-pub struct PageQuery {
-    page: i64,
-    page_size: i64,
-}
-
-impl Default for PageQuery {
-    fn default() -> Self {
-        Self {
-            page: 1,
-            page_size: 100,
-        }
-    }
 }
 
 pub fn router(no_oauth: bool) -> OpenApiRouter {

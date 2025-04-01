@@ -1,4 +1,5 @@
 use crate::api::charts::ChartQuery;
+use crate::api::pagination::ToOffset;
 use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
@@ -28,14 +29,10 @@ pub async fn album_charts(
     Extension(settings): Extension<Arc<Settings>>,
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<PaginatedResponse<TopAlbum>>> {
-    let (total, albums) = get_most_listened_albums(
-        query.period,
-        query.username,
-        query.page,
-        query.page_size,
-        &db,
-    )
-    .await?;
+    let offset = query.to_offset();
+    let (total, albums) =
+        get_most_listened_albums(query.period, query.username, query.page_size, offset, &db)
+            .await?;
 
     let albums: Vec<_> = albums
         .into_iter()

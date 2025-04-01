@@ -31,5 +31,5 @@ GROUP BY
     release.cover_art_url
 ORDER BY
     listens DESC
-LIMIT
-    10
+LIMIT $1 OFFSET $2;
+

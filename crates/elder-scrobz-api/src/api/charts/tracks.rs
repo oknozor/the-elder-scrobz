@@ -1,4 +1,5 @@
 use crate::api::charts::ChartQuery;
+use crate::api::pagination::ToOffset;
 use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
@@ -28,7 +29,11 @@ pub async fn track_charts(
     Extension(db): Extension<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
 ) -> AppResult<Json<PaginatedResponse<TopTrack>>> {
-    let (total, tracks) = get_most_listened_tracks(query.period, query.username, &db).await?;
+    let offset = query.to_offset();
+    let (total, tracks) =
+        get_most_listened_tracks(query.period, query.username, query.page_size, offset, &db)
+            .await?;
+
     let tracks: Vec<_> = tracks
         .into_iter()
         .map(|mut track| {

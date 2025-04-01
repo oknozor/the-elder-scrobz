@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT artist.mbid            AS artist_id,\n       artist.name            AS artist_name,\n       artist.description     AS description,\n       artist.thumbnail_url   AS thumbnail_url,\n       MAX(raw.listened_at)   AS last_listened_at,\n       COUNT(DISTINCT raw.id) AS listens,\n       COUNT(*) OVER ()       AS total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN artists artist ON track.artist_mbid = artist.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE DATE_TRUNC('month', raw.listened_at) = DATE_TRUNC('month', NOW())\n  AND u.username = $1\nGROUP BY artist.mbid, artist.name\nORDER BY listens DESC\nLIMIT 10;\n",
+  "query": "SELECT artist.mbid            AS artist_id,\n       artist.name            AS artist_name,\n       artist.description     AS description,\n       artist.thumbnail_url   AS thumbnail_url,\n       MAX(raw.listened_at)   AS last_listened_at,\n       COUNT(DISTINCT raw.id) AS listens,\n       COUNT(*) OVER ()       AS total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN artists artist ON track.artist_mbid = artist.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE DATE(listened_at) = CURRENT_DATE\n  AND u.username = $1\nGROUP BY artist.mbid, artist.name\nORDER BY listens DESC\nLIMIT $2 OFFSET $3;\n",
   "describe": {
     "columns": [
       {
@@ -41,7 +41,9 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Text",
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
@@ -54,5 +56,5 @@
       null
     ]
   },
-  "hash": "72fb621ef96f28a3c207fd63258828208c99f9eee6e1a74db9437357c7355e24"
+  "hash": "a563692c6fbb022473f04f7bd7702a349833f4d9f08a8bc53e08ca8ec740ac2a"
 }

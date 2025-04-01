@@ -1,4 +1,4 @@
-use crate::api::PageQuery;
+use crate::api::pagination::{PageQuery, ToOffset};
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::Query;
@@ -30,7 +30,8 @@ pub async fn recent_listens(
     Extension(db): Extension<PgPool>,
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<Vec<RecentListen>>> {
-    Ok(Json(
-        get_recent_listens(query.page, query.page_size, &db).await?,
-    ))
+    let offset = query.to_offset();
+    let limit = query.per_page();
+
+    Ok(Json(get_recent_listens(limit, offset, &db).await?))
 }

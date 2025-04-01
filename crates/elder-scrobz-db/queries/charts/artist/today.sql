@@ -13,4 +13,4 @@ WHERE DATE(listened_at) = CURRENT_DATE
 GROUP BY artist.mbid,
          artist.name
 ORDER BY listens DESC
-LIMIT 10;
+LIMIT $1 OFFSET $2;

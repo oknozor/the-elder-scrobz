@@ -14,4 +14,4 @@ WHERE EXTRACT(YEAR FROM listened_at) = EXTRACT(YEAR FROM NOW())
   AND u.username = $1
 GROUP BY artist.mbid, artist.name
 ORDER BY listens DESC
-LIMIT 10;
+LIMIT $2 OFFSET $3;

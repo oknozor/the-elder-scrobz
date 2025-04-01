@@ -14,4 +14,5 @@ WHERE DATE_TRUNC('month', raw.listened_at) = DATE_TRUNC('month', NOW())
   AND u.username = $1
 GROUP BY artist.mbid, artist.name
 ORDER BY listens DESC
-LIMIT 10;
+LIMIT $2 OFFSET $3;
+
