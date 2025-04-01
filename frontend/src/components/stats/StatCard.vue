@@ -111,7 +111,7 @@ const imageUrl = computed(() => {
 	if (isTrack(props.item)) {
 		return props.item.cover_art_url;
 	} else if (isArtist(props.item)) {
-		return props.item.cover_art_url;
+		return props.item.thumbnail_url;
 	} else if (isAlbum(props.item)) {
 		return props.item.cover_art_url;
 	}

@@ -11,7 +11,7 @@ export interface PaginatedResponse<T> {
 export interface Artist {
   artist_id: string;
   artist_name: string;
-  cover_art_url: string;
+  thumbnail_url: string;
   last_listened_at: string;
   listens: number;
 }
