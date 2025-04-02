@@ -90,6 +90,17 @@ impl Release {
             .fetch_all(pool)
             .await
     }
+
+    pub async fn remove_coverart(mbid: &str, pool: &PgPool) -> Result<(), sqlx::Error> {
+        sqlx::query!(
+            r#"UPDATE releases SET cover_art_url = NULL WHERE mbid = $1"#,
+            mbid
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(())
+    }
 }
 
 #[derive(sqlx::FromRow, Deserialize, Debug)]
