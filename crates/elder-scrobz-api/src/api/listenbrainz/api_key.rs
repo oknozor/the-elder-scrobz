@@ -17,6 +17,11 @@ pub struct ApiKeyCreated {
     pub api_key: String,
 }
 
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct CreateApiKeyRequest {
+    pub label: String,
+}
+
 #[debug_handler]
 #[utoipa::path(
     post,
@@ -32,6 +37,7 @@ pub struct ApiKeyCreated {
 pub async fn create_api_key(
     user: AuthenticatedUser,
     Extension(db): Extension<PgPool>,
+    Json(payload): Json<CreateApiKeyRequest>
 ) -> AppResult<Json<ApiKeyCreated>> {
     let Some(user) = User::get_by_username(&db, &user.name).await? else {
         return Err(AppError::UserNotFound { id: user.name });
@@ -42,6 +48,7 @@ pub async fn create_api_key(
         sha: key.sha,
         api_key_hash: key.hashed_key,
         username: user.username,
+        label: payload.label,
     }
     .insert(&db)
     .await?;

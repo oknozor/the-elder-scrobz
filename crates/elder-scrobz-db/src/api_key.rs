@@ -12,18 +12,20 @@ pub struct CreateApiKey {
     pub sha: String,
     pub api_key_hash: String,
     pub username: String,
+    pub label: String
 }
 
 impl CreateApiKey {
     pub async fn insert(self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
-        INSERT INTO api_keys (sha, user_id, api_key_hash)
-        VALUES ($1, $2, $3)
+        INSERT INTO api_keys (sha, user_id, api_key_hash, label)
+        VALUES ($1, $2, $3, $4)
         "#,
             self.sha,
             self.username,
             self.api_key_hash,
+            self.label,
         )
         .execute(pool)
         .await?;
