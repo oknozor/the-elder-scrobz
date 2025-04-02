@@ -14,6 +14,7 @@ pub fn router() -> OpenApiRouter {
         .routes(routes!(submit_listens))
         .routes(routes!(create_api_key))
         .routes(routes!(get_api_keys))
+        .routes(routes!(delete_api_key))
         .routes(routes!(validate_token))
 }
 
