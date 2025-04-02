@@ -2,7 +2,7 @@ use crate::api::imports::*;
 use crate::oauth::AuthenticatedUser;
 use axum::middleware::from_extractor;
 use serde::Serialize;
-use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme, HttpBuilder, HttpAuthScheme};
+use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
