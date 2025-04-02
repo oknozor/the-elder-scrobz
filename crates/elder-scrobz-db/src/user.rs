@@ -1,5 +1,5 @@
-use crate::api_key::{key_sha, verify_api_key};
 use crate::PgPool;
+use crate::api_key::{key_sha, verify_api_key};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
@@ -74,7 +74,7 @@ impl User {
         Ok(user.filter(|user| user.verify(api_key)))
     }
 
-    pub async fn get_api_keys(&self, pool: &PgPool) -> Result<Vec<ApiKey>, Error>{
+    pub async fn get_api_keys(&self, pool: &PgPool) -> Result<Vec<ApiKey>, Error> {
         let api_keys = sqlx::query_as!(
             ApiKey,
             r#"
@@ -84,8 +84,8 @@ impl User {
             "#,
             self.username
         )
-            .fetch_all(pool)
-            .await?;
+        .fetch_all(pool)
+        .await?;
 
         Ok(api_keys)
     }

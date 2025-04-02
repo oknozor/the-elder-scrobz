@@ -69,7 +69,7 @@ pub async fn get_api_keys(
         return Err(AppError::UserNotFound { id: user.name });
     };
 
-    Ok(Json(user.get_api_keys(&db).await ?))
+    Ok(Json(user.get_api_keys(&db).await?))
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -79,7 +79,6 @@ pub struct TokenValidation {
     pub user_name: Option<String>,
     pub message: String,
 }
-
 
 #[debug_handler]
 #[utoipa::path(
