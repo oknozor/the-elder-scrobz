@@ -93,22 +93,28 @@ async fn main() -> anyhow::Result<()> {
         .fallback_service(serve_frontend);
 
     let token = CancellationToken::new();
-
-    let child_token = token.child_token();
+    let token_clone = token.clone();
 
     tokio::spawn(async move {
         let mut sigterm =
             signal(SignalKind::terminate()).expect("Failed to register SIGTERM handler");
         sigterm.recv().await; // Wait for SIGTERM
         info!("Received SIGTERM, shutting down...");
-        child_token.cancel(); // Notify main task to exit
+        token_clone.cancel(); // Notify main task to exit
     });
 
-    let mut crawler =
-        ScrobbleCrawler::create(pool.clone(), coverart_path, settings.discogs_token.clone())
-            .await?;
+    let mut crawler = ScrobbleCrawler::create(
+        pool.clone(),
+        coverart_path,
+        settings.discogs_token.clone(),
+        token.clone(),
+    )
+    .await?;
 
-    let server = axum::serve(listener, router);
+    let axum_token = token.clone();
+    let server = axum::serve(listener, router).with_graceful_shutdown(async move {
+        axum_token.cancelled().await;
+    });
     let crawler_task = crawler.run();
 
     tokio::select! {
@@ -125,6 +131,5 @@ async fn main() -> anyhow::Result<()> {
         }
     }
 
-    token.cancel();
     Ok(())
 }

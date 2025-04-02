@@ -9,6 +9,8 @@ use elder_scrobz_db::listens::raw::scrobble::{RawScrobble, TypedScrobble};
 use elder_scrobz_db::listens::scrobble::Scrobble;
 use elder_scrobz_db::listens::{Artist, ArtistCredited, Release, Track};
 use sqlx::postgres::{PgListener, PgNotification};
+use tokio::select;
+use tokio_util::sync::CancellationToken;
 use tracing::{error, info, warn};
 
 mod artists;
@@ -26,6 +28,7 @@ pub struct ScrobbleCrawler {
     client: reqwest::Client,
     coverart_path: PathBuf,
     metadata_client: MetadataClient,
+    cancellation_token: CancellationToken,
 }
 
 impl ScrobbleCrawler {
@@ -33,6 +36,7 @@ impl ScrobbleCrawler {
         pool: PgPool,
         coverart_path: PathBuf,
         discogs_token: String,
+        cancellation_token: CancellationToken,
     ) -> Result<Self> {
         let pg_listener = PgListener::connect_with(&pool).await?;
         Ok(Self {
@@ -41,10 +45,19 @@ impl ScrobbleCrawler {
             client: reqwest::Client::new(),
             coverart_path,
             metadata_client: MetadataClient::new(discogs_token),
+            cancellation_token,
         })
     }
 
     pub async fn run(&mut self) -> Result<()> {
+        let token = self.cancellation_token.clone();
+        select! {
+            _ = token.cancelled() => Ok(()),
+            result = self.listen() => result, // Correctly propagate the result
+        }
+    }
+
+    async fn listen(&mut self) -> Result<()> {
         info!("Starting PgListener on scrobbles_raw_insert_trigger");
         self.pg_listener
             .listen_all([
