@@ -2,9 +2,9 @@ use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 use tracing::{error, info};
 
-use crate::ScrobbleResolver;
+use crate::ScrobbleCrawler;
 
-impl ScrobbleResolver {
+impl ScrobbleCrawler {
     pub async fn download_image(&self, url: &str, release_mbid: &str) -> anyhow::Result<()> {
         let response = self.client.get(url).send().await?;
         if response.status().is_success() {

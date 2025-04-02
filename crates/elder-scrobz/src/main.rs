@@ -4,10 +4,11 @@ use axum::routing::get;
 use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
 use elder_scrobz_api::settings::Settings;
-use elder_scrobz_crawler::{MetadataClient, ScrobbleResolver};
+use elder_scrobz_crawler::{MetadataClient, ScrobbleCrawler};
 use elder_scrobz_db::build_pg_pool;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use tokio::signal::unix::{SignalKind, signal};
 use tokio_util::sync::CancellationToken;
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
@@ -91,17 +92,39 @@ async fn main() -> anyhow::Result<()> {
         .nest_service("/coverarts", ServeDir::new(&coverart_path))
         .fallback_service(serve_frontend);
 
-    // TODO: cancel condition
     let token = CancellationToken::new();
-    let mut resolver = ScrobbleResolver::create(
-        pool.clone(),
-        coverart_path,
-        settings.discogs_token.clone(),
-        token.child_token(),
-    )
-    .await?;
-    let (a, b) = tokio::join!(axum::serve(listener, router), resolver.run());
-    a?;
-    b?;
+
+    let child_token = token.child_token();
+
+    tokio::spawn(async move {
+        let mut sigterm =
+            signal(SignalKind::terminate()).expect("Failed to register SIGTERM handler");
+        sigterm.recv().await; // Wait for SIGTERM
+        info!("Received SIGTERM, shutting down...");
+        child_token.cancel(); // Notify main task to exit
+    });
+
+    let mut crawler =
+        ScrobbleCrawler::create(pool.clone(), coverart_path, settings.discogs_token.clone())
+            .await?;
+
+    let server = axum::serve(listener, router);
+    let crawler_task = crawler.run();
+
+    tokio::select! {
+        result = server => {
+            info!("Server shutdown: {:?}", result);
+            result?;
+        },
+        result = crawler_task => {
+            info!("Crawler shutdown: {:?}", result);
+            result?;
+        },
+        _ = token.cancelled() => {
+            info!("Shutdown signal received");
+        }
+    }
+
+    token.cancel();
     Ok(())
 }
