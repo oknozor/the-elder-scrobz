@@ -1,4 +1,6 @@
-export const formatDuration = (minutes: number): string => {
+export const formatDuration = (seconds: number): string => {
+	const minutes = Math.floor(seconds / 60000);
+
 	if (minutes < 60) {
 		return `${minutes}m`;
 	} else {

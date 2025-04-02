@@ -74,6 +74,15 @@ export interface MusicStats {
 	};
 }
 
+export interface Overview {
+	artist_listened: number,
+	track_listened: number,
+	time_listened: number,
+	artist_listened_percentage_increase?: number,
+	track_listened_percentage_increase?: number,
+	time_listened_percentage_increase?: number,
+}
+
 export interface ApiKey {
 	id: string;
 	label: string;
