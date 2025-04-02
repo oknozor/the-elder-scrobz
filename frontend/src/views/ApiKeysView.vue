@@ -162,7 +162,7 @@ const createApiKey = async () => {
 
 	try {
 		const newKey = await apiKeyService.createApiKey(newKeyLabel.value);
-		apiKeys.value.push({
+		apiKeys.value.unshift({
       label: newKeyLabel.value,
       api_key: newKey.api_key,
       created_at: new Date().toISOString(),
@@ -212,7 +212,10 @@ const deleteApiKey = async () => {
 
 onMounted(async () => {
 	try {
-		apiKeys.value = await apiKeyService.listApiKeys();
+		const keys = await apiKeyService.listApiKeys();
+		apiKeys.value = keys.sort((a, b) =>
+			new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+		);
 	} catch (error) {
 		console.error('Error fetching user data:', error);
 		toastMessage.value = 'Failed to load user data';
