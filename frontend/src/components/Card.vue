@@ -86,11 +86,11 @@ const title = computed(() => {
 
 const imageUrl = computed(() => {
 	if (isTrack(props.item)) {
-		return import.meta.env.VITE_API_BASE_URL + props.item.cover_art_url;
+		return (import.meta.env.VITE_API_BASE_URL || '') + props.item.cover_art_url;
 	} else if (isArtist(props.item)) {
 		return props.item.thumbnail_url;
 	} else if (isAlbum(props.item)) {
-		return import.meta.env.VITE_API_BASE_URL + props.item.cover_art_url;
+		return (import.meta.env.VITE_API_BASE_URL || '') + props.item.cover_art_url;
 	}
 	return '';
 });
