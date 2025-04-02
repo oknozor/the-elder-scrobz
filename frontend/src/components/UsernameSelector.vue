@@ -31,7 +31,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
 import Dropdown from './Dropdown.vue';
 import { AppUser } from '@/stores/usersStore';
 
