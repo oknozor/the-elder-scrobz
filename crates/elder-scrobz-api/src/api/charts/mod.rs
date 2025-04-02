@@ -8,11 +8,14 @@ use serde::Deserialize;
 use utoipa::IntoParams;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
+use crate::api::charts::overview::overview;
+use crate::api::charts::overview::__path_overview;
 
 pub mod albums;
 pub mod artists;
 pub mod pulses;
 pub mod tracks;
+pub mod overview;
 
 pub fn router() -> OpenApiRouter {
     OpenApiRouter::new()
@@ -20,6 +23,7 @@ pub fn router() -> OpenApiRouter {
         .routes(routes!(album_charts))
         .routes(routes!(artist_charts))
         .routes(routes!(pulses))
+        .routes(routes!(overview))
 }
 
 #[derive(Deserialize, IntoParams, Debug)]
