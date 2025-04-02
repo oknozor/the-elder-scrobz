@@ -27,10 +27,10 @@
 						</div>
 					</div>
 					<div class="api-key-value">
-						<code>{{ apiKey.key }}</code>
-						<button
+						<code>{{ apiKey.api_key || '********************************************************' }}</code>
+						<button v-if="apiKey.api_key"
 							class="copy-btn"
-							@click="copyToClipboard(apiKey.key)"
+							@click="copyToClipboard(apiKey.api_key)"
 							title="Copy API key"
 						>
 							<svg
@@ -162,7 +162,13 @@ const createApiKey = async () => {
 
 	try {
 		const newKey = await apiKeyService.createApiKey(newKeyLabel.value);
-		apiKeys.value.push(newKey);
+		apiKeys.value.push({
+      label: newKeyLabel.value,
+      api_key: newKey.api_key,
+      created_at: new Date().toISOString(),
+      lastUsed: '',
+      id: '',
+    });
 		showCreateKeyModal.value = false;
 		newKeyLabel.value = '';
 
@@ -221,6 +227,7 @@ onMounted(async () => {
 	padding-top: 20px;
 	max-width: 1200px;
 	margin: 0 auto;
+  width: 100%;
 }
 
 .api-keys-section {
@@ -230,6 +237,7 @@ onMounted(async () => {
 	margin-bottom: 20px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 	border: 1px solid var(--border-color);
+	width: 100%;
 }
 
 .section-header {
@@ -270,12 +278,14 @@ h3 {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+	width: 100%;
 }
 
 .api-key-card {
 	background: rgba(255, 255, 255, 0.05);
 	border-radius: 6px;
 	padding: 16px;
+	width: 100%;
 }
 
 .api-key-info {
@@ -299,6 +309,13 @@ h3 {
 	font-family: monospace;
 	font-size: 0.9em;
 	color: var(--text-color);
+	width: 100%;
+}
+
+.api-key-value code {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .copy-btn {

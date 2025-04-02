@@ -77,7 +77,7 @@ export interface MusicStats {
 export interface ApiKey {
 	id: string;
 	label: string;
-	key: string;
+	api_key: string;
 	created_at: string;
 	lastUsed?: string;
 }
