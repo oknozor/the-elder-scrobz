@@ -31,6 +31,9 @@ pub struct CreateApiKeyRequest {
         (status = 200, description = "Create a new user ApiKey", body = ApiKeyCreated),
         (status = 404, description = "User not found", body = AppError)
     ),
+    security(
+        ("bearer_auth" = [])
+    ),
     tag = crate::api::API_KEYS_TAG
 )]
 #[autometrics]
@@ -64,6 +67,9 @@ pub async fn create_api_key(
     responses(
         (status = 200, description = "Create a new user ApiKey", body = Vec<ApiKey>),
         (status = 404, description = "User not found", body = AppError)
+    ),
+    security(
+        ("bearer_auth" = [])
     ),
     tag = crate::api::API_KEYS_TAG
 )]
@@ -141,6 +147,9 @@ pub struct DeleteApiKeyResponse {
     responses(
         (status = 200, description = "API key deleted successfully", body = DeleteApiKeyResponse),
         (status = 404, description = "User not found or API key not found", body = AppError)
+    ),
+    security(
+        ("bearer_auth" = [])
     ),
     tag = crate::api::API_KEYS_TAG
 )]
