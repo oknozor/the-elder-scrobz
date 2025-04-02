@@ -43,8 +43,6 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		// STATS VIEW:
-		// Fetch top albums for stats view
 		async fetchTopAlbumsForStatsView(
 			username: string | null,
 			period: string = 'week',
@@ -61,7 +59,6 @@ export const useStatsStore = defineStore('stats', {
 				this.topAlbumsForStatsView = response.data;
 			}
 		},
-		// Fetch top artists for stats view
 		async fetchTopArtistsForStatsView(
 			username: string | null,
 			period: string = 'week',
@@ -78,7 +75,6 @@ export const useStatsStore = defineStore('stats', {
 				this.topArtistsForStatsView = response.data;
 			}
 		},
-		// Fetch top tracks for stats view
 		async fetchTopTracksForStatsView(
 			username: string | null,
 			period: string = 'week',
@@ -96,7 +92,6 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		// ALBUMS VIEW:
 		async fetchTopAlbumsForAlbumsView(
 			username: string | null,
 			period: string,
@@ -115,7 +110,7 @@ export const useStatsStore = defineStore('stats', {
 				};
 			}
 		},
-		// ARTISTS VIEW:
+
 		async fetchTopArtistsForArtistsView(
 			username: string | null,
 			period: string,
@@ -134,7 +129,7 @@ export const useStatsStore = defineStore('stats', {
 				};
 			}
 		},
-		// TRACKS VIEW:
+
 		async fetchTopTracksForTracksView(
 			username: string | null,
 			period: string = 'week',
@@ -154,7 +149,6 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		// Fetch top albums
 		async fetchTopAlbums(
 			username: string | null,
 			period: string = 'week',
@@ -176,7 +170,6 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		// Fetch top artists
 		async fetchTopArtists(
 			username: string | null,
 			period: string = 'week',
@@ -198,7 +191,6 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		// Fetch top tracks
 		async fetchTopTracks(
 			username: string | null,
 			period: string = 'week',
@@ -220,7 +212,6 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		// Fetch pulses
 		async fetchPulses(username: string | null, period: string = 'week') {
 			const usernameParam = username ? `&username=${username}&` : '';
 			try {

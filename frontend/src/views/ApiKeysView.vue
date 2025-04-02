@@ -13,14 +13,14 @@
 
 			<div class="api-keys-list">
 				<div
-					v-for="apiKey in user.apiKeys"
+					v-for="apiKey in apiKeys"
 					:key="apiKey.id"
 					class="api-key-card"
 				>
 					<div class="api-key-info">
 						<h3>{{ apiKey.label }}</h3>
 						<div class="api-key-details">
-							<p>Created: {{ formatDate(apiKey.createdAt) }}</p>
+							<p>Created: {{ formatDate(apiKey.created_at) }}</p>
 							<p v-if="apiKey.lastUsed">
 								Last used: {{ formatTimeAgo(apiKey.lastUsed) }}
 							</p>
@@ -72,7 +72,6 @@
 			</div>
 		</div>
 
-		<!-- Create API Key Modal -->
 		<Modal v-model="showCreateKeyModal" title="Create New API Key">
 			<div class="form-group">
 				<label for="key-label">Label</label>
@@ -98,7 +97,6 @@
 			</template>
 		</Modal>
 
-		<!-- Delete API Key Confirmation Modal -->
 		<Modal v-model="showDeleteKeyModal" title="Delete API Key">
 			<p class="confirmation-message">
 				Are you sure you want to delete the API key "{{
@@ -124,27 +122,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import type { User, ApiKey } from '@/types/music';
+import {onMounted, ref} from 'vue';
+import type {ApiKey} from '@/types/music';
 import Modal from '@/components/Modal.vue';
 import Toast from '@/components/Toast.vue';
-import { formatTimeAgo } from '@/utils/formatter';
-import { apiKeyService } from '@/services/apiKeyService';
+import {formatTimeAgo} from '@/utils/formatter';
+import {apiKeyService} from '@/services/apiKeyService';
 
-const user = ref<User>({
-	id: '1',
-	name: 'John Doe',
-	imageUrl: 'https://picsum.photos/32/32?random=1',
-	lastActive: new Date().toISOString(),
-	apiKeys: [],
-	stats: {
-		totalPlays: 0,
-		totalDuration: 0,
-		topArtists: [],
-		topAlbums: [],
-		topTracks: [],
-	},
-});
+const apiKeys = ref<ApiKey[]>([]);
 
 const showCreateKeyModal = ref(false);
 const showDeleteKeyModal = ref(false);
@@ -177,7 +162,7 @@ const createApiKey = async () => {
 
 	try {
 		const newKey = await apiKeyService.createApiKey(newKeyLabel.value);
-		user.value.apiKeys.push(newKey);
+		apiKeys.value.push(newKey);
 		showCreateKeyModal.value = false;
 		newKeyLabel.value = '';
 
@@ -202,13 +187,12 @@ const deleteApiKey = async () => {
 
 	try {
 		await apiKeyService.deleteApiKey(apiKeyToDelete.value.id);
-		user.value.apiKeys = user.value.apiKeys.filter(
+		apiKeys.value = apiKeys.value.filter(
 			(key) => key.id !== apiKeyToDelete.value?.id
 		);
 		showDeleteKeyModal.value = false;
 		apiKeyToDelete.value = null;
 
-		// Show success toast
 		toastMessage.value = 'API key deleted successfully ☠️';
 		toastType.value = 'success';
 		showToast.value = true;
@@ -222,28 +206,7 @@ const deleteApiKey = async () => {
 
 onMounted(async () => {
 	try {
-		// Fetch user profile and API keys
-		const [userProfile] = await Promise.all([
-			// TODO: Replace with actual user profile fetch
-			Promise.resolve({
-				id: '1',
-				name: 'John Doe',
-				imageUrl: 'https://picsum.photos/32/32?random=1',
-				lastActive: new Date().toISOString(),
-				stats: {
-					totalPlays: 0,
-					totalDuration: 0,
-					topArtists: [],
-					topAlbums: [],
-					topTracks: [],
-				},
-			}),
-		]);
-
-		user.value = {
-			...userProfile,
-			apiKeys: [],
-		};
+		apiKeys.value = await apiKeyService.listApiKeys();
 	} catch (error) {
 		console.error('Error fetching user data:', error);
 		toastMessage.value = 'Failed to load user data';
@@ -389,7 +352,6 @@ h3 {
 	background: #c0392b; /* Darker red on hover */
 }
 
-/* Modal styles */
 .modal-overlay {
 	position: fixed;
 	top: 0;
