@@ -7,7 +7,7 @@ use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
 use elder_scrobz_db::api_key::{generate_api_key, CreateApiKey};
-use elder_scrobz_db::user::User;
+use elder_scrobz_db::user::{ApiKey, User};
 use elder_scrobz_db::PgPool;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -20,8 +20,8 @@ pub struct ApiKeyCreated {
 #[debug_handler]
 #[utoipa::path(
     post,
-    summary = "Create ApiKey",
-    path = "/users/api-key/create",
+    summary = "Create api key",
+    path = "/users/api-keys",
     responses(
         (status = 200, description = "Create a new user ApiKey", body = ApiKeyCreated),
         (status = 404, description = "User not found", body = AppError)
@@ -49,6 +49,29 @@ pub async fn create_api_key(
     Ok(Json(ApiKeyCreated { api_key: key.key }))
 }
 
+#[debug_handler]
+#[utoipa::path(
+    post,
+    summary = "List api keys",
+    path = "/users/api-keys",
+    responses(
+        (status = 200, description = "Create a new user ApiKey", body = Vec<ApiKey>),
+        (status = 404, description = "User not found", body = AppError)
+    ),
+    tag = crate::api::API_KEYS_TAG
+)]
+#[autometrics]
+pub async fn get_api_keys(
+    user: AuthenticatedUser,
+    Extension(db): Extension<PgPool>,
+) -> Result<Json<Vec<ApiKey>>, AppError> {
+    let Some(user) = User::get_by_username(&db, &user.name).await? else {
+        return Err(AppError::UserNotFound { id: user.name });
+    };
+
+    Ok(Json(user.get_api_keys(&db).await ?))
+}
+
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct TokenValidation {
     pub valid: bool,
@@ -56,6 +79,7 @@ pub struct TokenValidation {
     pub user_name: Option<String>,
     pub message: String,
 }
+
 
 #[debug_handler]
 #[utoipa::path(

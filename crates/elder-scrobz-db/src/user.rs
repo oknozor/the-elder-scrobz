@@ -1,5 +1,6 @@
-use crate::PgPool;
 use crate::api_key::{key_sha, verify_api_key};
+use crate::PgPool;
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
 use utoipa::ToSchema;
@@ -73,6 +74,22 @@ impl User {
         Ok(user.filter(|user| user.verify(api_key)))
     }
 
+    pub async fn get_api_keys(&self, pool: &PgPool) -> Result<Vec<ApiKey>, Error>{
+        let api_keys = sqlx::query_as!(
+            ApiKey,
+            r#"
+            SELECT id, created_at, label
+            FROM api_keys
+            WHERE user_id = $1
+            "#,
+            self.username
+        )
+            .fetch_all(pool)
+            .await?;
+
+        Ok(api_keys)
+    }
+
     pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<Vec<Self>, Error> {
         let user = sqlx::query_as!(
             User,
@@ -85,6 +102,13 @@ impl User {
 
         Ok(user)
     }
+}
+
+#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
+pub struct ApiKey {
+    pub id: i64,
+    pub label: String,
+    pub created_at: NaiveDateTime,
 }
 
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize)]
