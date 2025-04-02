@@ -26,20 +26,20 @@
  		<div class="overview-cards">
  			<OverviewCard
  				title="Songs listened"
- 				:value="songsListened"
- 				:percentageChange="songsPercentageChange ?? undefined"
+ 				:value="statsStore.overview.track_listened"
+ 				:percentageChange="statsStore.overview.track_listened_percentage_increase ?? undefined"
  				:comparisonText="comparisonText"
  			/>
  			<OverviewCard
  				title="Time listened"
- 				:value="formatDuration(timeListened)"
- 				:percentageChange="timePercentageChange ?? undefined"
+ 				:value="formatDuration(statsStore.overview.time_listened)"
+ 				:percentageChange="statsStore.overview.time_listened_percentage_increase ?? 0 "
  				:comparisonText="comparisonText"
  			/>
  			<OverviewCard
  				title="Artists listened"
- 				:value="artistsListened"
- 				:percentageChange="artistsPercentageChange ?? undefined"
+ 				:value="statsStore.overview.artist_listened"
+ 				:percentageChange="statsStore.overview.artist_listened_percentage_increase ?? undefined"
  				:comparisonText="comparisonText"
  			/>
  		</div>
@@ -200,11 +200,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
-import { TimeRange, MusicStats, RecentTrack } from '@/types/music';
+import { TimeRange } from '@/types/music';
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
 import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
-import { formatDuration } from '@/utils/formatter';
+import {formatDuration} from '@/utils/formatter';
 import OverviewCard from '@/components/stats/OverviewCard.vue';
 import PulseMixedChart from '@/components/stats/PulseMixedChart.vue';
 import { useStatsStore } from '@/stores/statsStore';
@@ -232,16 +232,6 @@ const timeRanges = ref<TimeRanges>({
 
 const currentWidth = ref(window.innerWidth);
 
-const stats = ref<MusicStats>({
-	recentTracks: [] as RecentTrack[],
-	timeStats: {
-		today: { playCount: 0, duration: 0 },
-		week: { playCount: 0, duration: 0 },
-		month: { playCount: 0, duration: 0 },
-		year: { playCount: 0, duration: 0 },
-		all: { playCount: 0, duration: 0 },
-	},
-});
 const statsStore = useStatsStore();
 const usersStore = useUsersStore();
 
@@ -271,83 +261,9 @@ const getComparisonText = (currentRange: TimeRange): string => {
 	}
 };
 
-// Calculate percentage change between current and previous values
-const calculatePercentageChange = (
-	current: number,
-	previous: number
-): number => {
-	if (previous === 0) return 0;
-	return Math.round(((current - previous) / previous) * 100);
-};
-
-// For demonstration purposes, we'll simulate previous period data
-// In a real app, this would come from the API
-const getPreviousPeriodData = (currentRange: TimeRange) => {
-	// Simulate previous period data with a random decrease/increase
-	const currentPlayCount = stats.value.timeStats[currentRange].playCount;
-	const currentDuration = stats.value.timeStats[currentRange].duration;
-
-	// Generate a random factor between 0.7 and 1.3 for variation
-	const randomFactor = 0.7 + Math.random() * 0.6;
-
-	return {
-		playCount: Math.round(currentPlayCount * randomFactor),
-		duration: Math.round(currentDuration * randomFactor),
-		// For artists count, we'll use a different random factor
-		artistsCount: Math.round(
-			(statsStore.topArtistsForStatsView.length * randomFactor) / 2
-		),
-	};
-};
-
 // Computed properties for the overview cards
 const currentTimeRange = computed(() => sharedTimeRange.value);
 
-const songsListened = computed(() => {
-	// For this demo, we'll use data from the pulses array
-	return statsStore.pulses.reduce((acc, pulse) => acc + pulse.listens, 0);
-});
-
-const timeListened = computed(() => {
-	return Math.floor(Math.random() * 100) + 10;
-});
-
-const artistsListened = computed(() => {
-	// In a real app, this would be the count of unique artists in the current time range
-	// For this demo, we'll use a portion of the topArtists array length
-	return Math.round(statsStore.topArtistsForStatsView.length / 2);
-});
-
-const previousPeriodData = computed(() => {
-	return getPreviousPeriodData(currentTimeRange.value);
-});
-
-const songsPercentageChange = computed(() => {
-	return currentTimeRange.value === 'all'
-		? null
-		: calculatePercentageChange(
-				songsListened.value,
-				previousPeriodData.value.playCount
-		  );
-});
-
-const timePercentageChange = computed(() => {
-	return currentTimeRange.value === 'all'
-		? null
-		: calculatePercentageChange(
-				timeListened.value,
-				previousPeriodData.value.duration
-		  );
-});
-
-const artistsPercentageChange = computed(() => {
-	return currentTimeRange.value === 'all'
-		? null
-		: calculatePercentageChange(
-				artistsListened.value,
-				previousPeriodData.value.artistsCount
-		  );
-});
 
 const comparisonText = computed(() => {
 	return getComparisonText(currentTimeRange.value);
@@ -381,6 +297,7 @@ const fetchAllStats = async (
 	timeRanges: TimeRanges
 ) => {
 	await Promise.all([
+    statsStore.fetchOverview(username, timeRanges.albums),
 		statsStore.fetchTopArtistsForStatsView(username, timeRanges.artists),
 		statsStore.fetchTopTracksForStatsView(username, timeRanges.tracks),
 		statsStore.fetchTopAlbumsForStatsView(username, timeRanges.albums),
@@ -450,7 +367,6 @@ onMounted(async () => {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 100%;
 	border-radius: 8px;
 	padding: 20px;
 	height: 150px;

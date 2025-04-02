@@ -1,13 +1,14 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
 import {
-	PulseData,
-	Track,
-	RecentTrack,
-	MusicStats,
-	User,
 	Album,
 	Artist,
+	MusicStats,
+	Overview,
 	PaginatedResponse,
+	PulseData,
+	RecentTrack,
+	Track,
+	User,
 } from '@/types/music';
 import apiClient from '@/services/api';
 
@@ -23,11 +24,30 @@ export const useStatsStore = defineStore('stats', {
 		topArtists: {} as PaginatedResponse<Artist>,
 		topTracks: {} as PaginatedResponse<Track>,
 		allMusicStatistics: {} as MusicStats,
+		overview: {} as Overview,
 		error: null as string | null,
 		isLoading: false,
 	}),
 
 	actions: {
+		async fetchOverview(
+			username: string | null,
+			period: string = 'week',
+		) {
+			const usernameParam = username ? `&username=${username}&` : '';
+			try {
+				this.error = null;
+				this.overview = await apiClient
+					.get<Overview>(
+						`/charts/overview?${usernameParam}period=${period}`
+					)
+					.then((response) => response.data)
+			} catch (error) {
+				this.error = 'Failed to fetch overview';
+				console.error('Error fetching overview:', error);
+			}
+		},
+
 		/** Fetch all users */
 		async fetchUsers() {
 			try {

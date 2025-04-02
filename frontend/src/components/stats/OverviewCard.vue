@@ -11,7 +11,7 @@
 					decrease: percentageChange < 0,
 				}"
 			>
-				{{ percentageChange > 0 ? '+' : '' }}{{ percentageChange }}%
+				{{ percentageChange > 0 ? '+' : '' }}{{ percentageChange.toFixed(2) }}%
 				{{ comparisonText }}
 			</div>
 			<div v-else class="percentage-change-placeholder"></div>
