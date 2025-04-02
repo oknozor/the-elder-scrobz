@@ -78,7 +78,7 @@ export interface ApiKey {
 	id: string;
 	label: string;
 	key: string;
-	createdAt: string;
+	created_at: string;
 	lastUsed?: string;
 }
 

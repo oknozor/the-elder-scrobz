@@ -4,7 +4,12 @@ import apiClient from './api';
 export const apiKeyService = {
 	async createApiKey(label: string): Promise<ApiKey> {
 		console.log('Creating API key with label:', label);
-		const response = await apiClient.post(`/users/api-keys/create`);
+		const response = await apiClient.post(`/users/api-keys`);
+		return response.data;
+	},
+
+	async listApiKeys(): Promise<ApiKey[]> {
+		const response = await apiClient.get(`/users/api-keys`);
 		return response.data;
 	},
 

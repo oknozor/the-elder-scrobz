@@ -13,6 +13,7 @@ pub fn router() -> OpenApiRouter {
     OpenApiRouter::new()
         .routes(routes!(submit_listens))
         .routes(routes!(create_api_key))
+        .routes(routes!(get_api_keys))
         .routes(routes!(validate_token))
 }
 
