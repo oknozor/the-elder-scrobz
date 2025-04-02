@@ -51,7 +51,7 @@ pub async fn create_api_key(
 
 #[debug_handler]
 #[utoipa::path(
-    post,
+    get,
     summary = "List api keys",
     path = "/users/api-keys",
     responses(
