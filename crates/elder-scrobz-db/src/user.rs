@@ -90,6 +90,21 @@ impl User {
         Ok(api_keys)
     }
 
+    pub async fn delete_api_key(&self, pool: &PgPool, api_key_id: i32) -> Result<bool, Error> {
+        let result = sqlx::query!(
+            r#"
+            DELETE FROM api_keys
+            WHERE id = $1 AND user_id = $2
+            "#,
+            api_key_id,
+            self.username
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(result.rows_affected() > 0)
+    }
+
     pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<Vec<Self>, Error> {
         let user = sqlx::query_as!(
             User,

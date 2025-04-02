@@ -124,3 +124,41 @@ pub async fn validate_token(
         }),
     })
 }
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct DeleteApiKeyResponse {
+    pub success: bool,
+}
+
+#[debug_handler]
+#[utoipa::path(
+    delete,
+    summary = "Delete api key",
+    path = "/users/api-keys/{id}",
+    params(
+        ("id" = i32, Path, description = "API key ID to delete")
+    ),
+    responses(
+        (status = 200, description = "API key deleted successfully", body = DeleteApiKeyResponse),
+        (status = 404, description = "User not found or API key not found", body = AppError)
+    ),
+    tag = crate::api::API_KEYS_TAG
+)]
+#[autometrics]
+pub async fn delete_api_key(
+    user: AuthenticatedUser,
+    Extension(db): Extension<PgPool>,
+    axum::extract::Path(id): axum::extract::Path<i32>,
+) -> AppResult<Json<DeleteApiKeyResponse>> {
+    let Some(user) = User::get_by_username(&db, &user.name).await? else {
+        return Err(AppError::UserNotFound { id: user.name });
+    };
+
+    let success = user.delete_api_key(&db, id).await?;
+
+    if !success {
+        return Err(AppError::Internal(format!("API key with id {} not found", id)));
+    }
+
+    Ok(Json(DeleteApiKeyResponse { success }))
+}
