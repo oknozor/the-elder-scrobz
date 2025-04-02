@@ -24,28 +24,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import PageHeader from '@/components/PageHeader.vue';
 import UsernameSelector from '@/components/UsernameSelector.vue';
 import { AppUser, useUsersStore } from './stores/usersStore';
+import { useAuthStore } from './stores/authStore';
 
 const route = useRoute();
 const usersStore = useUsersStore();
+const authStore = useAuthStore();
 
-// Determine if back button should be shown based on the current route
 const showBackButton = computed(() => {
 	return route.name !== 'stats';
 });
 
-// Determine if user selector should be shown based on the current route
 const showUserSelector = computed(() => {
 	return ['stats', 'artist', 'album'].includes(route.name as string);
 });
 
-const users = ref<AppUser[]>([]);
+const users = computed(() => usersStore.users);
+const currentUser = computed(() => usersStore.selectedUser);
 const selectedUser = ref<AppUser | null>(null);
-const currentUser = ref<AppUser | null>(null);
+
+watch(() => usersStore.selectedUser, (newUser) => {
+	selectedUser.value = newUser;
+}, { immediate: true });
+
+watch(() => authStore.isAuthenticated, async (isAuthenticated) => {
+	if (isAuthenticated) {
+		try {
+      await usersStore.fetchUsers();
+    } catch (error) {
+			console.error('Error fetching users:', error);
+		}
+	}
+}, { immediate: true });
 
 const handleLogout = () => {
 	// Implement logout logic here
@@ -57,16 +71,6 @@ const handleUserChange = (user: AppUser | null) => {
 	selectedUser.value = user;
 	usersStore.updateSelectedUser(user);
 };
-
-onMounted(async () => {
-	try {
-		await usersStore.fetchUsers();
-		users.value = usersStore.users;
-		currentUser.value = usersStore.selectedUser;
-	} catch (error) {
-		console.error('Error fetching users:', error);
-	}
-});
 </script>
 
 <style>
