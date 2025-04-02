@@ -17,6 +17,8 @@ import {
 	Title,
 	Tooltip,
 	Legend,
+	BarController,
+	LineController,
 } from 'chart.js';
 import { formatDates } from '@/utils/formatter';
 
@@ -28,7 +30,9 @@ ChartJS.register(
 	LineElement,
 	Title,
 	Tooltip,
-	Legend
+	Legend,
+	BarController,
+	LineController
 );
 
 interface Props {
