@@ -27,7 +27,7 @@
  			<OverviewCard
  				title="Songs listened"
  				:value="statsStore.overview.track_listened"
- 				:percentageChange="statsStore.overview.track_listened_percentage_increase ?? undefined"
+ 				:percentageChange="statsStore.overview.track_listened_percentage_increase ?? 0"
  				:comparisonText="comparisonText"
  			/>
  			<OverviewCard
@@ -39,7 +39,7 @@
  			<OverviewCard
  				title="Artists listened"
  				:value="statsStore.overview.artist_listened"
- 				:percentageChange="statsStore.overview.artist_listened_percentage_increase ?? undefined"
+ 				:percentageChange="statsStore.overview.artist_listened_percentage_increase ?? 0"
  				:comparisonText="comparisonText"
  			/>
  		</div>
@@ -145,7 +145,6 @@
 					</svg>
 				</template>
 				Album Chart
-				<!-- Time range selector moved to top of page -->
 			</SectionHeader>
 			<Suspense>
 				<template #default>
@@ -211,24 +210,7 @@ import { useStatsStore } from '@/stores/statsStore';
 import { AppUser, useUsersStore } from '@/stores/usersStore';
 import RecentTracks from '@/components/stats/RecentTracks.vue';
 
-interface TimeRanges {
-	artists: TimeRange;
-	tracks: TimeRange;
-	albums: TimeRange;
-	recent: TimeRange;
-	pulses: TimeRange;
-}
-
 const sharedTimeRange = ref<TimeRange>('week');
-
-// Keep this for backward compatibility but use sharedTimeRange for all
-const timeRanges = ref<TimeRanges>({
-	artists: 'week',
-	tracks: 'week',
-	albums: 'week',
-	recent: 'week',
-	pulses: 'week',
-});
 
 const currentWidth = ref(window.innerWidth);
 
@@ -245,7 +227,6 @@ const handleLoadMore = async (page: number) => {
 	);
 };
 
-// Get comparison text based on the current time range
 const getComparisonText = (currentRange: TimeRange): string => {
 	switch (currentRange) {
 		case 'today':
@@ -261,47 +242,32 @@ const getComparisonText = (currentRange: TimeRange): string => {
 	}
 };
 
-// Computed properties for the overview cards
 const currentTimeRange = computed(() => sharedTimeRange.value);
-
 
 const comparisonText = computed(() => {
 	return getComparisonText(currentTimeRange.value);
 });
 
-// Function to update all charts when the time range changes
 const updateAllCharts = () => {
-	// Update all properties in the timeRanges object to match the shared time range
-	timeRanges.value = {
-		artists: sharedTimeRange.value,
-		tracks: sharedTimeRange.value,
-		albums: sharedTimeRange.value,
-		recent: sharedTimeRange.value,
-		pulses: sharedTimeRange.value,
-	};
-
-	// Fetch all stats with the new time range
-	fetchAllStats(selectedUser.value?.username || null, timeRanges.value);
+	fetchAllStats(selectedUser.value?.username || null);
 };
 
-// Watch for changes in the selected user
 watch(
 	() => usersStore.selectedUser,
 	(newValue) => {
-		fetchAllStats(newValue?.username || null, timeRanges.value);
+		fetchAllStats(newValue?.username || null);
 	}
 );
 
 const fetchAllStats = async (
 	username: string | null,
-	timeRanges: TimeRanges
 ) => {
 	await Promise.all([
-    statsStore.fetchOverview(username, timeRanges.albums),
-		statsStore.fetchTopArtistsForStatsView(username, timeRanges.artists),
-		statsStore.fetchTopTracksForStatsView(username, timeRanges.tracks),
-		statsStore.fetchTopAlbumsForStatsView(username, timeRanges.albums),
-		statsStore.fetchPulses(username, timeRanges.pulses),
+    statsStore.fetchOverview(username, sharedTimeRange.value),
+		statsStore.fetchTopArtistsForStatsView(username, sharedTimeRange.value),
+		statsStore.fetchTopTracksForStatsView(username, sharedTimeRange.value),
+		statsStore.fetchTopAlbumsForStatsView(username, sharedTimeRange.value),
+		statsStore.fetchPulses(username, sharedTimeRange.value),
 		statsStore.fetchRecentTracks(username, 1, 20),
 	]);
 };
@@ -313,19 +279,7 @@ watch(sharedTimeRange, () => {
 
 onMounted(async () => {
 	try {
-		// Initialize timeRanges with sharedTimeRange
-		timeRanges.value = {
-			artists: sharedTimeRange.value,
-			tracks: sharedTimeRange.value,
-			albums: sharedTimeRange.value,
-			recent: sharedTimeRange.value,
-			pulses: sharedTimeRange.value,
-		};
-
-		await fetchAllStats(
-			selectedUser.value?.username || null,
-			timeRanges.value
-		);
+		await fetchAllStats(selectedUser.value?.username || null);
 	} catch (error) {
 		console.error('Error fetching data:', error);
 	}

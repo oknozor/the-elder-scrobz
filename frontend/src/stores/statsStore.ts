@@ -6,7 +6,7 @@ import {
 	Overview,
 	PaginatedResponse,
 	PulseData,
-	RecentTrack,
+	RecentTrack, TimeRange,
 	Track,
 	User,
 } from '@/types/music';
@@ -32,7 +32,7 @@ export const useStatsStore = defineStore('stats', {
 	actions: {
 		async fetchOverview(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 		) {
 			const usernameParam = username ? `&username=${username}&` : '';
 			try {
@@ -65,7 +65,7 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchTopAlbumsForStatsView(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 			page = 1,
 			pageSize = 15
 		): Promise<void> {
@@ -81,7 +81,7 @@ export const useStatsStore = defineStore('stats', {
 		},
 		async fetchTopArtistsForStatsView(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 			page = 1,
 			pageSize = 15
 		): Promise<void> {
@@ -97,7 +97,7 @@ export const useStatsStore = defineStore('stats', {
 		},
 		async fetchTopTracksForStatsView(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 			page = 1,
 			pageSize = 15
 		): Promise<void> {
@@ -114,7 +114,7 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchTopAlbumsForAlbumsView(
 			username: string | null,
-			period: string,
+			period: TimeRange,
 			page: number,
 			pageSize: number
 		): Promise<void> {
@@ -133,7 +133,7 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchTopArtistsForArtistsView(
 			username: string | null,
-			period: string,
+			period: TimeRange,
 			page: number,
 			pageSize: number
 		): Promise<void> {
@@ -152,7 +152,7 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchTopTracksForTracksView(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 			page: number,
 			pageSize: number
 		): Promise<void> {
@@ -171,7 +171,7 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchTopAlbums(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 			page: number,
 			pageSize: number
 		): Promise<PaginatedResponse<Album> | undefined> {
@@ -192,7 +192,7 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchTopArtists(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 			page = 1,
 			pageSize = 15
 		): Promise<PaginatedResponse<Artist> | undefined> {
@@ -213,7 +213,7 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchTopTracks(
 			username: string | null,
-			period: string = 'week',
+			period: TimeRange,
 			page = 1,
 			pageSize = 15
 		): Promise<PaginatedResponse<Track> | undefined> {
@@ -232,7 +232,7 @@ export const useStatsStore = defineStore('stats', {
 			}
 		},
 
-		async fetchPulses(username: string | null, period: string = 'week') {
+		async fetchPulses(username: string | null, period: TimeRange) {
 			const usernameParam = username ? `&username=${username}&` : '';
 			try {
 				this.error = null;
