@@ -4,49 +4,91 @@ use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct Stats {
-    raw_scrobble_count: i64,
-    scrobble_count: i64,
-    unparsable_scrobble_count: i64,
-    release_count: i64,
-    track_count: i64,
-    missing_coverarts_count: i64,
+    total_raw_scrobble_count: i64,
+    total_scrobble_count: i64,
+    total_track_count: i64,
+    total_releases_count: i64,
+    total_artists_count: i64,
+    unparsable_scrobbles: MissingDataStats,
+    release_without_coverart: MissingDataStats,
+    artist_without_thumbnail: MissingDataStats,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct MissingDataStats {
+    count: usize,
+    ids: Vec<String>,
 }
 
 impl Stats {
     pub async fn get(pool: &PgPool) -> Result<Stats, sqlx::Error> {
-        let raw_scrobble_count = query_scalar!(r#"SELECT count(*) FROM scrobbles_raw"#)
+        let total_raw_scrobble_count = query_scalar!(r#"SELECT count(*) FROM scrobbles_raw"#)
             .fetch_one(pool)
             .await?
             .unwrap();
 
-        let scrobble_count = query_scalar!(r#"SELECT count(*) FROM scrobbles"#)
+        let total_scrobble_count = query_scalar!(r#"SELECT count(*) FROM scrobbles"#)
             .fetch_one(pool)
             .await?
             .unwrap();
 
-        let release_count = query_scalar!(r#"SELECT count(*) FROM releases"#)
+        let total_releases_count = query_scalar!(r#"SELECT count(*) FROM releases"#)
             .fetch_one(pool)
             .await?
             .unwrap();
 
-        let missing_coverarts_count =
-            query_scalar!(r#"SELECT count(*) FROM releases WHERE cover_art_url IS NULL"#)
-                .fetch_one(pool)
-                .await?
-                .unwrap();
+        let total_artists_count = query_scalar!(r#"SELECT count(*) FROM artists"#)
+            .fetch_one(pool)
+            .await?
+            .unwrap();
 
-        let track_count = query_scalar!(r#"SELECT count(*) FROM tracks"#)
+        let unparsable_scrobbles = query_scalar!(
+            r#"SELECT r.id FROM scrobbles_raw r
+LEFT JOIN scrobbles s ON s.source_id = r.id
+WHERE s.source_id IS NULL;"#
+        )
+        .fetch_all(pool)
+        .await?;
+
+        let unparsable_scrobbles = MissingDataStats {
+            count: unparsable_scrobbles.len(),
+            ids: unparsable_scrobbles,
+        };
+
+        let missing_coverarts =
+            query_scalar!(r#"SELECT mbid FROM releases WHERE cover_art_url IS NULL"#)
+                .fetch_all(pool)
+                .await?;
+
+        let release_without_coverart = MissingDataStats {
+            count: missing_coverarts.len(),
+            ids: missing_coverarts,
+        };
+
+        let missing_thumbnail =
+            query_scalar!(r#"SELECT mbid FROM artists WHERE thumbnail_url IS NULL"#)
+                .fetch_all(pool)
+                .await?;
+
+        let artist_without_thumbnail = MissingDataStats {
+            count: missing_thumbnail.len(),
+            ids: missing_thumbnail,
+        };
+
+        let total_track_count = query_scalar!(r#"SELECT count(*) FROM tracks"#)
             .fetch_one(pool)
             .await?
             .unwrap();
 
         Ok(Stats {
-            raw_scrobble_count,
-            scrobble_count,
-            unparsable_scrobble_count: raw_scrobble_count - scrobble_count,
-            release_count,
-            track_count,
-            missing_coverarts_count,
+            total_raw_scrobble_count,
+            total_scrobble_count,
+            total_track_count,
+            total_releases_count,
+            total_artists_count,
+            unparsable_scrobbles,
+            release_without_coverart,
+            artist_without_thumbnail,
         })
     }
 }

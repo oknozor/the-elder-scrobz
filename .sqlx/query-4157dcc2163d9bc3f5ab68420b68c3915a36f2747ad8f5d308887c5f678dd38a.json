@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT r.id FROM scrobbles_raw r\nLEFT JOIN scrobbles s ON s.source_id = r.id\nWHERE s.source_id IS NULL;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "4157dcc2163d9bc3f5ab68420b68c3915a36f2747ad8f5d308887c5f678dd38a"
+}
