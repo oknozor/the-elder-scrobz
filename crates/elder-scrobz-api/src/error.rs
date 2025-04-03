@@ -23,6 +23,10 @@ pub enum AppError {
     UserNotFound { id: String },
     #[schema(example = "Scrobble not found")]
     ScrobbleNotFound { id: String },
+    #[schema(example = "Track not found")]
+    TrackNotFound { id: String },
+    #[schema(example = "Album not found")]
+    AlbumNotFound { id: String },
     #[schema(example = "Operation not allowed")]
     Unauthorized(String),
 }
@@ -52,6 +56,18 @@ impl IntoResponse for AppError {
                 StatusCode::NOT_FOUND,
                 Json(json!({
                     "message": format!("Scrobble with id {id} not found")
+                })),
+            ),
+            AppError::TrackNotFound { id } => (
+                StatusCode::NOT_FOUND,
+                Json(json!({
+                    "message": format!("Track with id {id} not found")
+                })),
+            ),
+            AppError::AlbumNotFound { id } => (
+                StatusCode::NOT_FOUND,
+                Json(json!({
+                    "message": format!("Album  with id {id} not found")
                 })),
             ),
         }

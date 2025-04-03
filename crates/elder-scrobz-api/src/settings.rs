@@ -35,14 +35,4 @@ impl Settings {
 
         config.build()?.try_deserialize()
     }
-
-    pub fn coverart_url(&self, mbid: &str) -> Option<String> {
-        let image = format!("{mbid}.jpg");
-        let coverart_path = self.coverart_path.join(image);
-        if !coverart_path.exists() {
-            return None;
-        };
-
-        Some(format!("/coverarts/{mbid}.jpg"))
-    }
 }

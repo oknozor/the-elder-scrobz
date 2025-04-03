@@ -1,6 +1,6 @@
 use crate::MetadataClient;
 use elder_scrobz_db::PgPool;
-use elder_scrobz_db::listens::Artist;
+use elder_scrobz_db::listens::artists::Artist;
 use tracing::{info, warn};
 
 pub async fn process_artist(
