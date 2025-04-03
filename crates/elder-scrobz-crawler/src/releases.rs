@@ -2,6 +2,7 @@ use crate::metadata::MetadataClient;
 use elder_scrobz_db::PgPool;
 use elder_scrobz_db::listens::Release;
 use tracing::{info, warn};
+use crate::artists::process_artist;
 
 pub async fn try_update_all_releases(
     metadata_client: &MetadataClient,
@@ -40,6 +41,11 @@ pub async fn process_release(
     db: &PgPool,
 ) -> anyhow::Result<()> {
     let metadata = metadata_client.get_release_metadata(release_mbid).await?;
+
+    for artist in &metadata.artists_credited {
+        process_artist(&artist.mbid, metadata_client, db).await?;
+    }
+
     Release {
         mbid: release_mbid.to_string(),
         name: metadata.name,

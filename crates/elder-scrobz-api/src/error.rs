@@ -21,7 +21,7 @@ pub enum AppError {
     Internal(String),
     #[schema(example = "User not found")]
     UserNotFound { id: String },
-    #[schema(example = "User not found")]
+    #[schema(example = "Scrobble not found")]
     ScrobbleNotFound { id: String },
     #[schema(example = "Operation not allowed")]
     Unauthorized(String),

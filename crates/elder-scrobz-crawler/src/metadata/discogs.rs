@@ -1,12 +1,14 @@
 use crate::metadata::MetadataClient;
 use serde::Deserialize;
 
+const USER_AGENT: &str = "TheElderScrobz/1.0";
+
 impl MetadataClient {
     pub async fn get_discogs_artist(&self, id: &str) -> Result<DiscogsArtist, reqwest::Error> {
         let artist = self
             .client
             .get(format!("https://api.discogs.com/artists/{}", id))
-            .header("User-Agent", "MyDiscogsClient/1.0")
+            .header("User-Agent", USER_AGENT)
             .header(
                 "Authorization",
                 &format!("Discogs token={}", self.discogs_token),
@@ -23,7 +25,7 @@ impl MetadataClient {
         let artist = self
             .client
             .get(format!("https://api.discogs.com/releases/{}", id))
-            .header("User-Agent", "MyDiscogsClient/1.0")
+            .header("User-Agent", USER_AGENT)
             .header(
                 "Authorization",
                 &format!("Discogs token={}", self.discogs_token),
