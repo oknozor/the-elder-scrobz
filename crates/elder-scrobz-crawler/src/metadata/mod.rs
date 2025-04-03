@@ -1,4 +1,3 @@
-use anyhow::anyhow;
 use musicbrainz_rs::client::MusicBrainzClient;
 use musicbrainz_rs::entity::CoverartResponse;
 use musicbrainz_rs::entity::artist::Artist;
@@ -6,7 +5,6 @@ use musicbrainz_rs::entity::relations::{Relation, RelationContent};
 use musicbrainz_rs::entity::release::Release;
 use musicbrainz_rs::{Fetch, FetchCoverart};
 use once_cell::sync::Lazy;
-use tracing::warn;
 
 mod discogs;
 mod wiki;
@@ -139,42 +137,21 @@ impl MetadataClient {
             })
             .collect();
 
-        let cover_art_url = release
+        let coverart_url: Option<String> = release
             .get_coverart()
             .front()
             .res_250()
             .execute_with_client(&MB_CLIENT)
-            .await;
-
-        let cover_art_url = match cover_art_url {
-            Err(e) => {
-                warn!(
-                    "Failed to get coverart for release {release_mbid}: {e}. Falling back to release group",
-                );
-
-                match release.release_group {
-                    None => Err(anyhow!("No release group, skipping release coverart")),
-                    Some(group) => Ok(group
-                        .get_coverart()
-                        .front()
-                        .res_250()
-                        .execute_with_client(&MB_CLIENT)
-                        .await?),
-                }
-            }
-            Ok(cover_art_url) => Ok(cover_art_url),
-        };
-
-        let cover_art_url = cover_art_url
+            .await
             .ok()
-            .and_then(|coverart| match coverart {
-                CoverartResponse::Json(coverart) => coverart
-                    .images
-                    .into_iter()
-                    .find_map(|ca| ca.thumbnails.res_250),
-                CoverartResponse::Url(url) => Some(url),
-            })
-            .filter(|coverart| coverart.ends_with(".jpg") || coverart.ends_with(".jpeg"));
+            .and_then(is_valid_coverart);
+
+        let coverart_url = match coverart_url {
+            Some(coverart_url) => Some(coverart_url),
+            None => get_release_group_coverart(&release)
+                .await
+                .and_then(is_valid_coverart),
+        };
 
         let relations = release.relations.unwrap_or_default();
         let wikidata_id: Option<String> = extract_relation_id(&relations, "wikidata");
@@ -185,7 +162,7 @@ impl MetadataClient {
             name: release.title,
             artist_mbid: artists_credited.first().map(|a| a.mbid.clone()),
             description: None,
-            cover_art_url,
+            cover_art_url: coverart_url,
             artists_credited,
         };
 
@@ -222,6 +199,30 @@ impl MetadataClient {
     }
 }
 
+fn is_valid_coverart(coverart_url: CoverartResponse) -> Option<String> {
+    match coverart_url {
+        CoverartResponse::Json(coverart) => coverart
+            .images
+            .into_iter()
+            .find_map(|ca| ca.thumbnails.res_250),
+        CoverartResponse::Url(url) => Some(url),
+    }
+    .filter(|coverart| coverart.ends_with(".jpg") || coverart.ends_with(".jpeg"))
+}
+
+async fn get_release_group_coverart(release: &Release) -> Option<CoverartResponse> {
+    match &release.release_group {
+        None => None,
+        Some(group) => group
+            .get_coverart()
+            .front()
+            .res_250()
+            .execute_with_client(&MB_CLIENT)
+            .await
+            .ok(),
+    }
+}
+
 fn extract_relation_id(rels: &[Relation], relation_type: &str) -> Option<String> {
     rels.iter()
         .find(|rel| rel.relation_type == relation_type)
@@ -229,38 +230,4 @@ fn extract_relation_id(rels: &[Relation], relation_type: &str) -> Option<String>
             RelationContent::Url(url) => url.resource.rsplit_once("/").map(|(_, id)| id.into()),
             _ => None,
         })
-}
-
-#[cfg(test)]
-mod test {
-    use crate::metadata::MetadataClient;
-    use musicbrainz_rs::entity::release::Release;
-    use musicbrainz_rs::{Fetch, FetchCoverart};
-
-    #[tokio::test]
-    async fn test_get_item() {
-        let client = MetadataClient::default();
-        let metadata = client
-            .get_artist_metadata("381086ea-f511-4aba-bdf9-71c753dc5077")
-            .await
-            .unwrap();
-        println!("{:?}", metadata);
-    }
-
-    #[tokio::test]
-    async fn release() {
-        let metadata = Release::fetch()
-            .id("7639890c-70ad-49c3-8b2f-46da97724e2c")
-            .execute()
-            .await
-            .unwrap();
-        let ca = metadata
-            .get_coverart()
-            .front()
-            .res_250()
-            .execute()
-            .await
-            .unwrap();
-        println!("{:?}", ca);
-    }
 }
