@@ -35,6 +35,23 @@ pub struct User {
     pub email: String,
 }
 
+impl From<UserWithTotal> for User {
+    fn from(value: UserWithTotal) -> Self {
+        User {
+            username: value.username,
+            email: value.email,
+        }
+    }
+}
+
+#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
+pub struct UserWithTotal {
+    pub username: String,
+    pub email: String,
+    #[serde(skip)]
+    pub total: Option<i64>,
+}
+
 impl User {
     pub async fn get_by_username(pool: &PgPool, username: &str) -> Result<Option<Self>, Error> {
         let user = sqlx::query_as!(
@@ -105,17 +122,19 @@ impl User {
         Ok(result.rows_affected() > 0)
     }
 
-    pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<Vec<Self>, Error> {
-        let user = sqlx::query_as!(
-            User,
-            r#" SELECT username, email FROM users ORDER BY username LIMIT $1 OFFSET $2"#,
+    pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<(i64, Vec<User>), Error> {
+        let users = sqlx::query_as!(
+            UserWithTotal,
+            r#" SELECT username, email, COUNT(*) OVER () as total FROM users ORDER BY username LIMIT $1 OFFSET $2"#,
             limit,
             offset,
         )
         .fetch_all(pool)
         .await?;
 
-        Ok(user)
+        let total = users.first().and_then(|u| u.total).unwrap_or_default();
+        let users = users.into_iter().map(|u| u.into()).collect();
+        Ok((total, users))
     }
 }
 

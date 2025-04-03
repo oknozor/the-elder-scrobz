@@ -10,42 +10,40 @@ pub struct RecentListen {
     pub track_id: Option<String>,
     #[serde(rename = "user")]
     pub username: Option<String>,
-    #[serde(rename = "cover_art_url")]
     pub cover_art_url: Option<String>,
-    #[serde(rename = "listened_at")]
     pub listened_at: Option<DateTime<Utc>>,
-    #[serde(rename = "artist_name")]
     pub artist_name: Option<String>,
-    #[serde(rename = "track_name")]
     pub track_name: Option<String>,
-    #[serde(rename = "duration")]
     pub duration: Option<i32>,
+    #[serde(skip)]
+    pub total: Option<i64>,
 }
 
 pub async fn get_recent_listens(
     limit: i64,
     offset: i64,
     pool: &PgPool,
-) -> Result<Vec<RecentListen>, Error> {
-    sqlx::query_as!(
+) -> Result<(i64, Vec<RecentListen>), Error> {
+    let listens = sqlx::query_as!(
         RecentListen,
         r#"
-        SELECT 
+        SELECT
             t.mbid as track_id,
             u.username as username,
             r.cover_art_url as cover_art_url,
             sr.listened_at as listened_at,
             COALESCE(t.artist_display_name, a.name) as artist_name,
             t.name as track_name,
-            t.length as duration
-        FROM 
+            t.length as duration,
+            count(*) over () as total
+        FROM
             scrobbles s
             JOIN scrobbles_raw sr ON s.source_id = sr.id
             JOIN users u ON s.user_id = u.username
             JOIN tracks t ON s.track_id = t.mbid
             JOIN releases r ON t.release_mbid = r.mbid
             JOIN artists a ON t.artist_mbid = a.mbid
-        ORDER BY 
+        ORDER BY
             sr.listened_at DESC
         LIMIT $1
         OFFSET $2
@@ -54,5 +52,8 @@ pub async fn get_recent_listens(
         offset
     )
     .fetch_all(pool)
-    .await
+    .await?;
+
+    let total = listens.first().and_then(|r| r.total).unwrap_or_default();
+    Ok((total, listens))
 }
