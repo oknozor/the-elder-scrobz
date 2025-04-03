@@ -1,13 +1,12 @@
 use crate::Period;
 use serde::Serialize;
 use sqlx::PgPool;
-use sqlx::types::chrono::{DateTime, Utc};
 use utoipa::ToSchema;
 
 #[derive(Debug, sqlx::FromRow, Serialize, ToSchema)]
 pub struct Pulse {
     pub listens: Option<i64>,
-    pub period: Option<DateTime<Utc>>,
+    pub period: Option<String>,
 }
 
 impl Pulse {
