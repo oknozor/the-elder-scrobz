@@ -1,4 +1,4 @@
-SELECT DATE_TRUNC('week', listened_at) AS period,
+SELECT DATE_TRUNC('week', listened_at)::text AS period,
        COUNT(*)                        AS listens
 FROM scrobbles
          JOIN scrobbles_raw ON scrobbles.source_id = scrobbles_raw.id
