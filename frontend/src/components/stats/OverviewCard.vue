@@ -4,7 +4,7 @@
 		<div class="card-value">{{ value }}</div>
 		<div class="percentage-change-container">
 			<div
-				v-if="percentageChange !== null"
+				v-if="percentageChange !== null && percentageChange !== 0"
 				class="percentage-change"
 				:class="{
 					increase: percentageChange > 0,
@@ -67,7 +67,7 @@ defineProps({
 }
 
 .percentage-change-container {
-	height: 20px; /* Fixed height to ensure consistency */
+	height: 20px;
 }
 
 .percentage-change {
@@ -76,15 +76,15 @@ defineProps({
 }
 
 .percentage-change-placeholder {
-	height: 20px; /* Same height as percentage-change */
+	height: 20px;
 }
 
 .increase {
-	color: #4caf50; /* Green for increase */
+	color: #4caf50;
 }
 
 .decrease {
-	color: #f44336; /* Red for decrease */
+	color: #f44336;
 }
 
 @media screen and (max-width: 500px) {
