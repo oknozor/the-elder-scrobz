@@ -1,4 +1,5 @@
 use crate::api::pagination::{PageQuery, ToOffset};
+use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::Query;
@@ -20,7 +21,7 @@ pub fn router() -> OpenApiRouter {
     summary = "Recent listens",
     params(PageQuery),
     responses(
-        (status = 200, description = "Recent tracks listened", body = Vec<RecentListen>, content_type = "application/json"),
+        (status = 200, description = "Recent tracks listened", body = PaginatedResponse<RecentListen>, content_type = "application/json"),
         (status = 500, description = "Internal server error", body = AppError)
     ),
     tag = crate::api::SCROBBLES_TAG
@@ -29,9 +30,15 @@ pub fn router() -> OpenApiRouter {
 pub async fn recent_listens(
     Extension(db): Extension<PgPool>,
     Query(query): Query<PageQuery>,
-) -> AppResult<Json<Vec<RecentListen>>> {
-    let offset = query.to_offset();
-    let limit = query.per_page();
+) -> AppResult<Json<PaginatedResponse<RecentListen>>> {
+    let (total, listens) = get_recent_listens(query.per_page(), query.to_offset(), &db).await?;
 
-    Ok(Json(get_recent_listens(limit, offset, &db).await?))
+    let response = PaginatedResponse {
+        data: listens,
+        page: query.page(),
+        page_size: query.per_page(),
+        total,
+    };
+
+    Ok(Json(response))
 }

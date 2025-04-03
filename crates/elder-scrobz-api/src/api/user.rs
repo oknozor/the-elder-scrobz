@@ -1,4 +1,5 @@
 use crate::api::pagination::{PageQuery, ToOffset};
+use crate::api::PaginatedResponse;
 use crate::error::AppResult;
 use autometrics::autometrics;
 use axum::extract::Query;
@@ -38,8 +39,9 @@ pub async fn create_user(
     get,
     path = "/",
     summary = "Get user",
+    params(PageQuery),
     responses(
-        (status = 200, description = "All users", body = Vec<User>, content_type = "application/json"),
+        (status = 200, description = "All users", body = PaginatedResponse<User>, content_type = "application/json"),
     ),
     tag = crate::api::USERS_TAG
 )]
@@ -47,8 +49,14 @@ pub async fn create_user(
 pub async fn get_users(
     Extension(db): Extension<PgPool>,
     Query(query): Query<PageQuery>,
-) -> AppResult<Json<Vec<User>>> {
-    Ok(Json(
-        DbUser::all(&db, query.per_page(), query.to_offset()).await?,
-    ))
+) -> AppResult<Json<PaginatedResponse<User>>> {
+    let (total, users) = DbUser::all(&db, query.per_page(), query.to_offset()).await?;
+    let response = PaginatedResponse {
+        data: users,
+        page: query.page(),
+        page_size: query.per_page(),
+        total,
+    };
+
+    Ok(Json(response))
 }
