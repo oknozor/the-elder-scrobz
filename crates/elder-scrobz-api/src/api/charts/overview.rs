@@ -5,7 +5,7 @@ use autometrics::autometrics;
 use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
-use elder_scrobz_db::charts::album::{TopAlbum};
+use elder_scrobz_db::charts::album::TopAlbum;
 use elder_scrobz_db::charts::overview::{get_overview, Overview};
 use elder_scrobz_db::PgPool;
 

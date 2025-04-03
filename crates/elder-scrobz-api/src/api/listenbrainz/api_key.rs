@@ -40,7 +40,7 @@ pub struct CreateApiKeyRequest {
 pub async fn create_api_key(
     user: AuthenticatedUser,
     Extension(db): Extension<PgPool>,
-    Json(payload): Json<CreateApiKeyRequest>
+    Json(payload): Json<CreateApiKeyRequest>,
 ) -> AppResult<Json<ApiKeyCreated>> {
     let Some(user) = User::get_by_username(&db, &user.name).await? else {
         return Err(AppError::UserNotFound { id: user.name });
@@ -82,7 +82,7 @@ pub async fn get_api_keys(
         return Err(AppError::UserNotFound { id: user.name });
     };
 
-    Ok(Json(user.get_api_keys(&db).await ?))
+    Ok(Json(user.get_api_keys(&db).await?))
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -92,7 +92,6 @@ pub struct TokenValidation {
     pub user_name: Option<String>,
     pub message: String,
 }
-
 
 #[debug_handler]
 #[utoipa::path(
@@ -166,7 +165,10 @@ pub async fn delete_api_key(
     let success = user.delete_api_key(&db, id).await?;
 
     if !success {
-        return Err(AppError::Internal(format!("API key with id {} not found", id)));
+        return Err(AppError::Internal(format!(
+            "API key with id {} not found",
+            id
+        )));
     }
 
     Ok(Json(DeleteApiKeyResponse { success }))
