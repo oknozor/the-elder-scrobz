@@ -12,7 +12,7 @@ pub struct CreateApiKey {
     pub sha: String,
     pub api_key_hash: String,
     pub username: String,
-    pub label: String
+    pub label: String,
 }
 
 impl CreateApiKey {

@@ -17,10 +17,7 @@ pub struct Overview {
     pub time_listened_percentage_increase: Option<f64>,
 }
 
-pub async fn get_overview(
-    period: Period,
-    pool: &PgPool,
-) -> Result<Overview, sqlx::Error> {
+pub async fn get_overview(period: Period, pool: &PgPool) -> Result<Overview, sqlx::Error> {
     let result = match period {
         Period::Week => {
             sqlx::query_file_as!(Overview, "queries/charts/overview/week.sql")

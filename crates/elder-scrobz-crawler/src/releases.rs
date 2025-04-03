@@ -1,8 +1,8 @@
+use crate::artists::process_artist;
 use crate::metadata::MetadataClient;
 use elder_scrobz_db::PgPool;
 use elder_scrobz_db::listens::Release;
 use tracing::{info, warn};
-use crate::artists::process_artist;
 
 pub async fn try_update_all_releases(
     metadata_client: &MetadataClient,
