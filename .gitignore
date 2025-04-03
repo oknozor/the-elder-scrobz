@@ -5,3 +5,4 @@ coverarts/
 **/node_modules
 website/.vitepress/cache
 website/.vitepress/dist
+frontend/src-tauri/gen
