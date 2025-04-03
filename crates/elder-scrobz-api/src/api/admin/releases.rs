@@ -3,7 +3,7 @@ use autometrics::autometrics;
 use axum::extract::Path;
 use axum::Extension;
 use axum_macros::debug_handler;
-use elder_scrobz_db::listens::Release;
+use elder_scrobz_db::listens::releases::Release;
 use elder_scrobz_db::PgPool;
 
 #[debug_handler]

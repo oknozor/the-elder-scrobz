@@ -8,7 +8,7 @@ use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
-use elder_scrobz_db::PgPool;
+use elder_scrobz_db::{PgPool, WithLocalImage};
 use std::sync::Arc;
 
 #[debug_handler]
@@ -36,13 +36,7 @@ pub async fn track_charts(
 
     let tracks: Vec<_> = tracks
         .into_iter()
-        .map(|mut track| {
-            if let Some(ca) = settings.coverart_url(&track.release_mbid) {
-                track.cover_art_url = Some(ca)
-            }
-
-            track
-        })
+        .map(|track| track.with_local_image(&settings.coverart_path))
         .collect();
 
     let response = PaginatedResponse {

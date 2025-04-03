@@ -5,9 +5,9 @@ use anyhow::Result;
 use anyhow::anyhow;
 use artists::process_artist;
 use elder_scrobz_db::PgPool;
+use elder_scrobz_db::listens::artists::ArtistCredited;
 use elder_scrobz_db::listens::raw::scrobble::{RawScrobble, TypedScrobble};
 use elder_scrobz_db::listens::scrobble::Scrobble;
-use elder_scrobz_db::listens::{Artist, ArtistCredited, Release, Track};
 use sqlx::postgres::{PgListener, PgNotification};
 use tokio::select;
 use tokio_util::sync::CancellationToken;
@@ -19,6 +19,9 @@ mod metadata;
 mod releases;
 
 pub use artists::try_update_all_artists;
+use elder_scrobz_db::listens::artists::Artist;
+use elder_scrobz_db::listens::releases::Release;
+use elder_scrobz_db::listens::tracks::Track;
 pub use metadata::MetadataClient;
 pub use releases::try_update_all_releases;
 

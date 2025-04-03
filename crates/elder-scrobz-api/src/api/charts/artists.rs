@@ -8,7 +8,7 @@ use axum::extract::Query;
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::artists::{get_most_listened_artists, TopArtist};
-use elder_scrobz_db::PgPool;
+use elder_scrobz_db::{PgPool, WithLocalImage};
 use std::sync::Arc;
 
 #[debug_handler]
@@ -36,13 +36,7 @@ pub async fn artist_charts(
 
     let artists: Vec<_> = artists
         .into_iter()
-        .map(|mut artist| {
-            if let Some(th) = settings.coverart_url(&artist.artist_id) {
-                artist.thumbnail_url = Some(th)
-            }
-
-            artist
-        })
+        .map(|artist| artist.with_local_image(&settings.coverart_path))
         .collect();
 
     let response = PaginatedResponse {
