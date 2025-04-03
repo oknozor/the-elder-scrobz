@@ -254,9 +254,10 @@ export const useStatsStore = defineStore('stats', {
 			const usernameParam = username ? `&username=${username}&` : '';
 			try {
 				this.error = null;
-				const { data } = await apiClient.get(
+				const { data } = await apiClient.get<PaginatedResponse<RecentTrack>>(
 					`/listens/recent?${usernameParam}page=${page}&page_size=${pageSize}`
-				);
+				)
+					.then(response => response.data);
 				// Will change when api is updated:
 				this.recentTracks = {
 					data: data,

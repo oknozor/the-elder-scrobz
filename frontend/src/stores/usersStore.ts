@@ -1,5 +1,6 @@
 import apiClient from '@/services/api';
 import { defineStore } from 'pinia';
+import {PaginatedResponse} from "@/types/music.ts";
 
 export interface AppUser {
 	username: string;
@@ -13,7 +14,8 @@ export const useUsersStore = defineStore('users', {
 	}),
 	actions: {
 		async fetchUsers() {
-			const { data } = await apiClient.get<AppUser[]>('/users');
+			const { data } = await apiClient.get<PaginatedResponse<AppUser>>('/users')
+				.then(res => res.data);
 			this.users = data;
 		},
 		updateSelectedUser(user: AppUser | null) {
