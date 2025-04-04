@@ -1,4 +1,4 @@
-import {defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 import {
 	Album,
 	Artist,
@@ -6,7 +6,8 @@ import {
 	Overview,
 	PaginatedResponse,
 	PulseData,
-	RecentTrack, TimeRange,
+	RecentTrack,
+	TimeRange,
 	Track,
 	User,
 } from '@/types/music';
@@ -30,18 +31,17 @@ export const useStatsStore = defineStore('stats', {
 	}),
 
 	actions: {
-		async fetchOverview(
-			username: string | null,
-			period: TimeRange,
-		) {
+		async fetchOverview(username: string | null, period: TimeRange) {
 			const usernameParam = username ? `&username=${username}&` : '';
+			const periodParam =
+				period && period !== 'all' ? `&period=${period}` : '';
 			try {
 				this.error = null;
 				this.overview = await apiClient
 					.get<Overview>(
-						`/charts/overview?${usernameParam}period=${period}`
+						`/charts/overview?${usernameParam}${periodParam}`
 					)
-					.then((response) => response.data)
+					.then((response) => response.data);
 			} catch (error) {
 				this.error = 'Failed to fetch overview';
 				console.error('Error fetching overview:', error);
@@ -176,11 +176,13 @@ export const useStatsStore = defineStore('stats', {
 			pageSize: number
 		): Promise<PaginatedResponse<Album> | undefined> {
 			const usernameParam = username ? `&username=${username}&` : '';
+			const periodParam =
+				period && period !== 'all' ? `&period=${period}` : '';
 			try {
 				this.error = null;
 				return await apiClient
 					.get<PaginatedResponse<Album>>(
-						`/charts/albums?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
+						`/charts/albums?${usernameParam}${periodParam}&page_size=${pageSize}&page=${page}`
 					)
 					.then((response) => response.data);
 			} catch (error) {
@@ -197,11 +199,13 @@ export const useStatsStore = defineStore('stats', {
 			pageSize = 15
 		): Promise<PaginatedResponse<Artist> | undefined> {
 			const usernameParam = username ? `&username=${username}&` : '';
+			const periodParam =
+				period && period !== 'all' ? `&period=${period}` : '';
 			try {
 				this.error = null;
 				return await apiClient
 					.get<PaginatedResponse<Artist>>(
-						`/charts/artists?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
+						`/charts/artists?${usernameParam}${periodParam}&page_size=${pageSize}&page=${page}`
 					)
 					.then((response) => response.data);
 			} catch (error) {
@@ -218,11 +222,13 @@ export const useStatsStore = defineStore('stats', {
 			pageSize = 15
 		): Promise<PaginatedResponse<Track> | undefined> {
 			const usernameParam = username ? `&username=${username}&` : '';
+			const periodParam =
+				period && period !== 'all' ? `&period=${period}` : '';
 			try {
 				this.error = null;
 				return await apiClient
 					.get<PaginatedResponse<Track>>(
-						`/charts/tracks?${usernameParam}period=${period}&page_size=${pageSize}&page=${page}`
+						`/charts/tracks?${usernameParam}${periodParam}&page_size=${pageSize}&page=${page}`
 					)
 					.then((response) => response.data);
 			} catch (error) {
@@ -234,10 +240,12 @@ export const useStatsStore = defineStore('stats', {
 
 		async fetchPulses(username: string | null, period: TimeRange) {
 			const usernameParam = username ? `&username=${username}&` : '';
+			const periodParam =
+				period && period !== 'all' ? `&period=${period}` : '';
 			try {
 				this.error = null;
 				const { data } = await apiClient.get(
-					`/charts/pulses?${usernameParam}period=${period}`
+					`/charts/pulses?${usernameParam}${periodParam}`
 				);
 				this.pulses = data;
 			} catch (error) {
@@ -254,10 +262,11 @@ export const useStatsStore = defineStore('stats', {
 			const usernameParam = username ? `&username=${username}&` : '';
 			try {
 				this.error = null;
-				const { data } = await apiClient.get<PaginatedResponse<RecentTrack>>(
-					`/listens/recent?${usernameParam}page=${page}&page_size=${pageSize}`
-				)
-					.then(response => response.data);
+				const { data } = await apiClient
+					.get<PaginatedResponse<RecentTrack>>(
+						`/listens/recent?${usernameParam}page=${page}&page_size=${pageSize}`
+					)
+					.then((response) => response.data);
 				// Will change when api is updated:
 				this.recentTracks = {
 					data: data,

@@ -20,7 +20,7 @@ import {
 	BarController,
 	LineController,
 } from 'chart.js';
-import { formatDates } from '@/utils/formatter';
+import { formatDateBasedOnPeriod } from '@/utils/formatter';
 
 ChartJS.register(
 	CategoryScale,
@@ -40,6 +40,7 @@ interface Props {
 		period: string;
 		listens: number;
 	}>;
+	timeRange: string;
 }
 
 const props = defineProps<Props>();
@@ -49,7 +50,9 @@ const chartData = computed(() => {
 		.getPropertyValue('--primary-color')
 		.trim();
 	return {
-		labels: props.pulseData.map((d) => formatDates(d.period)),
+		labels: props.pulseData.map((d) =>
+			formatDateBasedOnPeriod(props.timeRange, d.period)
+		),
 		datasets: [
 			{
 				type: 'bar' as const,

@@ -53,3 +53,39 @@ export const formatTimeAgo = (timestamp: string): string => {
 		return `${years}y ago`;
 	}
 };
+
+const formatTimeOfDay = (date: string): string => {
+	const dateObj = new Date(date);
+	return dateObj.toLocaleTimeString('fr-FR', {
+		hour: '2-digit',
+		minute: '2-digit',
+	});
+};
+
+export const getWeekNumber = (period: string): string => {
+	const date = new Date(period);
+	const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+	const pastDaysOfYear =
+		(date.getTime() - firstDayOfYear.getTime()) / (1000 * 60 * 60 * 24);
+	return Math.ceil(
+		(pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
+	).toString();
+};
+
+export const formatDateBasedOnPeriod = (
+	period: string,
+	date: string
+): string => {
+	switch (period) {
+		case 'today':
+			return formatTimeOfDay(date);
+		case 'week':
+			return date;
+		case 'month':
+			return `Week ${getWeekNumber(date)}`;
+		case 'year':
+			return date;
+		default:
+			return date;
+	}
+};

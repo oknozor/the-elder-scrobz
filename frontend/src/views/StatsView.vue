@@ -23,38 +23,50 @@
 				</template>
 				Overview
 			</SectionHeader>
- 		<div class="overview-cards">
- 			<OverviewCard
- 				title="Songs listened"
- 				:value="statsStore.overview.track_listened"
- 				:percentageChange="statsStore.overview.track_listened_percentage_increase ?? 0"
- 				:comparisonText="comparisonText"
- 			/>
- 			<OverviewCard
- 				title="Time listened"
- 				:value="formatDuration(statsStore.overview.time_listened)"
- 				:percentageChange="statsStore.overview.time_listened_percentage_increase ?? 0 "
- 				:comparisonText="comparisonText"
- 			/>
- 			<OverviewCard
- 				title="Artists listened"
- 				:value="statsStore.overview.artist_listened"
- 				:percentageChange="statsStore.overview.artist_listened_percentage_increase ?? 0"
- 				:comparisonText="comparisonText"
- 			/>
- 		</div>
- 		<Suspense>
- 			<template #default>
- 				<div class="pulse-charts">
- 					<PulseMixedChart :pulseData="statsStore.pulses" />
- 				</div>
- 			</template>
- 			<template #fallback>
- 				<div class="loading-placeholder">
- 					<span class="loader-animation"></span>
- 				</div>
- 			</template>
- 		</Suspense>
+			<div class="overview-cards">
+				<OverviewCard
+					title="Songs listened"
+					:value="statsStore.overview.track_listened"
+					:percentageChange="
+						statsStore.overview
+							.track_listened_percentage_increase ?? 0
+					"
+					:comparisonText="comparisonText"
+				/>
+				<OverviewCard
+					title="Time listened"
+					:value="formatDuration(statsStore.overview.time_listened)"
+					:percentageChange="
+						statsStore.overview.time_listened_percentage_increase ??
+						0
+					"
+					:comparisonText="comparisonText"
+				/>
+				<OverviewCard
+					title="Artists listened"
+					:value="statsStore.overview.artist_listened"
+					:percentageChange="
+						statsStore.overview
+							.artist_listened_percentage_increase ?? 0
+					"
+					:comparisonText="comparisonText"
+				/>
+			</div>
+			<Suspense>
+				<template #default>
+					<div class="pulse-charts">
+						<PulseMixedChart
+							:pulseData="statsStore.pulses"
+							:timeRange="sharedTimeRange"
+						/>
+					</div>
+				</template>
+				<template #fallback>
+					<div class="loading-placeholder">
+						<span class="loader-animation"></span>
+					</div>
+				</template>
+			</Suspense>
 		</div>
 
 		<div class="stats-section">
@@ -203,7 +215,7 @@ import { TimeRange } from '@/types/music';
 import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
 import SectionHeader from '@/components/stats/SectionHeader.vue';
 import StatGrid from '@/components/stats/StatGrid.vue';
-import {formatDuration} from '@/utils/formatter';
+import { formatDuration } from '@/utils/formatter';
 import OverviewCard from '@/components/stats/OverviewCard.vue';
 import PulseMixedChart from '@/components/stats/PulseMixedChart.vue';
 import { useStatsStore } from '@/stores/statsStore';
@@ -259,11 +271,9 @@ watch(
 	}
 );
 
-const fetchAllStats = async (
-	username: string | null,
-) => {
+const fetchAllStats = async (username: string | null) => {
 	await Promise.all([
-    statsStore.fetchOverview(username, sharedTimeRange.value),
+		statsStore.fetchOverview(username, sharedTimeRange.value),
 		statsStore.fetchTopArtistsForStatsView(username, sharedTimeRange.value),
 		statsStore.fetchTopTracksForStatsView(username, sharedTimeRange.value),
 		statsStore.fetchTopAlbumsForStatsView(username, sharedTimeRange.value),
