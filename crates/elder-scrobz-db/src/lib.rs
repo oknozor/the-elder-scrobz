@@ -54,4 +54,5 @@ pub enum Period {
     #[default]
     Year,
     Today,
+    All
 }

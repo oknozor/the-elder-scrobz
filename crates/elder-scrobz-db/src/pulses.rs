@@ -37,6 +37,11 @@ impl Pulse {
                         .fetch_all(pool)
                         .await?
                 }
+                Period::All => {
+                    sqlx::query_file_as!(Pulse, "queries/pulses/all.sql")
+                        .fetch_all(pool)
+                        .await?
+                },
             },
             Some(user) => match period {
                 Period::Week => {
@@ -56,6 +61,11 @@ impl Pulse {
                 }
                 Period::Today => {
                     sqlx::query_file_as!(Pulse, "queries/pulses/user_today.sql", user)
+                        .fetch_all(pool)
+                        .await?
+                },
+                Period::All => {
+                    sqlx::query_file_as!(Pulse, "queries/pulses/user_all.sql", user)
                         .fetch_all(pool)
                         .await?
                 }

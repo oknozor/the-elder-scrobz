@@ -3,7 +3,7 @@ WITH time_series AS (SELECT generate_series(
                                     DATE_TRUNC('day', NOW()) + INTERVAL '23 hour',
                                     '1 hour'
                             ) AS period)
-SELECT ts.period::text                          AS period,
+SELECT extract(hour from ts.period)::text                  AS period,
        COALESCE(COUNT(sr.listened_at), 0) AS listens
 FROM time_series ts
          LEFT JOIN scrobbles_raw sr
