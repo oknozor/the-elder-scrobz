@@ -20,7 +20,6 @@ import {
 	BarController,
 	LineController,
 } from 'chart.js';
-import { formatDates } from '@/utils/formatter';
 
 ChartJS.register(
 	CategoryScale,
@@ -49,7 +48,7 @@ const chartData = computed(() => {
 		.getPropertyValue('--primary-color')
 		.trim();
 	return {
-		labels: props.pulseData.map((d) => formatDates(d.period)),
+		labels: props.pulseData.map((d) => d.period),
 		datasets: [
 			{
 				type: 'bar' as const,

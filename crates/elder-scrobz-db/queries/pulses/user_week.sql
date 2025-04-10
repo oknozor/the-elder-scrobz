@@ -1,8 +1,15 @@
-SELECT DATE_TRUNC('week', listened_at)::text AS period,
-       COUNT(*)                        AS listens
-FROM scrobbles
-         JOIN scrobbles_raw ON scrobbles.source_id = scrobbles_raw.id
-WHERE listened_at >= (NOW() - INTERVAL '12 weeks')
-  AND scrobbles.user_id = $1
-GROUP BY DATE_TRUNC('week', listened_at)
-ORDER BY period;
+WITH weekdays AS (SELECT TO_CHAR(d, 'Day') AS period, EXTRACT(ISODOW FROM d) AS isodow
+                  FROM generate_series(
+                               date_trunc('week', current_date),
+                               date_trunc('week', current_date) + interval '6 days',
+                               interval '1 day'
+                       ) d)
+SELECT w.period,
+       COALESCE(COUNT(scrobbles_raw.id), 0) AS listens
+FROM weekdays w
+         LEFT JOIN scrobbles_raw
+                   ON w.isodow = EXTRACT(ISODOW FROM scrobbles_raw.listened_at)
+                       AND scrobbles_raw.listened_at >= date_trunc('week', current_date)
+WHERE scrobbles_raw.user_id = $1
+GROUP BY w.period, w.isodow
+ORDER BY w.isodow;
