@@ -7,7 +7,7 @@ impl MetadataClient {
     pub async fn get_discogs_artist(&self, id: &str) -> Result<DiscogsArtist, reqwest::Error> {
         let artist = self
             .client
-            .get(format!("https://api.discogs.com/artists/{}", id))
+            .get(format!("https://api.discogs.com/artists/{id}"))
             .header("User-Agent", USER_AGENT)
             .header(
                 "Authorization",
@@ -24,7 +24,7 @@ impl MetadataClient {
     pub async fn get_discogs_release(&self, id: &str) -> Result<DiscogsRelease, reqwest::Error> {
         let artist = self
             .client
-            .get(format!("https://api.discogs.com/releases/{}", id))
+            .get(format!("https://api.discogs.com/releases/{id}"))
             .header("User-Agent", USER_AGENT)
             .header(
                 "Authorization",

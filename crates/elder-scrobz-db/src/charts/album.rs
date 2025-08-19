@@ -58,7 +58,7 @@ pub async fn get_most_listened_albums(
                     .fetch_all(pool)
                     .await?
             }
-            Period::All => todo!()
+            Period::All => todo!(),
         },
         Some(user) => match period {
             Period::Week => {
@@ -105,7 +105,7 @@ pub async fn get_most_listened_albums(
                 .fetch_all(pool)
                 .await?
             }
-            Period::All => todo!()
+            Period::All => todo!(),
         },
     };
 

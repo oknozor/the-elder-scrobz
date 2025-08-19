@@ -166,8 +166,7 @@ pub async fn delete_api_key(
 
     if !success {
         return Err(AppError::Internal(format!(
-            "API key with id {} not found",
-            id
+            "API key with id {id} not found",
         )));
     }
 

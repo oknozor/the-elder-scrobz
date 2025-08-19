@@ -7,8 +7,7 @@ impl MetadataClient {
     pub async fn get_wikidata(&self, id: &str) -> Result<WikidataPayload, reqwest::Error> {
         self.client
             .get(format!(
-                "https://www.wikidata.org/w/api.php?action=wbgetentities&ids={}&format=json&props=sitelinks&languages=en",
-                id
+                "https://www.wikidata.org/w/api.php?action=wbgetentities&ids={id}&format=json&props=sitelinks&languages=en",
             ))
             .send()
             .await?

@@ -23,7 +23,7 @@ fn main() -> anyhow::Result<()> {
             fs::write(&out, &openapi)?;
         }
         None => {
-            println!("{}", openapi);
+            println!("{openapi}");
         }
     }
 
