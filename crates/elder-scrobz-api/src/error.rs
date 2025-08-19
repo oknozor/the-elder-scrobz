@@ -25,6 +25,8 @@ pub enum AppError {
     ScrobbleNotFound { id: String },
     #[schema(example = "Track not found")]
     TrackNotFound { id: String },
+    #[schema(example = "Artist not found")]
+    ArtistNotFound { id: String },
     #[schema(example = "Album not found")]
     AlbumNotFound { id: String },
     #[schema(example = "Operation not allowed")]
@@ -68,6 +70,12 @@ impl IntoResponse for AppError {
                 StatusCode::NOT_FOUND,
                 Json(json!({
                     "message": format!("Album  with id {id} not found")
+                })),
+            ),
+            AppError::ArtistNotFound { id } => (
+                StatusCode::NOT_FOUND,
+                Json(json!({
+                    "message": format!("Artist  with id {id} not found")
                 })),
             ),
         }

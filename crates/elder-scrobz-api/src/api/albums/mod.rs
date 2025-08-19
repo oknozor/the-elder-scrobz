@@ -13,7 +13,7 @@ use utoipa_axum::routes;
 #[debug_handler]
 #[utoipa::path(
     get,
-    path = "/albums/{id}",
+    path = "/{id}",
     summary = "Album by id",
     responses(
         (status = 200, description = "An album", body = AlbumDetails, content_type = "application/json"),

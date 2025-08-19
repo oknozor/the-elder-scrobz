@@ -1,328 +1,215 @@
-<template>todo</template>
+<template>
+    <div class="album-view">
+        <div v-if="isLoading" class="loading">Loading...</div>
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <div v-else-if="album" class="album-content">
+            <div class="album-header">
+                <img
+                    :src="album.cover_art_url || '/img/photo-off.svg'"
+                    :alt="album.release_name"
+                    class="album-image"
+                    @error="handleImageError"
+                />
+                <div class="album-info">
+                    <h1>{{ album.release_name }}</h1>
+                    <p class="album-artist">by {{ album.artist_name }}</p>
+                    <p v-if="album.release_date" class="release-date">
+                        Released: {{ album.release_date }}
+                    </p>
+                    <p v-if="album.genres" class="genre">
+                        Genre: {{ album.genres.join(", ") }}
+                    </p>
+                </div>
+            </div>
+            <div class="tracks-section">
+                <h2>Tracks</h2>
+                <div v-if="album.tracks" class="tracks-list">
+                    <div
+                        v-for="track in album.tracks"
+                        :key="track.track_id"
+                        class="track-item"
+                    >
+                        <span class="track-number">{{ track.track_name }}</span>
+                        <span class="track-name">{{ track.track_name }}</span>
+                        <span class="track-duration">{{
+                            track.track_length
+                        }}</span>
+                    </div>
+                </div>
+                <p v-else class="no-tracks">No tracks available</p>
+            </div>
+        </div>
+    </div>
+</template>
 
-<!--<template>-->
-<!--  <div class="album-page">-->
-<!--    <div class="album-header">-->
-<!--      <img :src="album.imageUrl" :alt="album.title" class="album-image" />-->
-<!--      <div class="album-info">-->
-<!--        <h1>{{ album.title }}</h1>-->
-<!--        <p class="artist-name">{{ album.artist }}</p>-->
-<!--        <div class="album-stats">-->
-<!--          <div class="stat">-->
-<!--            <span class="stat-value">{{ album.playCount }}</span>-->
-<!--            <span class="stat-label">plays</span>-->
-<!--          </div>-->
-<!--          <div class="stat">-->
-<!--            <span class="stat-value">{{ formatDuration(album.duration) }}</span>-->
-<!--            <span class="stat-label">listened</span>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
+<script setup lang="ts">
+import { ref, onMounted, watch, computed } from "vue";
+import { useRoute } from "vue-router";
+import { useUsersStore } from "@/stores/usersStore";
+import apiClient from "@/services/api";
+import { AlbumDetails } from "@/types/music";
 
-<!--    <div class="content-section">-->
-<!--      <h2>Top Tracks</h2>-->
-<!--      <div class="tracks-table">-->
-<!--        <div v-for="(track, index) in album.topTracks" :key="track.id" class="track-row">-->
-<!--          <div class="track-rank">#{{ index + 1 }}</div>-->
-<!--          <div class="track-thumbnail-container">-->
-<!--            <img :src="track.imageUrl" :alt="track.title" class="track-thumbnail" />-->
-<!--            <div class="track-play-icon">-->
-<!--              <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">-->
-<!--                <path d="M8 5v14l11-7z"/>-->
-<!--              </svg>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          <div class="track-info">-->
-<!--            <h3>{{ track.title }}</h3>-->
-<!--            <p>{{ track.playCount }} plays / {{ formatDuration(track.duration) }}</p>-->
-<!--          </div>-->
-<!--          <div class="track-progress">-->
-<!--            <div class="progress-bar">-->
-<!--              <div -->
-<!--                class="progress-fill" -->
-<!--                :style="{ width: `${(track.playCount / album.topTracks[0].playCount) * 100}%` }"-->
-<!--              ></div>-->
-<!--            </div>-->
-<!--            <span class="progress-value">{{ Math.round((track.playCount / album.topTracks[0].playCount) * 100) }}%</span>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</template>-->
+const route = useRoute();
+const usersStore = useUsersStore();
 
-<!--<script setup lang="ts">-->
-<!--import {onMounted, ref, watch} from 'vue'-->
-<!--import {useRoute, useRouter} from 'vue-router'-->
-<!--import {fetchAlbumDetails} from '@/services/mockData'-->
-<!--import {fetchUsers} from '@/services/mockUsers'-->
-<!--import type {AlbumDetails, User} from '@/types/music'-->
+const isLoading = ref(true);
+const error = ref<string | null>(null);
+const album = ref<AlbumDetails | null>(null);
 
-<!--const route = useRoute()-->
-<!--const router = useRouter()-->
-<!--const album = ref<AlbumDetails>({-->
-<!--  id: '',-->
-<!--  title: '',-->
-<!--  artist: '',-->
-<!--  imageUrl: '',-->
-<!--  playCount: 0,-->
-<!--  duration: 0,-->
-<!--  topTracks: []-->
-<!--})-->
+const albumId = computed(() => route.params.id as string);
 
-<!--const users = ref<User[]>([])-->
-<!--const selectedUser = ref<User | null>(null)-->
+const handleImageError = (event: Event) => {
+    const img = event.target as HTMLImageElement;
+    img.src = "/img/photo-off.svg";
+};
 
-<!--const formatDuration = (minutes: number): string => {-->
-<!--  if (minutes < 60) {-->
-<!--    return `${minutes}m`-->
-<!--  } else {-->
-<!--    const hours = Math.floor(minutes / 60)-->
-<!--    const remainingMinutes = minutes % 60-->
-<!--    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`-->
-<!--  }-->
-<!--}-->
+const fetchAlbum = async () => {
+    if (!albumId.value) {
+        error.value = "No artist ID provided";
+        isLoading.value = false;
+        return;
+    }
 
-<!--const fetchAlbumData = async () => {-->
-<!--  const albumId = route.params.id as string-->
-<!--  const username = selectedUser.value?.name || null-->
-<!--  album.value = await fetchAlbumDetails(albumId, username)-->
-<!--}-->
+    isLoading.value = true;
+    error.value = null;
 
-<!--// Watch for changes in the selected user-->
-<!--watch(selectedUser, () => {-->
-<!--  fetchAlbumData()-->
-<!--})-->
+    try {
+        console.log("Fetching album details...");
+        const selectedUsername = usersStore.selectedUser?.username;
+        const usernameParam = selectedUsername
+            ? `?username=${selectedUsername}`
+            : "";
 
-<!--onMounted(async () => {-->
-<!--  try {-->
-<!--    const username = selectedUser.value?.name || null-->
-<!--    const [albumData, usersData] = await Promise.all([-->
-<!--      fetchAlbumDetails(route.params.id as string, username),-->
-<!--      fetchUsers()-->
-<!--    ])-->
-<!--    album.value = albumData-->
-<!--    users.value = usersData-->
-<!--  } catch (error) {-->
-<!--    console.error('Error fetching data:', error)-->
-<!--  }-->
-<!--})-->
-<!--</script>-->
+        const response = await apiClient.get<AlbumDetails>(
+            `/albums/${albumId.value}${usernameParam}`,
+        );
+        console.log(response);
+        const data = response.data;
 
-<!--<style scoped>-->
-<!--.album-page {-->
-<!--  padding-top: 20px;-->
-<!--  max-width: 1200px;-->
-<!--  margin: 0 auto;-->
-<!--}-->
+        album.value = data;
+    } catch (err: any) {
+        console.error("Error fetching album:", err);
+        error.value =
+            err.response?.status === 404
+                ? "Album not found"
+                : "Failed to load album data";
+    } finally {
+        isLoading.value = false;
+    }
+};
 
+watch(
+    () => route.params.id,
+    () => {
+        if (route.params.id) {
+            fetchAlbum();
+        }
+    },
+);
 
-<!--.album-header {-->
-<!--  display: flex;-->
-<!--  gap: 30px;-->
-<!--  margin-bottom: 40px;-->
-<!--  padding: 20px;-->
-<!--  background: var(&#45;&#45;card-background);-->
-<!--  border-radius: 8px;-->
-<!--  box-shadow: 0 2px 4px rgba(0,0,0,0.3);-->
-<!--  border: 1px solid var(&#45;&#45;border-color);-->
-<!--}-->
+watch(
+    () => usersStore.selectedUser,
+    () => {
+        fetchAlbum();
+    },
+);
 
-<!--.album-image {-->
-<!--  width: 200px;-->
-<!--  height: 200px;-->
-<!--  border-radius: 8px;-->
-<!--  object-fit: cover;-->
-<!--}-->
+onMounted(() => {
+    fetchAlbum();
+});
+</script>
 
-<!--.album-info {-->
-<!--  display: flex;-->
-<!--  flex-direction: column;-->
-<!--  justify-content: center;-->
-<!--}-->
+<style scoped>
+.album-view {
+    padding: 20px;
+}
 
-<!--.album-info h1 {-->
-<!--  color: var(&#45;&#45;text-color);-->
-<!--  margin: 0 0 8px 0;-->
-<!--  font-size: 2em;-->
-<!--}-->
+.loading,
+.error {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+}
 
-<!--.artist-name {-->
-<!--  color: var(&#45;&#45;text-secondary);-->
-<!--  margin: 0 0 20px 0;-->
-<!--  font-size: 1.2em;-->
-<!--}-->
+.error {
+    color: #e74c3c;
+}
 
-<!--.album-stats {-->
-<!--  display: flex;-->
-<!--  gap: 30px;-->
-<!--}-->
+.album-header {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+}
 
-<!--.stat {-->
-<!--  display: flex;-->
-<!--  flex-direction: column;-->
-<!--}-->
+.album-image {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+}
 
-<!--.stat-value {-->
-<!--  color: var(&#45;&#45;text-color);-->
-<!--  font-size: 1.5em;-->
-<!--  font-weight: bold;-->
-<!--}-->
+.album-info h1 {
+    font-size: 2.5em;
+    margin: 0 0 10px 0;
+}
 
-<!--.stat-label {-->
-<!--  color: var(&#45;&#45;text-secondary);-->
-<!--  font-size: 0.9em;-->
-<!--}-->
+.album-artist {
+    font-size: 1.2em;
+    color: #666;
+    margin: 10px 0;
+}
 
-<!--.content-section {-->
-<!--  margin-bottom: 40px;-->
-<!--}-->
+.release-date,
+.genre {
+    margin: 5px 0;
+    color: #888;
+}
 
-<!--.content-section h2 {-->
-<!--  color: var(&#45;&#45;text-color);-->
-<!--  margin: 0 0 20px 0;-->
-<!--}-->
+.tracks-section h2 {
+    margin-bottom: 20px;
+}
 
-<!--.tracks-table {-->
-<!--  background: var(&#45;&#45;card-background);-->
-<!--  border-radius: 8px;-->
-<!--  overflow: hidden;-->
-<!--  box-shadow: 0 2px 4px rgba(0,0,0,0.3);-->
-<!--  border: 1px solid var(&#45;&#45;border-color);-->
-<!--  display: table;-->
-<!--  width: 100%;-->
-<!--}-->
+.tracks-list {
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+}
 
-<!--.track-row {-->
-<!--  display: table-row;-->
-<!--  border-bottom: 1px solid var(&#45;&#45;border-color);-->
-<!--}-->
+.track-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    transition: background-color 0.2s;
+}
 
-<!--.track-row:last-child {-->
-<!--  border-bottom: none;-->
-<!--}-->
+.track-item:hover {
+    background-color: #f0f0f0;
+}
 
-<!--.track-row:hover {-->
-<!--  background: rgba(255, 255, 255, 0.05);-->
-<!--}-->
+.track-item:last-child {
+    border-bottom: none;
+}
 
-<!--.track-rank {-->
-<!--  display: table-cell;-->
-<!--  color: var(&#45;&#45;text-secondary);-->
-<!--  font-size: 0.9em;-->
-<!--  font-weight: bold;-->
-<!--  text-align: center;-->
-<!--  padding: 12px;-->
-<!--  width: 60px;-->
-<!--  vertical-align: middle;-->
-<!--}-->
+.track-number {
+    width: 40px;
+    text-align: center;
+    color: #666;
+    font-weight: bold;
+}
 
-<!--.track-thumbnail-container {-->
-<!--  position: relative;-->
-<!--  display: table-cell;-->
-<!--  padding: 12px;-->
-<!--  width: 60px;-->
-<!--  vertical-align: middle;-->
-<!--}-->
+.track-name {
+    flex: 1;
+    margin-left: 20px;
+}
 
-<!--.track-thumbnail {-->
-<!--  width: 48px;-->
-<!--  height: 48px;-->
-<!--  border-radius: 4px;-->
-<!--  object-fit: cover;-->
-<!--}-->
+.track-duration {
+    color: #888;
+    font-size: 0.9em;
+}
 
-<!--.track-play-icon {-->
-<!--  position: absolute;-->
-<!--  top: 50%;-->
-<!--  left: 50%;-->
-<!--  transform: translate(-50%, -50%);-->
-<!--  background: rgba(0, 0, 0, 0.6);-->
-<!--  border-radius: 50%;-->
-<!--  width: 32px;-->
-<!--  height: 32px;-->
-<!--  display: flex;-->
-<!--  align-items: center;-->
-<!--  justify-content: center;-->
-<!--  opacity: 0;-->
-<!--  transition: opacity 0.2s;-->
-<!--}-->
-
-<!--.track-play-icon .play-icon {-->
-<!--  width: 16px;-->
-<!--  height: 16px;-->
-<!--  color: white;-->
-<!--}-->
-
-<!--.track-thumbnail-container:hover .track-play-icon {-->
-<!--  opacity: 1;-->
-<!--}-->
-
-<!--.track-info {-->
-<!--  display: table-cell;-->
-<!--  padding: 12px;-->
-<!--  vertical-align: middle;-->
-<!--}-->
-
-<!--.track-info h3 {-->
-<!--  color: var(&#45;&#45;text-color);-->
-<!--  margin: 0 0 4px 0;-->
-<!--  font-size: 1em;-->
-<!--}-->
-
-<!--.track-info p {-->
-<!--  color: var(&#45;&#45;text-secondary);-->
-<!--  margin: 0;-->
-<!--  font-size: 0.9em;-->
-<!--}-->
-
-<!--.track-progress {-->
-<!--  display: table-cell;-->
-<!--  padding: 12px;-->
-<!--  width: 200px;-->
-<!--  vertical-align: middle;-->
-<!--}-->
-
-<!--.progress-bar {-->
-<!--  flex: 1;-->
-<!--  height: 6px;-->
-<!--  background: rgba(255, 255, 255, 0.1);-->
-<!--  border-radius: 3px;-->
-<!--  overflow: hidden;-->
-<!--}-->
-
-<!--.progress-fill {-->
-<!--  height: 100%;-->
-<!--  background: var(&#45;&#45;primary-color);-->
-<!--  border-radius: 3px;-->
-<!--  transition: width 0.3s ease;-->
-<!--}-->
-
-<!--.progress-value {-->
-<!--  color: var(&#45;&#45;text-secondary);-->
-<!--  font-size: 0.9em;-->
-<!--  min-width: 45px;-->
-<!--  text-align: right;-->
-<!--}-->
-
-<!--:deep(.username-selector) {-->
-<!--  height: 40px;-->
-<!--}-->
-
-<!--:deep(.username-selector select) {-->
-<!--  height: 100%;-->
-<!--  padding: 8px 16px;-->
-<!--  background: var(&#45;&#45;card-background);-->
-<!--  border: 1px solid var(&#45;&#45;border-color);-->
-<!--  border-radius: 6px;-->
-<!--  color: var(&#45;&#45;text-color);-->
-<!--  font-size: 0.9em;-->
-<!--  cursor: pointer;-->
-<!--  transition: all 0.2s;-->
-<!--}-->
-
-<!--:deep(.username-selector select:hover) {-->
-<!--  background: rgba(255, 255, 255, 0.05);-->
-<!--}-->
-<!--</style> -->
+.no-tracks {
+    text-align: center;
+    color: #888;
+    padding: 40px;
+}
+</style>

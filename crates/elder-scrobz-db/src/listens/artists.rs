@@ -40,6 +40,7 @@ impl Artist {
         .fetch_one(pool)
         .await
     }
+
     pub async fn all_ids(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
         let ids = sqlx::query_scalar!(r#"SELECT mbid FROM artists"#)
             .fetch_all(pool)

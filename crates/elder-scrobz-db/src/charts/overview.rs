@@ -39,7 +39,7 @@ pub async fn get_overview(period: Period, pool: &PgPool) -> Result<Overview, sql
                 .fetch_one(pool)
                 .await?
         }
-        Period::All => todo!()
+        Period::All => todo!(),
     };
 
     Ok(result)

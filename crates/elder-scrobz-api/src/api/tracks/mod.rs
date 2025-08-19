@@ -26,7 +26,7 @@ pub async fn by_id(
 ) -> AppResult<Json<Track>> {
     match Track::by_id(&id, &db).await? {
         Some(track) => Ok(Json(track)),
-        None => Err(AppError::TrackNotFound { id }),
+        None => Err(AppError::TrackNotFound { id: id.to_string() }),
     }
 }
 

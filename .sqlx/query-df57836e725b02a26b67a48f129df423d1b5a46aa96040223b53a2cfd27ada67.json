@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            t.mbid as track_id,\n            u.username as username,\n            r.cover_art_url as cover_art_url,\n            sr.listened_at as listened_at,\n            a.mbid as artist_id,\n            COALESCE(t.artist_display_name, a.name) as artist_name,\n            t.name as track_name,\n            t.length as duration,\n            count(*) over () as total\n        FROM\n            scrobbles s\n            JOIN scrobbles_raw sr ON s.source_id = sr.id\n            JOIN users u ON s.user_id = u.username\n            JOIN tracks t ON s.track_id = t.mbid\n            JOIN releases r ON t.release_mbid = r.mbid\n            JOIN artists a ON t.artist_mbid = a.mbid\n        ORDER BY\n            sr.listened_at DESC\n        LIMIT $1\n        OFFSET $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "track_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "cover_art_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "listened_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "artist_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "artist_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "track_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "duration",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "total",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      null,
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "df57836e725b02a26b67a48f129df423d1b5a46aa96040223b53a2cfd27ada67"
+}
