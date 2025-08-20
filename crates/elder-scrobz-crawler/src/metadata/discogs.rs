@@ -67,3 +67,17 @@ pub struct DiscogsImage {
     pub uri150: String,
     pub r#type: String,
 }
+
+#[cfg(test)]
+mod test {
+    use crate::MetadataClient;
+
+    #[tokio::test]
+    async fn test_get_discogs_release() {
+        let client = MetadataClient::new("rzHdPLOtMKbqKltijMsrhxDHFwTZvvWoFvLcXJjR".to_string());
+        let release = client
+            .get_release_metadata("bb772ff7-7ed8-435b-9bfe-90df819fa605")
+            .await;
+        println!("{:?}", release);
+    }
+}

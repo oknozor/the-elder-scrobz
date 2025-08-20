@@ -1,6 +1,6 @@
-use crate::charts::album::TopAlbum;
 use crate::listens::tracks::Track;
 use crate::{PgPool, WithLocalImage};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -13,21 +13,34 @@ pub struct Release {
     pub cover_art_url: Option<String>,
 }
 
-#[derive(Serialize, ToSchema, Debug)]
+#[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
 pub struct AlbumDetails {
+    pub artist_id: Option<String>,
+    pub artist_name: Option<String>,
+    pub release_id: String,
+    pub release_name: String,
+    pub description: Option<String>,
+    pub cover_art_url: Option<String>,
+    pub last_listened_at: Option<DateTime<Utc>>,
+    pub listens: Option<i64>,
+}
+
+#[derive(Serialize, ToSchema, Debug)]
+pub struct AlbumWithTracks {
     #[serde(flatten)]
-    pub album: TopAlbum,
+    pub album: AlbumDetails,
     pub tracks: Vec<Track>,
 }
 
-impl AlbumDetails {
-    pub async fn by_id(mbid: &str, db: &PgPool) -> Result<Option<Self>, sqlx::Error> {
-        let album = sqlx::query_file_as!(TopAlbum, "queries/details/album.sql", mbid)
-            .fetch_optional(db)
+impl AlbumWithTracks {
+    pub async fn by_id(mbid: &str, db: &PgPool) -> Result<AlbumWithTracks, sqlx::Error> {
+        let album = sqlx::query_file_as!(AlbumDetails, "queries/details/album.sql", mbid)
+            .fetch_one(db)
             .await?;
+
         let tracks = Track::by_album(mbid, db).await?;
 
-        Ok(album.map(|album| Self { album, tracks }))
+        Ok(AlbumWithTracks { album, tracks })
     }
 }
 
@@ -91,7 +104,7 @@ impl WithLocalImage for Release {
     }
 }
 
-impl WithLocalImage for AlbumDetails {
+impl WithLocalImage for AlbumWithTracks {
     fn set_image_path(&mut self, path: String) {
         self.album.cover_art_url = Some(path);
     }

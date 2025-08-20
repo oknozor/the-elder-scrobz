@@ -17,13 +17,14 @@ export interface Artist {
 }
 
 export interface Track {
-  track_id: string;
-  track_name: string;
+  id: string;
+  name: string;
   release_name: string;
-  artist_name: string;
+  artist_display_name: string;
   cover_art_url: string;
   listens: number;
-  track_length: number; // in minutes
+  length: number;
+  number: number;
 }
 
 export interface Album {
@@ -31,6 +32,7 @@ export interface Album {
   release_name: string;
   artist_name: string;
   cover_art_url: string;
+  description?: string;
   last_listened_at: string;
   listens: number;
 }
