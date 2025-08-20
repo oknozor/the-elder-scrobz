@@ -25,7 +25,10 @@ pub struct MetadataClient {
 impl MetadataClient {
     pub fn new(discogs_token: String) -> Self {
         Self {
-            client: Default::default(),
+            client: reqwest::Client::builder()
+                .user_agent("TheElderScrobz")
+                .build()
+                .unwrap(),
             discogs_token,
         }
     }
@@ -115,11 +118,14 @@ impl MetadataClient {
         let release = Release::fetch()
             .id(release_mbid)
             .with_annotations()
+            .with_release_group_level_relations()
             .with_genres()
             .with_artist_credits()
             .with_artists()
             .with_recordings()
             .with_release_groups()
+            .with_release_group_relations()
+            .with_release_group_level_relations()
             .with_url_relations()
             .execute_with_client(&MB_CLIENT)
             .await?;
@@ -154,7 +160,15 @@ impl MetadataClient {
         };
 
         let relations = release.relations.unwrap_or_default();
-        let wikidata_id: Option<String> = extract_relation_id(&relations, "wikidata");
+        let wikidata_id: Option<String> =
+            extract_relation_id(&relations, "wikidata").or_else(|| {
+                release.release_group.and_then(|group| {
+                    group
+                        .relations
+                        .and_then(|rel| extract_relation_id(&rel, "wikidata"))
+                })
+            });
+
         let discogs_id: Option<String> = extract_relation_id(&relations, "discogs");
 
         let mut metadata = ReleaseMetadata {

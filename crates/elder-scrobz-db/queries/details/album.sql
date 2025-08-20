@@ -1,12 +1,15 @@
-SELECT release.mbid           AS release_id,
-       release.name           AS release_name,
-       release.cover_art_url  AS cover_art_url,
-       MAX(raw.listened_at)   AS last_listened_at,
-       COUNT(DISTINCT raw.id) AS listens,
-       count(*) OVER()        as total
+SELECT artist.mbid            as artist_id,
+       artist.name            as artist_name,
+       release.mbid           AS release_id,
+       release.name           as release_name,
+       release.cover_art_url  as cover_art_url,
+       release.description    as description,
+       max(raw.listened_at)   as last_listened_at,
+       count(distinct raw.id) as listens
 FROM scrobbles
          JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id
          JOIN tracks track ON track.mbid = scrobbles.track_id
          JOIN releases release ON track.release_mbid = release.mbid
+         JOIN artists artist ON artist.mbid = release.artist_mbid
 WHERE release.mbid = $1
-GROUP BY release.mbid, release.name, release.cover_art_url
+GROUP BY release.mbid, release.name, release.cover_art_url, artist.mbid, artist.name

@@ -1,8 +1,8 @@
 use crate::PgPool;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
+#[derive(sqlx::FromRow, Deserialize, Serialize, ToSchema, Debug)]
 pub struct Track {
     pub mbid: String,
     pub artist_mbid: String,

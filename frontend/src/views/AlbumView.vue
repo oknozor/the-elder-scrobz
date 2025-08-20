@@ -5,7 +5,7 @@
         <div v-else-if="album" class="album-content">
             <div class="album-header">
                 <img
-                    :src="album.cover_art_url || '/img/photo-off.svg'"
+                    :src="imageUrl || '/img/photo-off.svg'"
                     :alt="album.release_name"
                     class="album-image"
                     @error="handleImageError"
@@ -19,21 +19,44 @@
                     <p v-if="album.genres" class="genre">
                         Genre: {{ album.genres.join(", ") }}
                     </p>
+                    <p v-if="album.description" class="album-description">
+                        {{ album.description }}
+                    </p>
                 </div>
             </div>
             <div class="tracks-section">
                 <h2>Tracks</h2>
-                <div v-if="album.tracks" class="tracks-list">
-                    <div
-                        v-for="track in album.tracks"
-                        :key="track.track_id"
-                        class="track-item"
-                    >
-                        <span class="track-number">{{ track.track_name }}</span>
-                        <span class="track-name">{{ track.track_name }}</span>
-                        <span class="track-duration">{{
-                            track.track_length
-                        }}</span>
+                <div v-if="album.tracks" class="tracks">
+                    <div class="tracks-container">
+                        <table class="tracks-table">
+                            <tbody>
+                                <tr
+                                    v-for="(track, index) in album.tracks"
+                                    :key="track.number"
+                                    class="track-row"
+                                >
+                                    <td class="track-number-column">
+                                        <span>{{ index + 1 }}</span>
+                                    </td>
+                                    <td class="track-name-column">
+                                        <span class="track-name">{{
+                                            track.name
+                                        }}</span>
+                                        <span
+                                            v-if="track.artist_display_name"
+                                            class="track-artist"
+                                        >
+                                            - {{ track.artist_display_name }}
+                                        </span>
+                                    </td>
+                                    <td class="track-duration-column">
+                                        <span>{{
+                                            formatDuration(track.length)
+                                        }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <p v-else class="no-tracks">No tracks available</p>
@@ -63,6 +86,16 @@ const handleImageError = (event: Event) => {
     img.src = "/img/photo-off.svg";
 };
 
+const formatDuration = (durationMs: number): string => {
+    if (!durationMs) return "0:00";
+
+    const totalSeconds = Math.floor(durationMs / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
+
 const fetchAlbum = async () => {
     if (!albumId.value) {
         error.value = "No artist ID provided";
@@ -74,7 +107,6 @@ const fetchAlbum = async () => {
     error.value = null;
 
     try {
-        console.log("Fetching album details...");
         const selectedUsername = usersStore.selectedUser?.username;
         const usernameParam = selectedUsername
             ? `?username=${selectedUsername}`
@@ -83,9 +115,8 @@ const fetchAlbum = async () => {
         const response = await apiClient.get<AlbumDetails>(
             `/albums/${albumId.value}${usernameParam}`,
         );
-        console.log(response);
         const data = response.data;
-
+        console.log({ data });
         album.value = data;
     } catch (err: any) {
         console.error("Error fetching album:", err);
@@ -97,6 +128,12 @@ const fetchAlbum = async () => {
         isLoading.value = false;
     }
 };
+const imageUrl = computed(() => {
+    return (
+        (import.meta.env.VITE_API_BASE_URL || "") +
+            album.value?.cover_art_url || ""
+    );
+});
 
 watch(
     () => route.params.id,
@@ -169,42 +206,65 @@ onMounted(() => {
     margin-bottom: 20px;
 }
 
-.tracks-list {
-    background: #f9f9f9;
+.tracks {
+    width: 100%;
+}
+
+.tracks-container {
+    width: 100%;
+    background: var(--card-background);
     border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
 }
 
-.track-item {
-    display: flex;
+.tracks-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.track-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
     align-items: center;
-    padding: 12px 20px;
-    transition: background-color 0.2s;
+    min-height: 48px;
+    will-change: background-color;
 }
 
-.track-item:hover {
-    background-color: #f0f0f0;
-}
-
-.track-item:last-child {
+.track-row:last-child {
     border-bottom: none;
 }
 
-.track-number {
-    width: 40px;
+.track-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.track-number-column {
+    color: var(--text-secondary);
+    font-size: 0.9em;
     text-align: center;
-    color: #666;
     font-weight: bold;
 }
 
-.track-name {
-    flex: 1;
-    margin-left: 20px;
+.track-name-column {
+    color: var(--text-color);
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.track-duration {
-    color: #888;
+.track-name {
+    color: var(--text-color);
+}
+
+.track-duration-column {
+    color: var(--text-secondary);
     font-size: 0.9em;
+    text-align: right;
 }
 
 .no-tracks {
