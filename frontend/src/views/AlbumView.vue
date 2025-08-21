@@ -51,7 +51,7 @@
                                     </td>
                                     <td class="track-duration-column">
                                         <span>{{
-                                            formatDuration(track.length)
+                                            formatTrackLength(track.length)
                                         }}</span>
                                     </td>
                                 </tr>
@@ -71,6 +71,8 @@ import { useRoute } from "vue-router";
 import { useUsersStore } from "@/stores/usersStore";
 import apiClient from "@/services/api";
 import { AlbumDetails } from "@/types/music";
+import { loadImage } from "@/utils/thumbail";
+import { formatTrackLength } from "@/utils/formatter";
 
 const route = useRoute();
 const usersStore = useUsersStore();
@@ -84,16 +86,6 @@ const albumId = computed(() => route.params.id as string);
 const handleImageError = (event: Event) => {
     const img = event.target as HTMLImageElement;
     img.src = "/img/photo-off.svg";
-};
-
-const formatDuration = (durationMs: number): string => {
-    if (!durationMs) return "0:00";
-
-    const totalSeconds = Math.floor(durationMs / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
 const fetchAlbum = async () => {
@@ -129,10 +121,10 @@ const fetchAlbum = async () => {
     }
 };
 const imageUrl = computed(() => {
-    return (
-        (import.meta.env.VITE_API_BASE_URL || "") +
-            album.value?.cover_art_url || ""
-    );
+    if (album.value?.thumbnail_url) {
+        return loadImage(album.value?.thumbnail_url);
+    }
+    return "";
 });
 
 watch(

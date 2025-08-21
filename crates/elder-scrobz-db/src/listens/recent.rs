@@ -6,15 +6,14 @@ use utoipa::ToSchema;
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug, ToSchema)]
 pub struct RecentListen {
-    #[serde(rename = "id")]
-    pub track_id: Option<String>,
+    pub id: Option<String>,
+    pub name: Option<String>,
     #[serde(rename = "user")]
     pub username: Option<String>,
-    pub cover_art_url: Option<String>,
+    pub thumbnail_url: Option<String>,
     pub listened_at: Option<DateTime<Utc>>,
     pub artist_id: Option<String>,
     pub artist_name: Option<String>,
-    pub track_name: Option<String>,
     pub duration: Option<i32>,
     #[serde(skip)]
     pub total: Option<i64>,
@@ -29,13 +28,13 @@ pub async fn get_recent_listens(
         RecentListen,
         r#"
         SELECT
-            t.mbid as track_id,
+            t.mbid as id,
             u.username as username,
-            r.cover_art_url as cover_art_url,
+            r.cover_art_url as thumbnail_url,
             sr.listened_at as listened_at,
             a.mbid as artist_id,
             COALESCE(t.artist_display_name, a.name) as artist_name,
-            t.name as track_name,
+            t.name as name,
             t.length as duration,
             count(*) over () as total
         FROM

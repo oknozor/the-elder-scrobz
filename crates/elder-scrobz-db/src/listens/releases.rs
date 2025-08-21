@@ -10,7 +10,7 @@ pub struct Release {
     pub name: String,
     pub artist_mbid: Option<String>,
     pub description: Option<String>,
-    pub cover_art_url: Option<String>,
+    pub thumbnail_url: Option<String>,
 }
 
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
@@ -20,7 +20,7 @@ pub struct AlbumDetails {
     pub release_id: String,
     pub release_name: String,
     pub description: Option<String>,
-    pub cover_art_url: Option<String>,
+    pub thumbnail_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
 }
@@ -60,7 +60,7 @@ impl Release {
             self.name,
             self.artist_mbid,
             self.description,
-            self.cover_art_url,
+            self.thumbnail_url,
         )
         .execute(pool)
         .await?;
@@ -96,7 +96,7 @@ impl Release {
 
 impl WithLocalImage for Release {
     fn set_image_path(&mut self, path: String) {
-        self.cover_art_url = Some(path);
+        self.thumbnail_url = Some(path);
     }
 
     fn mbid(&self) -> &str {
@@ -106,7 +106,7 @@ impl WithLocalImage for Release {
 
 impl WithLocalImage for AlbumWithTracks {
     fn set_image_path(&mut self, path: String) {
-        self.album.cover_art_url = Some(path);
+        self.album.thumbnail_url = Some(path);
     }
 
     fn mbid(&self) -> &str {

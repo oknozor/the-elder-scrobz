@@ -11,30 +11,26 @@ export interface Item {
   type: string;
   id: string;
   name: string;
+  thumbnail_url: string;
+  listens?: number;
 }
 
 export interface Artist extends Item {
   description?: string;
-  thumbnail_url: string;
   last_listened_at: string;
-  listens: number;
 }
 
 export interface Track extends Item {
   release_name: string;
   artist_display_name: string;
-  cover_art_url: string;
-  listens: number;
   length: number;
   number: number;
 }
 
 export interface Album extends Item {
   artist_name: string;
-  cover_art_url: string;
   description?: string;
   last_listened_at: string;
-  listens: number;
 }
 export interface ArtistDetails extends Artist {
   topTracks: Track[];
@@ -51,7 +47,6 @@ export interface AlbumDetails extends Album {
 export interface RecentTrack extends Item {
   artist_id: string;
   artist_name: string;
-  cover_art_url: string;
   listened_at: string;
   user: string;
   duration: number;

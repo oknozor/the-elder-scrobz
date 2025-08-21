@@ -14,7 +14,7 @@ pub struct TopTrack {
     pub length: Option<i32>,
     pub release_mbid: String,
     pub release_name: String,
-    pub cover_art_url: Option<String>,
+    pub thumbnail_url: Option<String>,
     pub listens: Option<i64>,
     #[serde(skip)]
     pub total: Option<i64>,
@@ -26,7 +26,7 @@ impl WithLocalImage for TopTrack {
     }
 
     fn set_image_path(&mut self, path: String) {
-        self.cover_art_url = Some(path);
+        self.thumbnail_url = Some(path);
     }
 }
 

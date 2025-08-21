@@ -41,6 +41,7 @@
 import { formatMillisecondsToMinutes } from "@/utils/formatter";
 import type { Artist, Track, Album, Item } from "@/types/music";
 import { computed } from "vue";
+import { loadImage } from "@/utils/thumbail";
 
 interface Props {
     item: Artist | Track | Album;
@@ -53,62 +54,34 @@ interface Props {
 
 const props = defineProps<Props>();
 
-function isTrack(item: Item): item is Track {
-    return item.type !== "Track";
-}
-
 function isArtist(item: Item): item is Artist {
     return item.type === "Artist";
 }
 
-function isAlbum(item: Item): item is Album {
-    return item.type === "Album";
-}
-
 const imageUrl = computed(() => {
-    const item = props.item;
-    console.log({ item });
-    if (isTrack(props.item)) {
-        return (
-            (import.meta.env.VITE_API_BASE_URL || "") + props.item.cover_art_url
-        );
-    } else if (isArtist(props.item)) {
-        return (
-            (import.meta.env.VITE_API_BASE_URL || "") + props.item.thumbnail_url
-        );
-    } else if (isAlbum(props.item)) {
-        return (
-            (import.meta.env.VITE_API_BASE_URL || "") + props.item.cover_art_url
-        );
-    }
-    return "";
+    return loadImage(props.item.thumbnail_url);
 });
 
 const artist = computed(() => {
-    if (isTrack(props.item)) {
-        return props.item.artist_display_name;
-    } else if (isArtist(props.item)) {
-        return props.item.name;
-    } else if (isAlbum(props.item)) {
-        return props.item.artist_name;
+    switch (props.item.type) {
+        case "Track":
+            return (props.item as Track).artist_display_name;
+        case "Artist":
+            return props.item.name;
+        case "Album":
+            return (props.item as Album).artist_name;
+        default:
+            return "";
     }
-    return "";
 });
 
 const playCount = computed(() => {
-    if (isTrack(props.item)) {
-        return props.item.listens;
-    } else if (isArtist(props.item)) {
-        return props.item.listens;
-    } else if (isAlbum(props.item)) {
-        return props.item.listens;
-    }
-    return 0;
+    return props.item.listens ?? 0;
 });
 
 const duration = computed(() => {
-    if (isTrack(props.item)) {
-        return props.item.length;
+    if (props.item.type == "Track") {
+        return (props.item as Track).length;
     }
     return null;
 });

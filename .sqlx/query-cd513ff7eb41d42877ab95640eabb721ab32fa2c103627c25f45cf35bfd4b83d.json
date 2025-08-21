@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n    track_id as id,\n    track.name as name,\n    track.length as length,\n    release.mbid as release_mbid,\n    release.name as release_name,\n    release.cover_art_url as cover_art_url,\n    count(*) as listens,\n    COUNT(*) OVER () AS total\nFROM\n    scrobbles\n    JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n    JOIN tracks track ON track.mbid = scrobbles.track_id\n    JOIN releases release ON track.release_mbid = release.mbid\nWHERE\n    DATE_TRUNC ('month', listened_at) = DATE_TRUNC ('month', NOW ())\nGROUP BY\n    track_id,\n    track.name,\n    track.length,\n    release.mbid,\n    release.name,\n    release.cover_art_url\nORDER BY\n    listens DESC\nLIMIT $1 OFFSET $2;\n",
+  "query": "SELECT\n    track_id as id,\n    track.name as name,\n    track.length as length,\n    release.mbid as release_mbid,\n    release.name as release_name,\n    release.cover_art_url as thumbnail_url,\n    count(*) as listens,\n    COUNT(*) OVER () AS total\nFROM\n    scrobbles\n    JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n    JOIN tracks track ON track.mbid = scrobbles.track_id\n    JOIN releases release ON track.release_mbid = release.mbid\nWHERE\n    DATE(listened_at) = CURRENT_DATE\nGROUP BY\n    track_id,\n    track.name,\n    track.length,\n    release.mbid,\n    release.name,\n    release.cover_art_url\nORDER BY\n    listens DESC\nLIMIT $1 OFFSET $2;\n",
   "describe": {
     "columns": [
       {
@@ -30,7 +30,7 @@
       },
       {
         "ordinal": 5,
-        "name": "cover_art_url",
+        "name": "thumbnail_url",
         "type_info": "Text"
       },
       {
@@ -61,5 +61,5 @@
       null
     ]
   },
-  "hash": "a69891d2223811fe74d1d3e575b712e588381737c21fb8b71b2080f64a992664"
+  "hash": "cd513ff7eb41d42877ab95640eabb721ab32fa2c103627c25f45cf35bfd4b83d"
 }
