@@ -61,6 +61,7 @@ pub struct ReleaseMetadata {
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
     pub artists_credited: Vec<ArtistMetadata>,
+    pub year: Option<i32>,
 }
 
 impl MetadataClient {
@@ -159,16 +160,14 @@ impl MetadataClient {
                 .and_then(is_valid_coverart),
         };
 
-        let relations = release.relations.unwrap_or_default();
-        let wikidata_id: Option<String> =
-            extract_relation_id(&relations, "wikidata").or_else(|| {
-                release.release_group.and_then(|group| {
-                    group
-                        .relations
-                        .and_then(|rel| extract_relation_id(&rel, "wikidata"))
-                })
-            });
+        let mut relations = release.relations.unwrap_or_default();
+        let group_relations = release
+            .release_group
+            .and_then(|group| group.relations)
+            .unwrap_or_default();
 
+        relations.extend(group_relations);
+        let wikidata_id: Option<String> = extract_relation_id(&relations, "wikidata");
         let discogs_id: Option<String> = extract_relation_id(&relations, "discogs");
 
         let mut metadata = ReleaseMetadata {
@@ -178,11 +177,12 @@ impl MetadataClient {
             description: None,
             thumbnail_url: coverart_url,
             artists_credited,
+            year: None,
         };
 
         if let Some(discogs_id) = discogs_id {
             let release = self.get_discogs_release(&discogs_id).await?;
-
+            metadata.year = Some(release.year as i32);
             metadata.thumbnail_url = metadata.thumbnail_url.or(release.thumb).or_else(|| {
                 release
                     .images

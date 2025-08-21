@@ -1,6 +1,7 @@
 SELECT release.mbid           AS id,
        release.name           AS name,
        release.cover_art_url  AS thumbnail_url,
+       release.year           AS year,
        MAX(raw.listened_at)   AS last_listened_at,
        COUNT(DISTINCT raw.id) AS listens,
        COUNT(*) OVER()        AS total

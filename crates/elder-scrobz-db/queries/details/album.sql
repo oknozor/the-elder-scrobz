@@ -1,9 +1,10 @@
-SELECT artist.mbid            as id,
-       artist.name            as name,
-       release.mbid           AS release_id,
-       release.name           as release_name,
+SELECT release.mbid             as id,
+       release.name           as name,
        release.cover_art_url  as thumbnail_url,
        release.description    as description,
+       release.year           as year,
+       artist.name            as artist_name,
+       artist.mbid           as artist_id,
        max(raw.listened_at)   as last_listened_at,
        count(distinct raw.id) as listens
 FROM scrobbles

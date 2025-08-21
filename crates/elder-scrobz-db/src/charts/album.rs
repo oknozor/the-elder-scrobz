@@ -15,6 +15,7 @@ pub struct TopAlbum {
     pub thumbnail_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
+    pub year: Option<i32>,
     #[serde(skip)]
     pub(crate) total: Option<i64>,
 }

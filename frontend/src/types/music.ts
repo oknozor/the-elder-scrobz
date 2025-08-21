@@ -28,16 +28,20 @@ export interface Track extends Item {
 }
 
 export interface Album extends Item {
+  artist_id: string;
   artist_name: string;
   description?: string;
   last_listened_at: string;
+  year: number;
 }
+
 export interface ArtistDetails extends Artist {
   topTracks: Track[];
   albums: Album[];
   recentListens: RecentTrack[];
   description?: string;
 }
+
 export interface AlbumDetails extends Album {
   tracks: Track[];
   release_date?: string;
