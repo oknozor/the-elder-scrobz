@@ -59,7 +59,7 @@ pub struct ReleaseMetadata {
     pub name: String,
     pub artist_mbid: Option<String>,
     pub description: Option<String>,
-    pub cover_art_url: Option<String>,
+    pub thumbnail_url: Option<String>,
     pub artists_credited: Vec<ArtistMetadata>,
 }
 
@@ -176,14 +176,14 @@ impl MetadataClient {
             name: release.title,
             artist_mbid: artists_credited.first().map(|a| a.mbid.clone()),
             description: None,
-            cover_art_url: coverart_url,
+            thumbnail_url: coverart_url,
             artists_credited,
         };
 
         if let Some(discogs_id) = discogs_id {
             let release = self.get_discogs_release(&discogs_id).await?;
 
-            metadata.cover_art_url = metadata.cover_art_url.or(release.thumb).or_else(|| {
+            metadata.thumbnail_url = metadata.thumbnail_url.or(release.thumb).or_else(|| {
                 release
                     .images
                     .unwrap_or_default()

@@ -30,7 +30,7 @@
                             </td>
                             <td class="track-column">
                                 <img
-                                    :src="track.cover_art_url"
+                                    :src="loadImage(track.thumbnail_url)"
                                     :alt="track.name"
                                     class="track-thumbnail"
                                     :class="{
@@ -98,6 +98,7 @@
 <script setup lang="ts">
 import { ref, PropType, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { formatTimeAgo } from "@/utils/formatter";
+import { loadImage } from "@/utils/thumbail";
 import { RecentTrack } from "@/types/music";
 
 const loadedImages = ref<Set<string>>(new Set());

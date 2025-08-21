@@ -51,7 +51,7 @@ pub async fn process_release(
         name: metadata.name,
         artist_mbid: metadata.artist_mbid,
         description: metadata.description,
-        cover_art_url: metadata.cover_art_url,
+        thumbnail_url: metadata.thumbnail_url,
     }
     .save(db)
     .await?;

@@ -3,7 +3,7 @@ SELECT track_id              as id,
        track.length          as length,
        release.mbid          as release_mbid,
        release.name          as release_name,
-       release.cover_art_url as cover_art_url,
+       release.cover_art_url as thumbnail_url,
        count(*)              as listens,
        COUNT(*) OVER()       as total
 FROM scrobbles

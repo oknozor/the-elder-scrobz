@@ -94,7 +94,7 @@ impl ScrobbleCrawler {
                     "coverart_updated" => {
                         let release: Release = serde_json::from_str(notification.payload())?;
                         info!("Downloading coverart for release {}", release.mbid);
-                        if let Some(coverart) = release.cover_art_url {
+                        if let Some(coverart) = release.thumbnail_url {
                             if let Err(err) = self.download_image(&coverart, &release.mbid).await {
                                 error!("Failed to download cover art: {}", err);
                             }
@@ -222,7 +222,7 @@ pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<St
         name: release_name,
         artist_mbid: None,
         description: None,
-        cover_art_url: None,
+        thumbnail_url: None,
     }
     .save(&pool)
     .await?;

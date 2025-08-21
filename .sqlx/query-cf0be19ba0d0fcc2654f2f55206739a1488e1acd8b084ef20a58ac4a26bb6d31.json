@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT artist.mbid            as id,\n       artist.name            as name,\n       release.mbid           AS release_id,\n       release.name           as release_name,\n       release.cover_art_url  as cover_art_url,\n       release.description    as description,\n       max(raw.listened_at)   as last_listened_at,\n       count(distinct raw.id) as listens\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN artists artist ON artist.mbid = release.artist_mbid\nWHERE release.mbid = $1\nGROUP BY release.mbid, release.name, release.cover_art_url, artist.mbid, artist.name\n",
+  "query": "SELECT artist.mbid            as id,\n       artist.name            as name,\n       release.mbid           AS release_id,\n       release.name           as release_name,\n       release.cover_art_url  as thumbnail_url,\n       release.description    as description,\n       max(raw.listened_at)   as last_listened_at,\n       count(distinct raw.id) as listens\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN artists artist ON artist.mbid = release.artist_mbid\nWHERE release.mbid = $1\nGROUP BY release.mbid, release.name, release.cover_art_url, artist.mbid, artist.name\n",
   "describe": {
     "columns": [
       {
@@ -25,7 +25,7 @@
       },
       {
         "ordinal": 4,
-        "name": "cover_art_url",
+        "name": "thumbnail_url",
         "type_info": "Text"
       },
       {
@@ -60,5 +60,5 @@
       null
     ]
   },
-  "hash": "c327912e94ebe836e7cf215b253f576ffb9f99698caef4f60225ab34eea79ee7"
+  "hash": "cf0be19ba0d0fcc2654f2f55206739a1488e1acd8b084ef20a58ac4a26bb6d31"
 }

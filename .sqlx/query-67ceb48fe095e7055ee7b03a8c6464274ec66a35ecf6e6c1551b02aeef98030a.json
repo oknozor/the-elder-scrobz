@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT\n    track_id as id,\n    track.name as name,\n    track.length as length,\n    release.mbid as release_mbid,\n    release.name as release_name,\n    release.cover_art_url as cover_art_url,\n    count(*) as listens,\n    COUNT(*) OVER () as total\nFROM\n    scrobbles\n    JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n    JOIN tracks track ON track.mbid = scrobbles.track_id\n    JOIN releases release ON track.release_mbid = release.mbid\nWHERE\n    DATE_TRUNC ('week', listened_at) = DATE_TRUNC ('week', NOW ())\nGROUP BY\n    track_id,\n    track.name,\n    track.length,\n    release.mbid,\n    release.mbid,\n    release.name,\n    release.cover_art_url\nORDER BY\n    listens DESC\nLIMIT $1 OFFSET $2;\n",
+  "query": "SELECT track_id              as id,\n       track.name            as name,\n       track.length          as length,\n       release.mbid          as release_mbid,\n       release.name          as release_name,\n       release.cover_art_url as thumbnail_url,\n       count(*)              as listens,\n       COUNT(*) OVER()       as total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE EXTRACT(YEAR FROM listened_at) = EXTRACT(YEAR FROM NOW())\n  AND u.username = $1\nGROUP BY track_id, track.name, track.length, release.mbid, release.name, release.cover_art_url\nORDER BY listens DESC\nLIMIT $2 OFFSET $3;\n",
   "describe": {
     "columns": [
       {
@@ -30,7 +30,7 @@
       },
       {
         "ordinal": 5,
-        "name": "cover_art_url",
+        "name": "thumbnail_url",
         "type_info": "Text"
       },
       {
@@ -46,6 +46,7 @@
     ],
     "parameters": {
       "Left": [
+        "Text",
         "Int8",
         "Int8"
       ]
@@ -61,5 +62,5 @@
       null
     ]
   },
-  "hash": "7477c4e9074c34307663111715ee6818c2d48b66b1855794eb3e658cfa65f353"
+  "hash": "67ceb48fe095e7055ee7b03a8c6464274ec66a35ecf6e6c1551b02aeef98030a"
 }

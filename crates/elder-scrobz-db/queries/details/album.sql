@@ -2,7 +2,7 @@ SELECT artist.mbid            as id,
        artist.name            as name,
        release.mbid           AS release_id,
        release.name           as release_name,
-       release.cover_art_url  as cover_art_url,
+       release.cover_art_url  as thumbnail_url,
        release.description    as description,
        max(raw.listened_at)   as last_listened_at,
        count(distinct raw.id) as listens
