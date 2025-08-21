@@ -11,14 +11,16 @@ pub struct Release {
     pub artist_mbid: Option<String>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
+    pub year: Option<i32>,
 }
 
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
 pub struct AlbumDetails {
-    pub id: Option<String>,
-    pub name: Option<String>,
-    pub release_id: String,
-    pub release_name: String,
+    pub id: String,
+    pub name: String,
+    pub artist_id: Option<String>,
+    pub artist_name: Option<String>,
+    pub year: Option<i32>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
@@ -48,19 +50,21 @@ impl Release {
     pub async fn save(self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
-        INSERT INTO releases (mbid, name, artist_mbid, description, cover_art_url)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO releases (mbid, name, artist_mbid, description, cover_art_url, year)
+        VALUES ($1, $2, $3, $4, $5, $6)
         ON CONFLICT (mbid) DO UPDATE
         SET name = COALESCE(EXCLUDED.name, releases.name),
             description = COALESCE(EXCLUDED.description, releases.description),
             cover_art_url = COALESCE(EXCLUDED.cover_art_url, releases.cover_art_url),
-            artist_mbid = COALESCE(EXCLUDED.artist_mbid, releases.artist_mbid);
+            artist_mbid = COALESCE(EXCLUDED.artist_mbid, releases.artist_mbid),
+            year = COALESCE(EXCLUDED.year, releases.year);
         "#,
             self.mbid,
             self.name,
             self.artist_mbid,
             self.description,
             self.thumbnail_url,
+            self.year,
         )
         .execute(pool)
         .await?;
@@ -110,6 +114,6 @@ impl WithLocalImage for AlbumWithTracks {
     }
 
     fn mbid(&self) -> &str {
-        &self.album.release_id
+        &self.album.id
     }
 }

@@ -11,7 +11,12 @@
                     @error="handleImageError"
                 />
                 <div class="album-info">
-                    <h1>{{ album.name }}</h1>
+                    <h1>
+                        {{ album.name
+                        }}<span v-if="album.year" class="album-year">
+                            ({{ album.year }})</span
+                        >
+                    </h1>
                     <p class="album-artist">by {{ album.artist_name }}</p>
                     <p v-if="album.release_date" class="release-date">
                         Released: {{ album.release_date }}
@@ -180,6 +185,11 @@ onMounted(() => {
 .album-info h1 {
     font-size: 2.5em;
     margin: 0 0 10px 0;
+}
+
+.album-year {
+    font-size: 1em;
+    color: #666;
 }
 
 .album-artist {

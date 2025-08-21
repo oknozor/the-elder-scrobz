@@ -223,6 +223,7 @@ pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<St
         artist_mbid: None,
         description: None,
         thumbnail_url: None,
+        year: None,
     }
     .save(&pool)
     .await?;
