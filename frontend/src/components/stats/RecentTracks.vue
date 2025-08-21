@@ -31,7 +31,7 @@
                             <td class="track-column">
                                 <img
                                     :src="track.cover_art_url"
-                                    :alt="track.track_name"
+                                    :alt="track.name"
                                     class="track-thumbnail"
                                     :class="{
                                         'image-loaded': imageLoaded(track.id),
@@ -53,12 +53,12 @@
                                     <router-link
                                         :to="{
                                             name: 'track',
-                                            params: { id: track.track_name },
+                                            params: { id: track.name },
                                         }"
                                         class="link"
                                     >
                                         <span class="song-name">
-                                            {{ track.track_name }}
+                                            {{ track.name }}
                                         </span>
                                     </router-link>
                                 </div>
@@ -153,7 +153,7 @@ const loadMoreTracks = async () => {
     try {
         isLoading.value = true;
         currentPage.value++;
-        await emit("load-more", currentPage.value);
+        emit("load-more", currentPage.value);
     } finally {
         isLoading.value = false;
     }

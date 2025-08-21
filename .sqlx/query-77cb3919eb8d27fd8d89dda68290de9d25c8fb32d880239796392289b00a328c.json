@@ -1,16 +1,16 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT artist.mbid            AS artist_id,\n       artist.name            AS artist_name,\n       artist.description     AS description,\n       artist.thumbnail_url   AS thumbnail_url,\n       MAX(raw.listened_at)   AS last_listened_at,\n       COUNT(DISTINCT raw.id) AS listens,\n       COUNT(*) OVER ()       as total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN artists artist ON track.artist_mbid = artist.mbid\nWHERE DATE_TRUNC('month', raw.listened_at) = DATE_TRUNC('month', NOW())\nGROUP BY artist.mbid,\n         artist.name\nORDER BY listens DESC\nLIMIT $1 OFFSET $2;\n",
+  "query": "SELECT artist.mbid            AS id,\n       artist.name            AS name,\n       artist.description     AS description,\n       artist.thumbnail_url   AS thumbnail_url,\n       MAX(raw.listened_at)   AS last_listened_at,\n       COUNT(DISTINCT raw.id) AS listens,\n       COUNT(*) OVER ()       AS total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN artists artist ON track.artist_mbid = artist.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE DATE(listened_at) = CURRENT_DATE\n  AND u.username = $1\nGROUP BY artist.mbid, artist.name\nORDER BY listens DESC\nLIMIT $2 OFFSET $3;\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "artist_id",
+        "name": "id",
         "type_info": "Text"
       },
       {
         "ordinal": 1,
-        "name": "artist_name",
+        "name": "name",
         "type_info": "Text"
       },
       {
@@ -41,6 +41,7 @@
     ],
     "parameters": {
       "Left": [
+        "Text",
         "Int8",
         "Int8"
       ]
@@ -55,5 +56,5 @@
       null
     ]
   },
-  "hash": "d99ffdb7466d1dde4a773cc8cd701496546d3a278a7b9e20c199156c58324de1"
+  "hash": "77cb3919eb8d27fd8d89dda68290de9d25c8fb32d880239796392289b00a328c"
 }

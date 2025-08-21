@@ -15,7 +15,7 @@
             <div class="artist-header">
                 <img
                     :src="artist.thumbnail_url || '/img/photo-off.svg'"
-                    :alt="artist.artist_name"
+                    :alt="artist.name"
                     class="artist-image"
                     @error="handleImageError"
                 />

@@ -1,5 +1,5 @@
-SELECT release.mbid           AS release_id,
-       release.name           AS release_name,
+SELECT release.mbid           AS id,
+       release.name           AS name,
        release.cover_art_url  AS cover_art_url,
        MAX(raw.listened_at)   AS last_listened_at,
        COUNT(DISTINCT raw.id) AS listens,
@@ -14,4 +14,3 @@ WHERE EXTRACT(YEAR FROM listened_at) = EXTRACT(YEAR FROM NOW())
 GROUP BY release.mbid, release.name, release.cover_art_url
 ORDER BY listens DESC
 LIMIT $2 OFFSET $3;
-

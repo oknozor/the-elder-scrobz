@@ -9,7 +9,15 @@ use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::album::{get_most_listened_albums, TopAlbum};
 use elder_scrobz_db::{PgPool, WithLocalImage};
+use serde::Serialize;
 use std::sync::Arc;
+use utoipa::ToSchema;
+
+#[derive(Serialize, ToSchema, Debug)]
+#[serde(tag = "type")]
+pub enum Album {
+    Album(TopAlbum),
+}
 
 #[debug_handler]
 #[utoipa::path(
@@ -28,7 +36,7 @@ pub async fn album_charts(
     Extension(db): Extension<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
     Query(query): Query<ChartQuery>,
-) -> AppResult<Json<PaginatedResponse<TopAlbum>>> {
+) -> AppResult<Json<PaginatedResponse<Album>>> {
     let offset = query.to_offset();
     let (total, albums) =
         get_most_listened_albums(query.period, query.username, query.page_size, offset, &db)
@@ -37,6 +45,7 @@ pub async fn album_charts(
     let albums: Vec<_> = albums
         .into_iter()
         .map(|album| album.with_local_image(&settings.coverart_path))
+        .map(Album::Album)
         .collect();
 
     let response = PaginatedResponse {

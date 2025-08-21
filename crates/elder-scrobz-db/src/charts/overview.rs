@@ -17,26 +17,39 @@ pub struct Overview {
     pub time_listened_percentage_increase: Option<f64>,
 }
 
-pub async fn get_overview(period: Period, pool: &PgPool) -> Result<Overview, sqlx::Error> {
+impl Default for Overview {
+    fn default() -> Self {
+        Self {
+            artist_listened: Some(0),
+            track_listened: Some(0),
+            time_listened: Some(0),
+            artist_listened_percentage_increase: Some(0.0),
+            track_listened_percentage_increase: Some(0.0),
+            time_listened_percentage_increase: Some(0.0),
+        }
+    }
+}
+
+pub async fn get_overview(period: Period, pool: &PgPool) -> Result<Option<Overview>, sqlx::Error> {
     let result = match period {
         Period::Week => {
             sqlx::query_file_as!(Overview, "queries/charts/overview/week.sql")
-                .fetch_one(pool)
+                .fetch_optional(pool)
                 .await?
         }
         Period::Month => {
             sqlx::query_file_as!(Overview, "queries/charts/overview/month.sql")
-                .fetch_one(pool)
+                .fetch_optional(pool)
                 .await?
         }
         Period::Year => {
             sqlx::query_file_as!(Overview, "queries/charts/overview/year.sql")
-                .fetch_one(pool)
+                .fetch_optional(pool)
                 .await?
         }
         Period::Today => {
             sqlx::query_file_as!(Overview, "queries/charts/overview/today.sql")
-                .fetch_one(pool)
+                .fetch_optional(pool)
                 .await?
         }
         Period::All => todo!(),

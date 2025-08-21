@@ -26,5 +26,7 @@ pub async fn overview(
     Extension(db): Extension<PgPool>,
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<Overview>> {
-    Ok(Json(get_overview(query.period, &db).await?))
+    Ok(Json(
+        get_overview(query.period, &db).await?.unwrap_or_default(),
+    ))
 }

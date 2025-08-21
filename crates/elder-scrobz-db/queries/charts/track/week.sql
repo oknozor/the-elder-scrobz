@@ -1,7 +1,7 @@
 SELECT
-    track_id as track_id,
-    track.name as track_name,
-    track.length as track_length,
+    track_id as id,
+    track.name as name,
+    track.length as length,
     release.mbid as release_mbid,
     release.name as release_name,
     release.cover_art_url as cover_art_url,
@@ -25,4 +25,3 @@ GROUP BY
 ORDER BY
     listens DESC
 LIMIT $1 OFFSET $2;
-

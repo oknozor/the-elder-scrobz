@@ -1,5 +1,5 @@
-SELECT artist.mbid            as artist_id,
-       artist.name            as artist_name,
+SELECT artist.mbid            as id,
+       artist.name            as name,
        release.mbid           AS release_id,
        release.name           as release_name,
        release.cover_art_url  as cover_art_url,

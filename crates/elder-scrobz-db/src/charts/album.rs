@@ -10,8 +10,8 @@ const DOCS: &str = include_str!("../../docs/album_charts.example.json");
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
 #[schema(example = json!(DOCS))]
 pub struct TopAlbum {
-    pub release_id: String,
-    pub release_name: String,
+    pub id: String,
+    pub name: String,
     pub cover_art_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
@@ -21,7 +21,7 @@ pub struct TopAlbum {
 
 impl WithLocalImage for TopAlbum {
     fn mbid(&self) -> &str {
-        &self.release_id
+        &self.id
     }
 
     fn set_image_path(&mut self, path: String) {
