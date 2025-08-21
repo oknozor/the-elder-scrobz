@@ -9,7 +9,15 @@ use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
 use elder_scrobz_db::{PgPool, WithLocalImage};
+use serde::Serialize;
 use std::sync::Arc;
+use utoipa::ToSchema;
+
+#[derive(Serialize, ToSchema, Debug)]
+#[serde(tag = "type")]
+pub enum Track {
+    Track(TopTrack),
+}
 
 #[debug_handler]
 #[utoipa::path(
@@ -28,7 +36,7 @@ pub async fn track_charts(
     Query(query): Query<ChartQuery>,
     Extension(db): Extension<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
-) -> AppResult<Json<PaginatedResponse<TopTrack>>> {
+) -> AppResult<Json<PaginatedResponse<Track>>> {
     let offset = query.to_offset();
     let (total, tracks) =
         get_most_listened_tracks(query.period, query.username, query.page_size, offset, &db)
@@ -37,6 +45,7 @@ pub async fn track_charts(
     let tracks: Vec<_> = tracks
         .into_iter()
         .map(|track| track.with_local_image(&settings.coverart_path))
+        .map(Track::Track)
         .collect();
 
     let response = PaginatedResponse {

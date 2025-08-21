@@ -1,0 +1,66 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT track_id              as id,\n       track.name            as name,\n       track.length          as length,\n       release.mbid          as release_mbid,\n       release.name          as release_name,\n       release.cover_art_url as cover_art_url,\n       count(*)              as listens,\n       COUNT(*) OVER()       as total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE DATE(listened_at) = CURRENT_DATE\n  AND u.username = $1\nGROUP BY track_id, track.name, track.length, release.mbid, release.name, release.cover_art_url\nORDER BY listens DESC\nLIMIT $2 OFFSET $3;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "length",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "release_mbid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "release_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "cover_art_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "listens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "total",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "cd605472701bb4ece193c9335b5bb1b6b69f3c60dc8fba01f65b21037c684811"
+}

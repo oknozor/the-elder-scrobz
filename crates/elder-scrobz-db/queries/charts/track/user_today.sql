@@ -1,6 +1,6 @@
-SELECT track_id              as track_id,
-       track.name            as track_name,
-       track.length          as track_length,
+SELECT track_id              as id,
+       track.name            as name,
+       track.length          as length,
        release.mbid          as release_mbid,
        release.name          as release_name,
        release.cover_art_url as cover_art_url,
@@ -16,4 +16,3 @@ WHERE DATE(listened_at) = CURRENT_DATE
 GROUP BY track_id, track.name, track.length, release.mbid, release.name, release.cover_art_url
 ORDER BY listens DESC
 LIMIT $2 OFFSET $3;
-

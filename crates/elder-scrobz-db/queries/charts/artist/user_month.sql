@@ -1,5 +1,5 @@
-SELECT artist.mbid            AS artist_id,
-       artist.name            AS artist_name,
+SELECT artist.mbid            AS id,
+       artist.name            AS name,
        artist.description     AS description,
        artist.thumbnail_url   AS thumbnail_url,
        MAX(raw.listened_at)   AS last_listened_at,
@@ -15,4 +15,3 @@ WHERE DATE_TRUNC('month', raw.listened_at) = DATE_TRUNC('month', NOW())
 GROUP BY artist.mbid, artist.name
 ORDER BY listens DESC
 LIMIT $2 OFFSET $3;
-

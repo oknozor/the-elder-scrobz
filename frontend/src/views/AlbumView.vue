@@ -6,12 +6,12 @@
             <div class="album-header">
                 <img
                     :src="imageUrl || '/img/photo-off.svg'"
-                    :alt="album.release_name"
+                    :alt="album.name"
                     class="album-image"
                     @error="handleImageError"
                 />
                 <div class="album-info">
-                    <h1>{{ album.release_name }}</h1>
+                    <h1>{{ album.name }}</h1>
                     <p class="album-artist">by {{ album.artist_name }}</p>
                     <p v-if="album.release_date" class="release-date">
                         Released: {{ album.release_date }}

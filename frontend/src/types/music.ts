@@ -7,18 +7,20 @@ export interface PaginatedResponse<T> {
   page_size: number;
 }
 
-export interface Artist {
-  artist_id: string;
-  artist_name: string;
+export interface Item {
+  type: string;
+  id: string;
+  name: string;
+}
+
+export interface Artist extends Item {
   description?: string;
   thumbnail_url: string;
   last_listened_at: string;
   listens: number;
 }
 
-export interface Track {
-  id: string;
-  name: string;
+export interface Track extends Item {
   release_name: string;
   artist_display_name: string;
   cover_art_url: string;
@@ -27,9 +29,7 @@ export interface Track {
   number: number;
 }
 
-export interface Album {
-  release_id: string;
-  release_name: string;
+export interface Album extends Item {
   artist_name: string;
   cover_art_url: string;
   description?: string;
@@ -48,9 +48,7 @@ export interface AlbumDetails extends Album {
   genres?: string[];
 }
 
-export interface RecentTrack {
-  id: string;
-  track_name: string;
+export interface RecentTrack extends Item {
   artist_id: string;
   artist_name: string;
   cover_art_url: string;

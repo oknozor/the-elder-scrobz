@@ -9,9 +9,9 @@ const DOCS: &str = include_str!("../../docs/track_charts.example.json");
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
 #[schema(example = json!(DOCS))]
 pub struct TopTrack {
-    pub track_id: String,
-    pub track_name: String,
-    pub track_length: Option<i32>,
+    pub id: String,
+    pub name: String,
+    pub length: Option<i32>,
     pub release_mbid: String,
     pub release_name: String,
     pub cover_art_url: Option<String>,
