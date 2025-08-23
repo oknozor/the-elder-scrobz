@@ -10,10 +10,15 @@ use elder_scrobz_db::PgPool;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
+pub mod exports;
+pub mod imports;
+
 pub fn router() -> OpenApiRouter {
     OpenApiRouter::new()
         .routes(routes!(create_user))
         .routes(routes!(get_users))
+        .merge(imports::router())
+        .merge(exports::router())
 }
 
 #[debug_handler]

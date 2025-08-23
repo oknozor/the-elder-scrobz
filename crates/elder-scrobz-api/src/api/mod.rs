@@ -1,22 +1,19 @@
-use crate::api::imports::*;
 use crate::oauth::AuthenticatedUser;
 use axum::middleware::from_extractor;
 use serde::Serialize;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
-use utoipa_axum::routes;
 
 pub mod admin;
 pub mod albums;
 pub mod artists;
 pub mod charts;
-pub mod imports;
 pub mod listenbrainz;
 pub mod listens;
 pub mod pagination;
 pub mod tracks;
-pub mod user;
+pub mod users;
 
 const USERS_TAG: &str = "users";
 const CHARTS_TAG: &str = "charts";
@@ -74,8 +71,7 @@ pub struct PaginatedResponse<T> {
 
 pub fn router(no_oauth: bool) -> OpenApiRouter {
     let mut router = OpenApiRouter::new()
-        .routes(routes!(import_listens))
-        .nest("/users", user::router())
+        .nest("/users", users::router())
         .nest("/charts", charts::router())
         .nest("/admin", admin::router())
         .nest("/listens", listens::router())

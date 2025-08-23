@@ -56,3 +56,15 @@ pub enum Period {
     Today,
     All,
 }
+
+#[derive(Debug)]
+pub struct Pagination {
+    pub offset: i64,
+    pub limit: i64,
+}
+
+impl From<(i64, i64)> for Pagination {
+    fn from((limit, offset): (i64, i64)) -> Self {
+        Self { limit, offset }
+    }
+}

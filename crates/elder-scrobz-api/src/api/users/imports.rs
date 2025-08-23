@@ -8,11 +8,13 @@ use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
 use elder_scrobz_db::listens::raw::listenbrainz::{raw, ListenType};
 use elder_scrobz_db::PgPool;
 use futures_util::stream::StreamExt;
+use utoipa_axum::router::OpenApiRouter;
+use utoipa_axum::routes;
 
 #[debug_handler]
 #[utoipa::path(
     post,
-    path = "/users/import",
+    path = "/import",
     summary = "Import listens",
     responses(
         (status = 200, description = "Top tracks for user", body = ()),
@@ -60,4 +62,8 @@ async fn save_listens(
     CreateRawScrobble::batch_insert(username.to_string(), scrobble, db).await?;
 
     Ok(())
+}
+
+pub fn router() -> OpenApiRouter {
+    OpenApiRouter::new().routes(routes!(import_listens))
 }
