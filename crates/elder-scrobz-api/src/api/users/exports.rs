@@ -27,7 +27,7 @@ pub async fn export_listens(
         }
 
         for scrobble in scrobbles {
-            let json_line = match serde_json::to_string(&scrobble) {
+            let json_line = match serde_json::to_string(&scrobble.data) {
                 Ok(mut line) => {
                     line.push('\n');
                     line
