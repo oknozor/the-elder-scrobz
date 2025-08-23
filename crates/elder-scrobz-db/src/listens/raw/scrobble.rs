@@ -1,6 +1,6 @@
-use crate::PgPool;
 use crate::listens::raw::listenbrainz::typed;
 use crate::listens::raw::listenbrainz::typed::{AdditionalInfo, MbidMapping};
+use crate::{Pagination, PgPool};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
@@ -113,6 +113,29 @@ impl RawScrobble {
             SELECT id, user_id, data, listened_at, status
             FROM scrobbles_raw
         "#,
+        )
+        .fetch_all(pool)
+        .await
+    }
+
+    pub async fn by_user_id<P>(
+        pool: &PgPool,
+        user_id: &str,
+        pagination: P,
+    ) -> Result<Vec<RawScrobble>, Error>
+    where
+        P: Into<Pagination>,
+    {
+        let pagination = pagination.into();
+        sqlx::query_as!(
+            RawScrobble,
+            r#"SELECT id, user_id, data, listened_at, status AS "status: ProcessState"
+                FROM scrobbles_raw
+                WHERE user_id = $1
+                LIMIT $2 OFFSET $3"#,
+            user_id,
+            pagination.limit,
+            pagination.offset
         )
         .fetch_all(pool)
         .await
