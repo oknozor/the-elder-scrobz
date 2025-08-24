@@ -28,7 +28,7 @@ pub async fn import_listens(
     Extension(db): Extension<PgPool>,
     mut stream: JsonLines<serde_json::value::Value>,
 ) -> AppResult<()> {
-    const CHUNK_SIZE: usize = 50;
+    const CHUNK_SIZE: usize = 200;
     let mut buffer = Vec::with_capacity(CHUNK_SIZE);
 
     while let Some(value) = stream.next().await {
