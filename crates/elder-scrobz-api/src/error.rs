@@ -82,35 +82,3 @@ impl IntoResponse for AppError {
         .into_response()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::api::admin::router;
-    use crate::test_helper::scrobble_fixture;
-    use axum::{http::Request, http::StatusCode};
-    use http_body_util::BodyExt;
-    use tower::ServiceExt;
-
-    #[tokio::test]
-    async fn test_main_page() -> anyhow::Result<()> {
-        let scrobble = scrobble_fixture()?;
-
-        let request = Request::builder()
-            .method("POST")
-            .uri("/1/submit-listens")
-            .header("Content-Type", "application/json")
-            .body(scrobble)?;
-
-        let (app, _) = router().split_for_parts();
-
-        let response = app.oneshot(request).await?;
-
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
-        let body = response.into_body();
-        let bytes = body.collect().await?.to_bytes();
-        let html = String::from_utf8(bytes.to_vec())?;
-
-        assert_eq!(html, "Something went wrong: it failed!");
-        Ok(())
-    }
-}

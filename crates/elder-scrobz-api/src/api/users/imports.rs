@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
 use autometrics::autometrics;
-use axum::Extension;
+use axum::extract::State;
 use axum_extra::extract::JsonLines;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
@@ -25,10 +25,10 @@ use utoipa_axum::routes;
 #[autometrics]
 pub async fn import_listens(
     user: AuthenticatedUser,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     mut stream: JsonLines<serde_json::value::Value>,
 ) -> AppResult<()> {
-    const CHUNK_SIZE: usize = 200;
+    const CHUNK_SIZE: usize = 50;
     let mut buffer = Vec::with_capacity(CHUNK_SIZE);
 
     while let Some(value) = stream.next().await {
@@ -64,6 +64,6 @@ async fn save_listens(
     Ok(())
 }
 
-pub fn router() -> OpenApiRouter {
+pub fn router() -> OpenApiRouter<PgPool> {
     OpenApiRouter::new().routes(routes!(import_listens))
 }

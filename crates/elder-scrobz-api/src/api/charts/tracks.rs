@@ -4,7 +4,7 @@ use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
 use autometrics::autometrics;
-use axum::extract::Query;
+use axum::extract::{Query, State};
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
@@ -34,7 +34,7 @@ pub enum Track {
 #[autometrics]
 pub async fn track_charts(
     Query(query): Query<ChartQuery>,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
 ) -> AppResult<Json<PaginatedResponse<Track>>> {
     let offset = query.to_offset();

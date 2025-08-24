@@ -3,6 +3,8 @@ use crate::oauth::client::Oauth2Client;
 use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::http::HeaderMap;
+use elder_scrobz_db::user::{CreateUser, User};
+use elder_scrobz_db::PgPool;
 use oauth2::basic::BasicTokenIntrospectionResponse;
 use oauth2::TokenIntrospectionResponse;
 
@@ -24,9 +26,9 @@ impl AuthenticatedUser {
     }
 }
 
-impl FromRequestParts<()> for AuthenticatedUser {
+impl FromRequestParts<PgPool> for AuthenticatedUser {
     type Rejection = AppError;
-    async fn from_request_parts(parts: &mut Parts, _: &()) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, db: &PgPool) -> Result<Self, Self::Rejection> {
         let oauth2_client = parts
             .extensions
             .get::<Oauth2Client>()
@@ -37,7 +39,18 @@ impl FromRequestParts<()> for AuthenticatedUser {
                     None => Err(AppError::Unauthorized(
                         "Token is invalid or inactive".to_string(),
                     )),
-                    Some(user) => Ok(user),
+                    Some(user) => {
+                        let existing_user = User::get_by_username(db, &user.name).await?;
+                        if existing_user.is_none() {
+                            CreateUser {
+                                username: user.name.clone(),
+                            }
+                            .insert(db)
+                            .await?;
+                        }
+
+                        Ok(user)
+                    }
                 },
                 Err(err) => Err(AppError::Unauthorized(err.to_string())),
             },

@@ -2,8 +2,8 @@ use crate::api::pagination::{PageQuery, ToOffset};
 use crate::api::PaginatedResponse;
 use crate::error::AppResult;
 use autometrics::autometrics;
-use axum::extract::Query;
-use axum::{Extension, Json};
+use axum::extract::{Query, State};
+use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::user::{CreateUser, User as DbUser, User};
 use elder_scrobz_db::PgPool;
@@ -13,7 +13,7 @@ use utoipa_axum::routes;
 pub mod exports;
 pub mod imports;
 
-pub fn router() -> OpenApiRouter {
+pub fn router() -> OpenApiRouter<PgPool> {
     OpenApiRouter::new()
         .routes(routes!(create_user))
         .routes(routes!(get_users))
@@ -33,7 +33,7 @@ pub fn router() -> OpenApiRouter {
 )]
 #[autometrics]
 pub async fn create_user(
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Json(user): Json<CreateUser>,
 ) -> AppResult<Json<User>> {
     Ok(Json(user.insert(&db).await?))
@@ -52,7 +52,7 @@ pub async fn create_user(
 )]
 #[autometrics]
 pub async fn get_users(
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<PaginatedResponse<User>>> {
     let (total, users) = DbUser::all(&db, query.per_page(), query.to_offset()).await?;

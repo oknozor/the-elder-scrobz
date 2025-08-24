@@ -2,8 +2,8 @@ use crate::api::pagination::{PageQuery, ToOffset};
 use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
-use axum::extract::Query;
-use axum::{Extension, Json};
+use axum::extract::{Query, State};
+use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::recent::{get_recent_listens, RecentListen};
 use elder_scrobz_db::PgPool;
@@ -18,7 +18,7 @@ pub enum RecentTrack {
     Track(RecentListen),
 }
 
-pub fn router() -> OpenApiRouter {
+pub fn router() -> OpenApiRouter<PgPool> {
     OpenApiRouter::new().routes(routes!(recent_listens))
 }
 
@@ -36,7 +36,7 @@ pub fn router() -> OpenApiRouter {
 )]
 #[autometrics]
 pub async fn recent_listens(
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<PaginatedResponse<RecentTrack>>> {
     let (total, listens) = get_recent_listens(query.per_page(), query.to_offset(), &db).await?;

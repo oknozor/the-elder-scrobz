@@ -1,7 +1,8 @@
 use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
-use axum::{Extension, Json};
+use axum::extract::State;
+use axum::Json;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
@@ -31,7 +32,7 @@ pub struct Empty {}
 )]
 #[autometrics]
 pub async fn submit_listens(
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
     Json(payload): Json<raw::SubmitListens>,
 ) -> AppResult<Json<Empty>> {

@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
-use axum::extract::Path;
-use axum::{Extension, Json};
+use axum::extract::{Path, State};
+use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
 use elder_scrobz_db::PgPool;
@@ -19,7 +19,7 @@ use elder_scrobz_db::PgPool;
 #[autometrics]
 pub async fn get_by_id(
     Path(id): Path<String>,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
 ) -> AppResult<Json<RawScrobble>> {
     match RawScrobble::get_by_id(&db, &id).await? {
         None => Err(AppError::ScrobbleNotFound { id }),

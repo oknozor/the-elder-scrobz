@@ -6,6 +6,7 @@ use crate::api::charts::pulses::*;
 use crate::api::charts::tracks::*;
 use crate::api::pagination::ToOffset;
 use elder_scrobz_db::Period;
+use elder_scrobz_db::PgPool;
 use serde::Deserialize;
 use utoipa::IntoParams;
 use utoipa_axum::router::OpenApiRouter;
@@ -17,7 +18,7 @@ pub mod overview;
 pub mod pulses;
 pub mod tracks;
 
-pub fn router() -> OpenApiRouter {
+pub fn router() -> OpenApiRouter<PgPool> {
     OpenApiRouter::new()
         .routes(routes!(track_charts))
         .routes(routes!(album_charts))

@@ -1,7 +1,6 @@
 use crate::error::AppResult;
 use autometrics::autometrics;
-use axum::extract::Path;
-use axum::Extension;
+use axum::extract::{Path, State};
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::releases::Release;
 use elder_scrobz_db::PgPool;
@@ -16,10 +15,7 @@ use elder_scrobz_db::PgPool;
     tag = crate::api::ADMIN_TAG
 )]
 #[autometrics]
-pub async fn remove_coverart(
-    Path(id): Path<String>,
-    Extension(db): Extension<PgPool>,
-) -> AppResult<()> {
+pub async fn remove_coverart(Path(id): Path<String>, State(db): State<PgPool>) -> AppResult<()> {
     Release::remove_coverart(&id, &db).await?;
     Ok(())
 }

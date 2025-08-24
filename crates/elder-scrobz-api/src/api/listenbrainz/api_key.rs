@@ -2,7 +2,8 @@ use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
 use autometrics::autometrics;
-use axum::{Extension, Json};
+use axum::extract::State;
+use axum::Json;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
@@ -39,7 +40,7 @@ pub struct CreateApiKeyRequest {
 #[autometrics]
 pub async fn create_api_key(
     user: AuthenticatedUser,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Json(payload): Json<CreateApiKeyRequest>,
 ) -> AppResult<Json<ApiKeyCreated>> {
     let Some(user) = User::get_by_username(&db, &user.name).await? else {
@@ -76,7 +77,7 @@ pub async fn create_api_key(
 #[autometrics]
 pub async fn get_api_keys(
     user: AuthenticatedUser,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
 ) -> Result<Json<Vec<ApiKey>>, AppError> {
     let Some(user) = User::get_by_username(&db, &user.name).await? else {
         return Err(AppError::UserNotFound { id: user.name });
@@ -107,7 +108,7 @@ pub struct TokenValidation {
     tag = crate::api::API_KEYS_TAG
 )]
 pub async fn validate_token(
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
 ) -> AppResult<Json<TokenValidation>> {
     let Some(token) = auth.0.token()? else {
@@ -155,7 +156,7 @@ pub struct DeleteApiKeyResponse {
 #[autometrics]
 pub async fn delete_api_key(
     user: AuthenticatedUser,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> AppResult<Json<DeleteApiKeyResponse>> {
     let Some(user) = User::get_by_username(&db, &user.name).await? else {

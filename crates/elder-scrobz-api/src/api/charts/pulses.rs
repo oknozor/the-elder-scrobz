@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
-use axum::extract::Query;
-use axum::{Extension, Json};
+use axum::extract::{Query, State};
+use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::pulses::Pulse;
 use elder_scrobz_db::{Period, PgPool};
@@ -29,7 +29,7 @@ pub struct PulseQuery {
 #[autometrics]
 pub async fn pulses(
     Query(query): Query<PulseQuery>,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
 ) -> AppResult<Json<Vec<Pulse>>> {
     Ok(Json(
         Pulse::for_period(query.period, query.user_id, &db).await?,

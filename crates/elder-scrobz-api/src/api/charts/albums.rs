@@ -4,7 +4,7 @@ use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
 use autometrics::autometrics;
-use axum::extract::Query;
+use axum::extract::{Query, State};
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::album::{get_most_listened_albums, TopAlbum};
@@ -33,7 +33,7 @@ pub enum Album {
 )]
 #[autometrics]
 pub async fn album_charts(
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<PaginatedResponse<Album>>> {
