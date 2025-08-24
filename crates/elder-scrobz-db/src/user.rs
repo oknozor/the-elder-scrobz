@@ -8,19 +8,14 @@ use utoipa::ToSchema;
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateUser {
     pub username: String,
-    pub email: String,
 }
 
 impl CreateUser {
     pub async fn insert(self, pool: &PgPool) -> Result<User, Error> {
         let user = sqlx::query_as!(
             User,
-            r#"
-        INSERT INTO users (username, email)
-        VALUES ($1, $2) returning username, email
-        "#,
+            r#"INSERT INTO users (username) VALUES ($1) returning username"#,
             self.username,
-            self.email,
         )
         .fetch_one(pool)
         .await?;
@@ -32,14 +27,12 @@ impl CreateUser {
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
 pub struct User {
     pub username: String,
-    pub email: String,
 }
 
 impl From<UserWithTotal> for User {
     fn from(value: UserWithTotal) -> Self {
         User {
             username: value.username,
-            email: value.email,
         }
     }
 }
@@ -47,7 +40,6 @@ impl From<UserWithTotal> for User {
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
 pub struct UserWithTotal {
     pub username: String,
-    pub email: String,
     #[serde(skip)]
     pub total: Option<i64>,
 }
@@ -57,7 +49,7 @@ impl User {
         let user = sqlx::query_as!(
             User,
             r#"
-            SELECT username, email
+            SELECT username
             FROM users
             WHERE username = $1
             "#,
@@ -78,7 +70,7 @@ impl User {
         let user = sqlx::query_as!(
             UserWithKey,
             r#"
-            SELECT u.username, u.email, k.api_key_hash
+            SELECT u.username, k.api_key_hash
             FROM users u
             JOIN api_keys k ON u.username = k.user_id
             WHERE k.sha = $1
@@ -125,7 +117,7 @@ impl User {
     pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<(i64, Vec<User>), Error> {
         let users = sqlx::query_as!(
             UserWithTotal,
-            r#" SELECT username, email, COUNT(*) OVER () as total FROM users ORDER BY username LIMIT $1 OFFSET $2"#,
+            r#" SELECT username , COUNT(*) OVER () as total FROM users ORDER BY username LIMIT $1 OFFSET $2"#,
             limit,
             offset,
         )
@@ -148,7 +140,6 @@ pub struct ApiKey {
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize)]
 pub struct UserWithKey {
     pub username: String,
-    pub email: String,
     pub api_key_hash: String,
 }
 
@@ -162,7 +153,6 @@ impl From<UserWithKey> for User {
     fn from(user: UserWithKey) -> Self {
         Self {
             username: user.username,
-            email: user.email,
         }
     }
 }

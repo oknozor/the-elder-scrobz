@@ -49,14 +49,14 @@ async fn main() -> anyhow::Result<()> {
     info!("listening on {}", listener.local_addr()?);
     let oauth_client = get_oauth2_client(&settings).await?;
 
-    let app = router(settings.debug)
+    let app = router(settings.debug, pool.clone())
         .layer(TraceLayer::new_for_http())
-        .layer(Extension(pool.clone()))
         .layer(Extension(MetadataClient::new(
             settings.discogs_token.clone(),
         )))
         .layer(Extension(oauth_client))
-        .layer(Extension(settings.clone()));
+        .layer(Extension(settings.clone()))
+        .with_state(pool.clone());
 
     #[cfg(debug_assertions)]
     let app = {

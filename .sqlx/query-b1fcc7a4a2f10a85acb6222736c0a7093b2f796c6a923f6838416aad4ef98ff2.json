@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT username, email\n            FROM users\n            WHERE username = $1\n            ",
+  "query": " SELECT username , COUNT(*) OVER () as total FROM users ORDER BY username LIMIT $1 OFFSET $2",
   "describe": {
     "columns": [
       {
@@ -10,19 +10,20 @@
       },
       {
         "ordinal": 1,
-        "name": "email",
-        "type_info": "Text"
+        "name": "total",
+        "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Int8",
+        "Int8"
       ]
     },
     "nullable": [
       false,
-      false
+      null
     ]
   },
-  "hash": "91a273e49dd36f95b883b0333a0153f8b7947c0d5d44e252cc8f415895e15fa5"
+  "hash": "b1fcc7a4a2f10a85acb6222736c0a7093b2f796c6a923f6838416aad4ef98ff2"
 }

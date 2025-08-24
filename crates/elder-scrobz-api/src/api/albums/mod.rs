@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
 use crate::settings::Settings;
 use autometrics::autometrics;
-use axum::extract::Path;
+use axum::extract::{Path, State};
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::releases::AlbumWithTracks;
@@ -24,13 +24,13 @@ use utoipa_axum::routes;
 #[autometrics]
 pub async fn by_id(
     Path(id): Path<String>,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Extension(settings): Extension<Arc<Settings>>,
 ) -> AppResult<Json<AlbumWithTracks>> {
     let album = AlbumWithTracks::by_id(&id, &db).await?;
     Ok(Json(album.with_local_image(&settings.coverart_path)))
 }
 
-pub(crate) fn router() -> OpenApiRouter {
+pub(crate) fn router() -> OpenApiRouter<PgPool> {
     OpenApiRouter::new().routes(routes!(by_id))
 }

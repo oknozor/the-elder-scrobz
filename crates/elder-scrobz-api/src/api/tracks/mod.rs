@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
-use axum::extract::Path;
-use axum::{Extension, Json};
+use axum::extract::{Path, State};
+use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::tracks::Track;
 use elder_scrobz_db::PgPool;
@@ -20,16 +20,13 @@ use utoipa_axum::routes;
     tag = crate::api::TRACKS_TAG
 )]
 #[autometrics]
-pub async fn by_id(
-    Path(id): Path<String>,
-    Extension(db): Extension<PgPool>,
-) -> AppResult<Json<Track>> {
+pub async fn by_id(Path(id): Path<String>, State(db): State<PgPool>) -> AppResult<Json<Track>> {
     match Track::by_id(&id, &db).await? {
         Some(track) => Ok(Json(track)),
         None => Err(AppError::TrackNotFound { id: id.to_string() }),
     }
 }
 
-pub(crate) fn router() -> OpenApiRouter {
+pub(crate) fn router() -> OpenApiRouter<PgPool> {
     OpenApiRouter::new().routes(routes!(by_id))
 }

@@ -1,6 +1,6 @@
 use crate::error::AppResult;
 use autometrics::autometrics;
-use axum::extract::Query;
+use axum::extract::{Query, State};
 use axum::Extension;
 use axum_macros::debug_handler;
 use elder_scrobz_crawler::{
@@ -50,7 +50,7 @@ impl Default for ScanQuery {
 #[autometrics]
 pub async fn scan_db(
     Query(query): Query<ScanQuery>,
-    Extension(db): Extension<PgPool>,
+    State(db): State<PgPool>,
     Extension(client): Extension<MetadataClient>,
 ) -> AppResult<()> {
     if query.releases {
