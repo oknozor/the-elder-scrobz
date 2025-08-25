@@ -921,6 +921,7 @@ dependencies = [
  "config",
  "elder-scrobz-crawler",
  "elder-scrobz-db",
+ "elder-scrobz-model",
  "elder-scrobz-settings",
  "futures-util",
  "http-body-util",
@@ -993,7 +994,10 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "elder-scrobz-db",
+ "elder-scrobz-settings",
+ "once_cell",
  "serde",
+ "utoipa",
 ]
 
 [[package]]

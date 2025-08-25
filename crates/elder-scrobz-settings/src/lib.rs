@@ -15,6 +15,7 @@ pub struct Settings {
     pub navidrome_username: String,
     pub navidrome_password: String,
     pub navidrome_server_url: String,
+    pub navidrome_frontend_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]

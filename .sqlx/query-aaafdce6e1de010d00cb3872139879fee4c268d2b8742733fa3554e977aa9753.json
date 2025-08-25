@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT track_id              as id,\n       track.name            as name,\n       track.length          as length,\n       release.mbid          as release_mbid,\n       release.name          as release_name,\n       release.cover_art_url as thumbnail_url,\n       track.subsonic_id     as subsonic_id,\n       count(*)              as listens,\n       COUNT(*) OVER()       as total\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN users u on scrobbles.user_id = u.username\nWHERE DATE_TRUNC('week', listened_at) = DATE_TRUNC('week', NOW())\n  AND u.username = $1\nGROUP BY track_id, track.name, track.length, release.mbid, release.name, release.cover_art_url, track.subsonic_id\nORDER BY listens DESC\nLIMIT $2 OFFSET $3;\n",
+  "query": "SELECT\n    track_id as id,\n    track.name as name,\n    track.length as length,\n    release.mbid as release_mbid,\n    release.name as release_name,\n    release.cover_art_url as thumbnail_url,\n    track.subsonic_id as subsonic_id,\n    release.subsonic_id as release_subsonic_id,\n    count(*) as listens,\n    COUNT(*) OVER () AS total\nFROM\n    scrobbles\n    JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n    JOIN tracks track ON track.mbid = scrobbles.track_id\n    JOIN releases release ON track.release_mbid = release.mbid\nWHERE\n    DATE_TRUNC ('month', listened_at) = DATE_TRUNC ('month', NOW ())\nGROUP BY\n    track_id,\n    track.name,\n    track.length,\n    release.mbid,\n    release.name,\n    release.cover_art_url,\n    track.subsonic_id,\n    release.subsonic_id\nORDER BY\n    listens DESC\nLIMIT $1 OFFSET $2;\n",
   "describe": {
     "columns": [
       {
@@ -40,18 +40,22 @@
       },
       {
         "ordinal": 7,
+        "name": "release_subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
         "name": "listens",
         "type_info": "Int8"
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "total",
         "type_info": "Int8"
       }
     ],
     "parameters": {
       "Left": [
-        "Text",
         "Int8",
         "Int8"
       ]
@@ -64,9 +68,10 @@
       false,
       true,
       true,
+      true,
       null,
       null
     ]
   },
-  "hash": "af16b01f90bed07b1406646c2d90b75091d347c940ef31321d300c5d35e9829a"
+  "hash": "aaafdce6e1de010d00cb3872139879fee4c268d2b8742733fa3554e977aa9753"
 }

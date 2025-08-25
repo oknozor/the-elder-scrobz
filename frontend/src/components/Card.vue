@@ -25,14 +25,31 @@
             />
         </component>
         <div class="card-content">
-            <h3>{{ item.name }}</h3>
-            <p v-if="artist && !isArtist(item)">{{ artist }}</p>
-            <p>
-                {{ playCount }} plays
-                {{
-                    duration ? `/ ${formatMillisecondsToMinutes(duration)}` : ""
-                }}
-            </p>
+            <div class="card-summary" style="display:">
+                <h3>{{ item.name }}</h3>
+                <p v-if="artist && !isArtist(item)">{{ artist }}</p>
+                <p>
+                    {{ playCount }} plays
+                    {{
+                        duration
+                            ? `/ ${formatMillisecondsToMinutes(duration)}`
+                            : ""
+                    }}
+                </p>
+            </div>
+            <div class="card-navidrome-link">
+                <a
+                    v-if="item.subsonic_url"
+                    :href="item.subsonic_url"
+                    target="_blank"
+                >
+                    <img
+                        src="/img/navidrome-logo.png"
+                        alt="Navidrome"
+                        class="navidrome-logo"
+                    />
+                </a>
+            </div>
         </div>
     </div>
 </template>
@@ -128,6 +145,8 @@ const onImageError = (event: Event) => {
     opacity: 0;
     transform: translateY(100%);
     transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
 }
 
 .card:hover .card-content {
@@ -165,6 +184,7 @@ const onImageError = (event: Event) => {
     z-index: 1;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
+
 .card-image-placeholder {
     width: 100%;
     height: 100%;
@@ -173,6 +193,24 @@ const onImageError = (event: Event) => {
     align-items: center;
     justify-content: center;
     color: var(--text-color);
+}
+
+.navidrome-logo {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+}
+
+.card-summary {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-navidrome-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
 }
 
 @media screen and (max-width: 500px) {

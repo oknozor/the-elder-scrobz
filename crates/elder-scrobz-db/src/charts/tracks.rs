@@ -16,6 +16,7 @@ pub struct TopTrack {
     pub release_name: String,
     pub thumbnail_url: Option<String>,
     pub subsonic_id: Option<String>,
+    pub release_subsonic_id: Option<String>,
     pub listens: Option<i64>,
     #[serde(skip)]
     pub total: Option<i64>,

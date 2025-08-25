@@ -13,6 +13,7 @@ autometrics.workspace = true
 
 axum-macros.workspace = true
 elder-scrobz-db.workspace = true
+elder-scrobz-model.workspace = true
 elder-scrobz-crawler.workspace = true
 elder-scrobz-settings.workspace = true
 anyhow.workspace = true
