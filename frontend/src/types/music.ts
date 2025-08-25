@@ -12,6 +12,7 @@ export interface Item {
   id: string;
   name: string;
   thumbnail_url: string;
+  subsonic_url?: string;
   listens?: number;
 }
 

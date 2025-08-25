@@ -4,20 +4,11 @@ use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::{Query, State};
-use axum::{Extension, Json};
+use axum::Json;
 use axum_macros::debug_handler;
-use elder_scrobz_db::charts::artists::{get_most_listened_artists, TopArtist};
-use elder_scrobz_db::{PgPool, WithLocalImage};
-use elder_scrobz_settings::Settings;
-use serde::Serialize;
-use std::sync::Arc;
-use utoipa::ToSchema;
-
-#[derive(Serialize, ToSchema, Debug)]
-#[serde(tag = "type")]
-pub enum Artist {
-    Artist(TopArtist),
-}
+use elder_scrobz_db::charts::artists::get_most_listened_artists;
+use elder_scrobz_db::PgPool;
+use elder_scrobz_model::artist::ChartArtist;
 
 #[debug_handler]
 #[utoipa::path(
@@ -26,7 +17,7 @@ pub enum Artist {
     summary = "Artist charts",
     params(ChartQuery),
     responses(
-        (status = 200, description = "Top album for user", body = Vec<TopArtist>, content_type = "application/json"),
+        (status = 200, description = "Top album for user", body = Vec<ChartArtist>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
     ),
     tag = crate::api::CHARTS_TAG
@@ -35,18 +26,13 @@ pub enum Artist {
 pub async fn artist_charts(
     Query(query): Query<ChartQuery>,
     State(db): State<PgPool>,
-    Extension(settings): Extension<Arc<Settings>>,
-) -> AppResult<Json<PaginatedResponse<Artist>>> {
+) -> AppResult<Json<PaginatedResponse<ChartArtist>>> {
     let offset = query.to_offset();
     let (total, artists) =
         get_most_listened_artists(query.period, query.username, query.page_size, offset, &db)
             .await?;
 
-    let artists: Vec<_> = artists
-        .into_iter()
-        .map(|artist| artist.with_local_image(&settings.coverart_path))
-        .map(Artist::Artist)
-        .collect();
+    let artists: Vec<_> = artists.into_iter().map(ChartArtist::from).collect();
 
     let response = PaginatedResponse {
         data: artists,
@@ -54,5 +40,6 @@ pub async fn artist_charts(
         page_size: query.page_size,
         total,
     };
+
     Ok(Json(response))
 }

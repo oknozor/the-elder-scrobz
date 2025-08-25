@@ -4,20 +4,11 @@ use crate::api::PaginatedResponse;
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::{Query, State};
-use axum::{Extension, Json};
+use axum::Json;
 use axum_macros::debug_handler;
-use elder_scrobz_db::charts::tracks::{get_most_listened_tracks, TopTrack};
-use elder_scrobz_db::{PgPool, WithLocalImage};
-use elder_scrobz_settings::Settings;
-use serde::Serialize;
-use std::sync::Arc;
-use utoipa::ToSchema;
-
-#[derive(Serialize, ToSchema, Debug)]
-#[serde(tag = "type")]
-pub enum Track {
-    Track(TopTrack),
-}
+use elder_scrobz_db::charts::tracks::get_most_listened_tracks;
+use elder_scrobz_db::PgPool;
+use elder_scrobz_model::track::ChartTrack;
 
 #[debug_handler]
 #[utoipa::path(
@@ -26,7 +17,7 @@ pub enum Track {
     summary = "Track charts",
     params(ChartQuery),
     responses(
-        (status = 200, description = "Top tracks for user", body = PaginatedResponse<TopTrack>, content_type = "application/json"),
+        (status = 200, description = "Top tracks for user", body = PaginatedResponse<ChartTrack>, content_type = "application/json"),
         (status = 404, description = "User not found", body = AppError)
     ),
     tag = crate::api::CHARTS_TAG
@@ -35,18 +26,13 @@ pub enum Track {
 pub async fn track_charts(
     Query(query): Query<ChartQuery>,
     State(db): State<PgPool>,
-    Extension(settings): Extension<Arc<Settings>>,
-) -> AppResult<Json<PaginatedResponse<Track>>> {
+) -> AppResult<Json<PaginatedResponse<ChartTrack>>> {
     let offset = query.to_offset();
     let (total, tracks) =
         get_most_listened_tracks(query.period, query.username, query.page_size, offset, &db)
             .await?;
 
-    let tracks: Vec<_> = tracks
-        .into_iter()
-        .map(|track| track.with_local_image(&settings.coverart_path))
-        .map(Track::Track)
-        .collect();
+    let tracks: Vec<_> = tracks.into_iter().map(ChartTrack::from).collect();
 
     let response = PaginatedResponse {
         data: tracks,

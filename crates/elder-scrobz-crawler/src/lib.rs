@@ -266,10 +266,7 @@ pub async fn process_scrobble(
         .search_by_mbid(&recording_mbid)
         .await?;
 
-    let subsonic_id = match subsonic_track.song.get(0) {
-        Some(subsonic_track) => Some(subsonic_track.id.clone()),
-        _ => None,
-    };
+    let subsonic_id = subsonic_track.song.first().map(|subsonic_track| subsonic_track.id.clone());
 
     Track {
         mbid: recording_mbid.clone(),

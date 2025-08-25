@@ -127,7 +127,7 @@ impl MetadataClient {
         }
 
         let subsonic_data = self.subsonic_client.search_by_mbid(artist_mbid).await?;
-        if let Some(artist) = subsonic_data.artist.get(0) {
+        if let Some(artist) = subsonic_data.artist.first() {
             artist_metadata.subsonic_id = Some(artist.id.clone());
             artist_metadata.thumbnail_url = artist_metadata
                 .thumbnail_url
@@ -237,7 +237,7 @@ impl MetadataClient {
         }
 
         let subsonic_data = self.subsonic_client.search_by_mbid(release_mbid).await?;
-        if let Some(release) = subsonic_data.album.get(0) {
+        if let Some(release) = subsonic_data.album.first() {
             metadata.subsonic_id = Some(release.id.clone());
             metadata.thumbnail_url = metadata.thumbnail_url.or(release.cover_art.clone());
             metadata.year = metadata.year.or(release.year.map(|year| year as i32));
