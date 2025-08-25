@@ -1,4 +1,4 @@
-use crate::settings::Settings;
+use elder_scrobz_settings::Settings;
 use oauth2::basic::{
     BasicClient, BasicErrorResponse, BasicRevocationErrorResponse, BasicTokenIntrospectionResponse,
     BasicTokenResponse,

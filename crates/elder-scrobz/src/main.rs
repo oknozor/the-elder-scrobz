@@ -3,9 +3,9 @@ use axum::Extension;
 use axum::routing::get;
 use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
-use elder_scrobz_api::settings::Settings;
 use elder_scrobz_crawler::{MetadataClient, ScrobbleCrawler};
 use elder_scrobz_db::build_pg_pool;
+use elder_scrobz_settings::Settings;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::signal::unix::{SignalKind, signal};
@@ -53,6 +53,9 @@ async fn main() -> anyhow::Result<()> {
         .layer(TraceLayer::new_for_http())
         .layer(Extension(MetadataClient::new(
             settings.discogs_token.clone(),
+            settings.navidrome_username.clone(),
+            settings.navidrome_password.clone(),
+            settings.navidrome_server_url.clone(),
         )))
         .layer(Extension(oauth_client))
         .layer(Extension(settings.clone()))
@@ -107,6 +110,9 @@ async fn main() -> anyhow::Result<()> {
         pool.clone(),
         coverart_path,
         settings.discogs_token.clone(),
+        settings.navidrome_username.clone(),
+        settings.navidrome_password.clone(),
+        settings.navidrome_server_url.clone(),
         token.clone(),
     )
     .await?;

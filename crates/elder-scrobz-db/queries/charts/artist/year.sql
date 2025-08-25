@@ -2,6 +2,7 @@ SELECT artist.mbid            AS id,
        artist.name            AS name,
        artist.description     AS description,
        artist.thumbnail_url   AS thumbnail_url,
+       artist.subsonic_id     AS subsonic_id,
        MAX(raw.listened_at)   AS last_listened_at,
        COUNT(DISTINCT raw.id) AS listens,
        COUNT(*) OVER ()       AS total
@@ -19,6 +20,9 @@ WHERE EXTRACT(
               NOW()
           )
 GROUP BY artist.mbid,
-         artist.name
+         artist.name,
+         artist.description,
+         artist.thumbnail_url,
+         artist.subsonic_id
 ORDER BY listens DESC
 LIMIT $1 OFFSET $2;

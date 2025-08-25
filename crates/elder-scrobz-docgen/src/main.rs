@@ -1,7 +1,7 @@
 use clap::Parser;
 use elder_scrobz_api::api::ApiDoc;
-use elder_scrobz_api::settings::Settings;
 use elder_scrobz_db::build_pg_pool;
+use elder_scrobz_settings::Settings;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;

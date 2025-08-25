@@ -12,6 +12,7 @@ const DOCS: &str = include_str!("../../docs/album_charts.example.json");
 pub struct TopAlbum {
     pub id: String,
     pub name: String,
+    pub subsonic_id: Option<String>,
     pub thumbnail_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,

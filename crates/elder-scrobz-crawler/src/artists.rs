@@ -15,6 +15,7 @@ pub async fn process_artist(
         name: metadata.name,
         description: metadata.description,
         thumbnail_url: metadata.thumbnail_url,
+        subsonic_id: metadata.subsonic_id,
     }
     .save(db)
     .await?;

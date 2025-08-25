@@ -14,6 +14,7 @@ pub struct TopArtist {
     pub name: Option<String>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
+    pub subsonic_id: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
     #[serde(skip)]

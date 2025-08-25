@@ -898,6 +898,7 @@ dependencies = [
  "elder-scrobz-api",
  "elder-scrobz-crawler",
  "elder-scrobz-db",
+ "elder-scrobz-settings",
  "tokio",
  "tokio-util",
  "tower-http",
@@ -920,6 +921,7 @@ dependencies = [
  "config",
  "elder-scrobz-crawler",
  "elder-scrobz-db",
+ "elder-scrobz-settings",
  "futures-util",
  "http-body-util",
  "oauth2",
@@ -942,6 +944,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "elder-scrobz-db",
+ "elder-scrobz-subsonic",
  "musicbrainz_rs",
  "once_cell",
  "reqwest",
@@ -978,9 +981,38 @@ dependencies = [
  "clap",
  "elder-scrobz-api",
  "elder-scrobz-db",
+ "elder-scrobz-settings",
  "tokio",
  "utoipa",
  "utoipa-axum",
+]
+
+[[package]]
+name = "elder-scrobz-model"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "elder-scrobz-db",
+ "serde",
+]
+
+[[package]]
+name = "elder-scrobz-settings"
+version = "0.1.0"
+dependencies = [
+ "config",
+ "serde",
+]
+
+[[package]]
+name = "elder-scrobz-subsonic"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "reqwest",
+ "serde",
+ "subsonic-types",
+ "tokio",
 ]
 
 [[package]]
@@ -2389,6 +2421,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ordered-float"
+version = "3.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1e1c390732d15f1d48471625cd92d154e66db2c56645e29a9cd26f4699f72dc"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "ordered-multimap"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2693,6 +2734,16 @@ dependencies = [
  "wasi 0.11.0+wasi-snapshot-preview1",
  "web-sys",
  "winapi",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.27.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffc053f057dd768a56f62cd7e434c42c831d296968997e9ac1f76ea7c2d14c41"
+dependencies = [
+ "memchr",
+ "serde",
 ]
 
 [[package]]
@@ -3695,6 +3746,32 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.96",
+]
+
+[[package]]
+name = "subsonic-types"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "507ea5b47b33df65911496537b58e2fa1a7b712caf51daab7ab7d37306e4cc2e"
+dependencies = [
+ "ordered-float",
+ "percent-encoding",
+ "quick-xml",
+ "serde",
+ "serde_json",
+ "subsonic-types-macro",
+ "time",
+]
+
+[[package]]
+name = "subsonic-types-macro"
+version = "0.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4bc9512df415402723e22b533f02362b73945664e14102350c0f0862265fff5e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]

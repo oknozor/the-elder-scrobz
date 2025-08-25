@@ -37,6 +37,9 @@ sha2 = "0.10.8"
 elder-scrobz-api = { path = "crates/elder-scrobz-api", version = "0.1.0" }
 elder-scrobz-db = { path = "crates/elder-scrobz-db", version = "0.1.0" }
 elder-scrobz-crawler = { path = "crates/elder-scrobz-crawler", version = "0.1.0" }
+elder-scrobz-subsonic = { path = "crates/elder-scrobz-subsonic", version = "0.1.0" }
+elder-scrobz-settings = { path = "crates/elder-scrobz-settings", version = "0.1.0" }
+elder-scrobz-model = { path = "crates/elder-scrobz-model", version = "0.1.0" }
 
 http-body-util = "0.1.2"
 testcontainers-modules = { version = "0.11.6", features = ["postgres"] }
@@ -44,4 +47,5 @@ speculoos = "0.12.0"
 dotenv = "0.15.0"
 
 musicbrainz_rs = "0.9.1"
+subsonic-types = "0.2.0"
 once_cell = "1.21.1"

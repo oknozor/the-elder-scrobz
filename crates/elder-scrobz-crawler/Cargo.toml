@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 elder-scrobz-db.workspace = true
+elder-scrobz-subsonic.workspace = true
 reqwest.workspace = true
 musicbrainz_rs.workspace = true
 anyhow.workspace = true

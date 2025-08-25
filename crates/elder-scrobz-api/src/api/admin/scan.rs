@@ -87,7 +87,7 @@ pub async fn scan_db(
                 let id = scrobble.id.clone();
 
                 info!("Resolving scrobble {id}",);
-                match process_scrobble(scrobble, &db).await {
+                match process_scrobble(scrobble, &client, &db).await {
                     Ok(id) => info!("Processed scrobble {id}"),
                     Err(err) => error!("Failed to process scrobble {id}: {err}"),
                 };

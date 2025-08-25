@@ -1,4 +1,5 @@
 use anyhow::Context;
+use elder_scrobz_subsonic::{SubsonicClient, SubsonicConfig};
 use musicbrainz_rs::client::MusicBrainzClient;
 use musicbrainz_rs::entity::CoverartResponse;
 use musicbrainz_rs::entity::artist::Artist;
@@ -19,18 +20,29 @@ static MB_CLIENT: Lazy<MusicBrainzClient> = Lazy::new(|| {
 
 #[derive(Debug, Clone)]
 pub struct MetadataClient {
+    pub subsonic_client: SubsonicClient,
     client: reqwest::Client,
     discogs_token: String,
 }
 
 impl MetadataClient {
-    pub fn new(discogs_token: String) -> Self {
+    pub fn new(
+        discogs_token: String,
+        navidrome_username: String,
+        navidrome_password: String,
+        navidrome_url: String,
+    ) -> Self {
         Self {
             client: reqwest::Client::builder()
                 .user_agent("TheElderScrobz")
                 .build()
                 .unwrap(),
             discogs_token,
+            subsonic_client: SubsonicClient::new(SubsonicConfig {
+                username: navidrome_username,
+                password: navidrome_password,
+                server_url: navidrome_url,
+            }),
         }
     }
 }
@@ -38,6 +50,7 @@ impl MetadataClient {
 #[derive(Debug, Clone)]
 pub struct ArtistMetadata {
     pub mbid: String,
+    pub subsonic_id: Option<String>,
     pub name: Option<String>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
@@ -48,6 +61,7 @@ impl ArtistMetadata {
         ArtistMetadata {
             mbid: mbid.to_string(),
             name: None,
+            subsonic_id: None,
             description: None,
             thumbnail_url: None,
         }
@@ -58,6 +72,7 @@ impl ArtistMetadata {
 pub struct ReleaseMetadata {
     pub mbid: String,
     pub name: String,
+    pub subsonic_id: Option<String>,
     pub artist_mbid: Option<String>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
@@ -111,6 +126,14 @@ impl MetadataClient {
             }
         }
 
+        let subsonic_data = self.subsonic_client.search_by_mbid(artist_mbid).await?;
+        if let Some(artist) = subsonic_data.artist.get(0) {
+            artist_metadata.subsonic_id = Some(artist.id.clone());
+            artist_metadata.thumbnail_url = artist_metadata
+                .thumbnail_url
+                .or(artist.artist_image_url.clone());
+        }
+
         Ok(artist_metadata)
     }
 
@@ -143,6 +166,7 @@ impl MetadataClient {
                 name: Some(artist.name.clone()),
                 description: None,
                 thumbnail_url: None,
+                subsonic_id: None,
             })
             .collect();
 
@@ -180,6 +204,7 @@ impl MetadataClient {
             thumbnail_url: coverart_url,
             artists_credited,
             year: None,
+            subsonic_id: None,
         };
 
         if let Some(discogs_id) = discogs_id {
@@ -209,6 +234,13 @@ impl MetadataClient {
                 let description = self.get_wikipedia_description(&title).await?;
                 metadata.description = Some(description);
             }
+        }
+
+        let subsonic_data = self.subsonic_client.search_by_mbid(release_mbid).await?;
+        if let Some(release) = subsonic_data.album.get(0) {
+            metadata.subsonic_id = Some(release.id.clone());
+            metadata.thumbnail_url = metadata.thumbnail_url.or(release.cover_art.clone());
+            metadata.year = metadata.year.or(release.year.map(|year| year as i32));
         }
 
         Ok(metadata)

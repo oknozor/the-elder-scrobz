@@ -1,0 +1,13 @@
+[package]
+name = "elder-scrobz-subsonic"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde.workspace = true
+reqwest.workspace = true
+subsonic-types.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true
