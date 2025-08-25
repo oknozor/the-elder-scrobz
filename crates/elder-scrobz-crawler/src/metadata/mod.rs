@@ -1,3 +1,4 @@
+use anyhow::Context;
 use musicbrainz_rs::client::MusicBrainzClient;
 use musicbrainz_rs::entity::CoverartResponse;
 use musicbrainz_rs::entity::artist::Artist;
@@ -70,7 +71,8 @@ impl MetadataClient {
             .id(artist_mbid)
             .with_url_relations()
             .execute_with_client(&MB_CLIENT)
-            .await?;
+            .await
+            .context("Failed to fetch artist from MusicBrainz")?;
 
         let relations = artist.relations.unwrap_or_default();
 
