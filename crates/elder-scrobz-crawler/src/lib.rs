@@ -98,7 +98,7 @@ impl ScrobbleCrawler {
                         let mbid = release["mbid"].as_str().expect("mbid is not a string");
                         if let Some(coverart) = release["cover_art_url"].as_str() {
                             info!("Downloading coverart for release {}", mbid);
-                            if let Err(err) = self.download_image(&coverart, mbid).await {
+                            if let Err(err) = self.download_image(coverart, mbid).await {
                                 error!("Failed to download cover art: {}", err);
                             }
                         }
