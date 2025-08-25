@@ -1,10 +1,11 @@
 use crate::metadata::MetadataClient;
+use anyhow::Context;
 use serde::Deserialize;
 
 const USER_AGENT: &str = "TheElderScrobz/1.0";
 
 impl MetadataClient {
-    pub async fn get_discogs_artist(&self, id: &str) -> Result<DiscogsArtist, reqwest::Error> {
+    pub async fn get_discogs_artist(&self, id: &str) -> anyhow::Result<DiscogsArtist> {
         let artist = self
             .client
             .get(format!("https://api.discogs.com/artists/{id}"))
@@ -14,15 +15,17 @@ impl MetadataClient {
                 &format!("Discogs token={}", self.discogs_token),
             )
             .send()
-            .await?
+            .await
+            .context("Faild to send artist request to discog")?
             .json()
-            .await?;
+            .await
+            .context("Failed to deserialize artist response from discog")?;
 
         Ok(artist)
     }
 
-    pub async fn get_discogs_release(&self, id: &str) -> Result<DiscogsRelease, reqwest::Error> {
-        let artist = self
+    pub async fn get_discogs_release(&self, id: &str) -> anyhow::Result<DiscogsRelease> {
+        let release = self
             .client
             .get(format!("https://api.discogs.com/releases/{id}"))
             .header("User-Agent", USER_AGENT)
@@ -31,11 +34,13 @@ impl MetadataClient {
                 &format!("Discogs token={}", self.discogs_token),
             )
             .send()
-            .await?
+            .await
+            .context("Faild to send release request to discog")?
             .json()
-            .await?;
+            .await
+            .context("Failed to deserialize release response from discog")?;
 
-        Ok(artist)
+        Ok(release)
     }
 }
 
@@ -66,18 +71,4 @@ pub struct DiscogsImage {
     pub resource_url: String,
     pub uri150: String,
     pub r#type: String,
-}
-
-#[cfg(test)]
-mod test {
-    use crate::MetadataClient;
-
-    #[tokio::test]
-    async fn test_get_discogs_release() {
-        let client = MetadataClient::new("rzHdPLOtMKbqKltijMsrhxDHFwTZvvWoFvLcXJjR".to_string());
-        let release = client
-            .get_release_metadata("bb772ff7-7ed8-435b-9bfe-90df819fa605")
-            .await;
-        println!("{:?}", release);
-    }
 }

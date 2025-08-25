@@ -56,7 +56,7 @@ impl ScrobbleCrawler {
         let token = self.cancellation_token.clone();
         select! {
             _ = token.cancelled() => Ok(()),
-            result = self.listen() => result, // Correctly propagate the result
+            result = self.listen() => result,
         }
     }
 
@@ -66,6 +66,7 @@ impl ScrobbleCrawler {
             .listen_all([
                 "new_insert",
                 "coverart_updated",
+                "thumbnail_updated",
                 "release_inserted",
                 "artist_inserted",
             ])
@@ -92,10 +93,12 @@ impl ScrobbleCrawler {
                         }
                     }
                     "coverart_updated" => {
-                        let release: Release = serde_json::from_str(notification.payload())?;
-                        info!("Downloading coverart for release {}", release.mbid);
-                        if let Some(coverart) = release.thumbnail_url {
-                            if let Err(err) = self.download_image(&coverart, &release.mbid).await {
+                        let release: serde_json::Value =
+                            serde_json::from_str(notification.payload())?;
+                        let mbid = release["mbid"].as_str().expect("mbid is not a string");
+                        if let Some(coverart) = release["cover_art_url"].as_str() {
+                            info!("Downloading coverart for release {}", mbid);
+                            if let Err(err) = self.download_image(&coverart, mbid).await {
                                 error!("Failed to download cover art: {}", err);
                             }
                         }

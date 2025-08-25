@@ -60,7 +60,7 @@ async fn main() -> anyhow::Result<()> {
 
     #[cfg(debug_assertions)]
     let app = {
-        info!("Enabling CORS for local development. Don't do this in production.");
+        warn!("Enabling CORS for local development. Don't do this in production.");
         use axum::http::HeaderValue;
         use tower_http::cors::{Any, CorsLayer};
         app.layer(
