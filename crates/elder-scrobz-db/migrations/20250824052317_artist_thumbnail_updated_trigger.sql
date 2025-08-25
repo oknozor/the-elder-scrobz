@@ -9,5 +9,5 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER artist_updated_trigger
     AFTER UPDATE OF thumbnail_url ON artists
     FOR EACH ROW
-    WHEN (OLD.thumbnail_url DISTINCT FROM NEW.thumbnail_url)
+    WHEN (OLD.thumbnail_url IS DISTINCT FROM NEW.thumbnail_url)
 EXECUTE FUNCTION notify_on_thumbnail_updated();
