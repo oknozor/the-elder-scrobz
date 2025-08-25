@@ -5,6 +5,7 @@ use utoipa::ToSchema;
 #[derive(sqlx::FromRow, Deserialize, Serialize, ToSchema, Debug)]
 pub struct Artist {
     pub mbid: String,
+    pub subsonic_id: Option<String>,
     pub name: Option<String>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
@@ -14,14 +15,16 @@ impl Artist {
     pub async fn save(&self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
-            INSERT INTO artists (mbid, name, description, thumbnail_url)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO artists (mbid, subsonic_id, name, description, thumbnail_url)
+            VALUES ($1, $2, $3, $4, $5)
             ON CONFLICT (mbid) DO UPDATE
-            SET name = COALESCE(EXCLUDED.name, artists.name),
+            SET subsonic_id = COALESCE(EXCLUDED.subsonic_id, artists.subsonic_id),
+                name = COALESCE(EXCLUDED.name, artists.name),
                 description = COALESCE(EXCLUDED.description, artists.description),
                 thumbnail_url = COALESCE(EXCLUDED.thumbnail_url, artists.thumbnail_url);
             "#,
             self.mbid,
+            self.subsonic_id,
             self.name,
             self.description,
             self.thumbnail_url,
@@ -34,7 +37,7 @@ impl Artist {
     pub async fn by_id(mbid: &str, pool: &PgPool) -> Result<Artist, sqlx::Error> {
         sqlx::query_as!(
             Artist,
-            r#"SELECT mbid, name, description, thumbnail_url FROM artists WHERE mbid = $1;"#,
+            r#"SELECT mbid, subsonic_id, name, description, thumbnail_url FROM artists WHERE mbid = $1;"#,
             mbid
         )
         .fetch_one(pool)

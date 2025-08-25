@@ -10,8 +10,11 @@ pub struct Stats {
     total_releases_count: i64,
     total_artists_count: i64,
     unparsable_scrobbles: MissingDataStats,
-    release_without_coverart: MissingDataStats,
-    artist_without_thumbnail: MissingDataStats,
+    releases_without_coverart: MissingDataStats,
+    releases_without_subsonic_id: MissingDataStats,
+    artists_without_thumbnail: MissingDataStats,
+    artists_without_subsonic_id: MissingDataStats,
+    tracks_without_subsonic_id: MissingDataStats,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -60,9 +63,19 @@ WHERE s.source_id IS NULL;"#
                 .fetch_all(pool)
                 .await?;
 
-        let release_without_coverart = MissingDataStats {
+        let missing_subsonic_ids =
+            query_scalar!(r#"SELECT mbid FROM releases WHERE subsonic_id IS NULL"#)
+                .fetch_all(pool)
+                .await?;
+
+        let releases_without_coverart = MissingDataStats {
             count: missing_coverarts.len(),
             ids: missing_coverarts,
+        };
+
+        let releases_without_subsonic_id = MissingDataStats {
+            count: missing_subsonic_ids.len(),
+            ids: missing_subsonic_ids,
         };
 
         let missing_thumbnail =
@@ -70,15 +83,35 @@ WHERE s.source_id IS NULL;"#
                 .fetch_all(pool)
                 .await?;
 
-        let artist_without_thumbnail = MissingDataStats {
+        let artists_without_thumbnail = MissingDataStats {
             count: missing_thumbnail.len(),
             ids: missing_thumbnail,
+        };
+
+        let missing_subsonic_ids =
+            query_scalar!(r#"SELECT mbid FROM artists WHERE subsonic_id IS NULL"#)
+                .fetch_all(pool)
+                .await?;
+
+        let artists_without_subsonic_id = MissingDataStats {
+            count: missing_subsonic_ids.len(),
+            ids: missing_subsonic_ids,
         };
 
         let total_track_count = query_scalar!(r#"SELECT count(*) FROM tracks"#)
             .fetch_one(pool)
             .await?
             .unwrap();
+
+        let missing_subsonic_ids =
+            query_scalar!(r#"SELECT mbid FROM tracks WHERE subsonic_id IS NULL"#)
+                .fetch_all(pool)
+                .await?;
+
+        let tracks_without_subsonic_id = MissingDataStats {
+            count: missing_subsonic_ids.len(),
+            ids: missing_subsonic_ids,
+        };
 
         Ok(Stats {
             total_raw_scrobble_count,
@@ -87,8 +120,11 @@ WHERE s.source_id IS NULL;"#
             total_releases_count,
             total_artists_count,
             unparsable_scrobbles,
-            release_without_coverart,
-            artist_without_thumbnail,
+            releases_without_coverart,
+            releases_without_subsonic_id,
+            artists_without_thumbnail,
+            artists_without_subsonic_id,
+            tracks_without_subsonic_id,
         })
     }
 }

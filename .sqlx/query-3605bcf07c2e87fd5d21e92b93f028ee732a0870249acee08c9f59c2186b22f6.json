@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT mbid, subsonic_id, name, description, thumbnail_url FROM artists WHERE mbid = $1;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "mbid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "thumbnail_url",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "3605bcf07c2e87fd5d21e92b93f028ee732a0870249acee08c9f59c2186b22f6"
+}

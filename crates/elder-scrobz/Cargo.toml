@@ -12,6 +12,7 @@ axum.workspace = true
 elder-scrobz-api.workspace = true
 elder-scrobz-db.workspace = true
 elder-scrobz-crawler.workspace = true
+elder-scrobz-settings.workspace = true
 dotenv.workspace = true
 anyhow.workspace = true
 tokio.workspace = true

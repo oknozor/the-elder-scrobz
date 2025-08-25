@@ -39,6 +39,9 @@ impl ScrobbleCrawler {
         pool: PgPool,
         coverart_path: PathBuf,
         discogs_token: String,
+        navidrome_username: String,
+        navidrome_password: String,
+        navidrome_server_url: String,
         cancellation_token: CancellationToken,
     ) -> Result<Self> {
         let pg_listener = PgListener::connect_with(&pool).await?;
@@ -47,7 +50,12 @@ impl ScrobbleCrawler {
             pg_listener,
             client: reqwest::Client::new(),
             coverart_path,
-            metadata_client: MetadataClient::new(discogs_token),
+            metadata_client: MetadataClient::new(
+                discogs_token,
+                navidrome_username,
+                navidrome_password,
+                navidrome_server_url,
+            ),
             cancellation_token,
         })
     }
@@ -132,7 +140,7 @@ impl ScrobbleCrawler {
             return true;
         };
 
-        match process_scrobble(scrobble, &self.pool).await {
+        match process_scrobble(scrobble, &self.metadata_client, &self.pool).await {
             Ok(id) => {
                 info!("Processed scrobble {id}");
             }
@@ -182,7 +190,11 @@ impl ScrobbleCrawler {
     }
 }
 
-pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<String> {
+pub async fn process_scrobble(
+    scrobble: RawScrobble,
+    client: &MetadataClient,
+    pool: &PgPool,
+) -> Result<String> {
     let scrobble: TypedScrobble = scrobble.try_into()?;
     let pool = pool.clone();
     let scrobble_id = scrobble.id();
@@ -210,6 +222,7 @@ pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<St
         .into_iter()
         .map(|mbid| Artist {
             mbid,
+            subsonic_id: None,
             name: None,
             description: None,
             thumbnail_url: None,
@@ -227,6 +240,7 @@ pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<St
         description: None,
         thumbnail_url: None,
         year: None,
+        subsonic_id: None,
     }
     .save(&pool)
     .await?;
@@ -247,6 +261,16 @@ pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<St
         return Err(anyhow!("No main artist for scrobble {scrobble_id}"));
     };
 
+    let subsonic_track = client
+        .subsonic_client
+        .search_by_mbid(&recording_mbid)
+        .await?;
+
+    let subsonic_id = match subsonic_track.song.get(0) {
+        Some(subsonic_track) => Some(subsonic_track.id.clone()),
+        _ => None,
+    };
+
     Track {
         mbid: recording_mbid.clone(),
         artist_mbid: main_artist,
@@ -255,6 +279,7 @@ pub async fn process_scrobble(scrobble: RawScrobble, pool: &PgPool) -> Result<St
         name: track_name.clone(),
         number: track_number,
         length: track_duration,
+        subsonic_id,
     }
     .save(&pool)
     .await?;

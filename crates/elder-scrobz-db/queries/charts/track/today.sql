@@ -5,8 +5,9 @@ SELECT
     release.mbid as release_mbid,
     release.name as release_name,
     release.cover_art_url as thumbnail_url,
+    track.subsonic_id as subsonic_id,
     count(*) as listens,
-    COUNT(*) OVER () AS total
+    COUNT(*) OVER () as total
 FROM
     scrobbles
     JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id
@@ -20,7 +21,8 @@ GROUP BY
     track.length,
     release.mbid,
     release.name,
-    release.cover_art_url
+    release.cover_art_url,
+    track.subsonic_id
 ORDER BY
     listens DESC
 LIMIT $1 OFFSET $2;

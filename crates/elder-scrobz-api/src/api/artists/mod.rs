@@ -1,11 +1,11 @@
 use crate::error::{AppError, AppResult};
-use crate::settings::Settings;
 use autometrics::autometrics;
 use axum::extract::{Path, State};
 use axum::{Extension, Json};
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::artists::Artist;
 use elder_scrobz_db::{PgPool, WithLocalImage};
+use elder_scrobz_settings::Settings;
 use std::sync::Arc;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;

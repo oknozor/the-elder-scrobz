@@ -8,6 +8,7 @@ use utoipa::ToSchema;
 pub struct Release {
     pub mbid: String,
     pub name: String,
+    pub subsonic_id: Option<String>,
     pub artist_mbid: Option<String>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
@@ -50,16 +51,18 @@ impl Release {
     pub async fn save(self, pool: &PgPool) -> Result<(), sqlx::Error> {
         sqlx::query!(
             r#"
-        INSERT INTO releases (mbid, name, artist_mbid, description, cover_art_url, year)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO releases (mbid, subsonic_id, name, artist_mbid, description, cover_art_url, year)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         ON CONFLICT (mbid) DO UPDATE
         SET name = COALESCE(EXCLUDED.name, releases.name),
+            subsonic_id = COALESCE(EXCLUDED.subsonic_id, releases.subsonic_id),
             description = COALESCE(EXCLUDED.description, releases.description),
             cover_art_url = COALESCE(EXCLUDED.cover_art_url, releases.cover_art_url),
             artist_mbid = COALESCE(EXCLUDED.artist_mbid, releases.artist_mbid),
             year = COALESCE(EXCLUDED.year, releases.year);
         "#,
             self.mbid,
+            self.subsonic_id,
             self.name,
             self.artist_mbid,
             self.description,

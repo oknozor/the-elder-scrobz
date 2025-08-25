@@ -53,6 +53,7 @@ pub async fn process_release(
         description: metadata.description,
         thumbnail_url: metadata.thumbnail_url,
         year: metadata.year,
+        subsonic_id: metadata.subsonic_id,
     }
     .save(db)
     .await?;
