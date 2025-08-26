@@ -27,6 +27,8 @@ pub async fn overview(
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<Overview>> {
     Ok(Json(
-        get_overview(query.period, &db).await?.unwrap_or_default(),
+        get_overview(query.period, query.username, &db)
+            .await?
+            .unwrap_or_default(),
     ))
 }
