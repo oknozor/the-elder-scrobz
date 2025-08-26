@@ -12,7 +12,7 @@ pub async fn try_update_all_releases(
     let releases = if force {
         Release::all_ids(pool).await?
     } else {
-        Release::missing_coverart(pool).await?
+        Release::with_missing_metadata(pool).await?
     };
 
     info!("Found {} releases without coverart", releases.len());

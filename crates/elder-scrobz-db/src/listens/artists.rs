@@ -54,7 +54,7 @@ impl Artist {
 
     pub async fn with_missing_metadata(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
         sqlx::query_scalar!(
-            r#"SELECT mbid FROM artists WHERE thumbnail_url IS NULL OR description IS NULL"#
+            r#"SELECT mbid FROM artists WHERE thumbnail_url IS NULL OR description IS NULL OR subsonic_id IS NULL or name IS NULL"#
         )
         .fetch_all(pool)
         .await

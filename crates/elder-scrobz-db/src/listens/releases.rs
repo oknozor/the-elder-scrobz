@@ -84,8 +84,8 @@ impl Release {
         Ok(ids)
     }
 
-    pub async fn missing_coverart(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
-        sqlx::query_scalar!(r#"SELECT mbid FROM releases WHERE cover_art_url IS NULL"#)
+    pub async fn with_missing_metadata(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
+        sqlx::query_scalar!(r#"SELECT mbid FROM releases WHERE cover_art_url IS NULL OR artist_mbid IS NULL OR description IS NULL OR year IS NULL or year IS NULL or subsonic_id IS NULL"#)
             .fetch_all(pool)
             .await
     }
