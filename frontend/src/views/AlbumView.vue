@@ -113,7 +113,6 @@ const fetchAlbum = async () => {
             `/albums/${albumId.value}${usernameParam}`,
         );
         const data = response.data;
-        console.log({ data });
         album.value = data;
     } catch (err: any) {
         console.error("Error fetching album:", err);

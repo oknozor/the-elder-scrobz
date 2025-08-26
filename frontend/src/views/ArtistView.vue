@@ -70,7 +70,6 @@ const fetchArtist = async () => {
         const response = await apiClient.get(
             `/artists/${artistId.value}${usernameParam}`,
         );
-        console.log({ response });
         const data = response.data;
 
         artist.value = data.artist || data;
