@@ -34,14 +34,23 @@ pub struct ScrobbleCrawler {
     cancellation_token: CancellationToken,
 }
 
+pub struct DiscogsConfig {
+    pub key: String,
+    pub secret: String,
+}
+
+pub struct NavidromeConfig {
+    pub username: String,
+    pub password: String,
+    pub server_url: String,
+}
+
 impl ScrobbleCrawler {
     pub async fn create(
         pool: PgPool,
         coverart_path: PathBuf,
-        discogs_token: String,
-        navidrome_username: String,
-        navidrome_password: String,
-        navidrome_server_url: String,
+        discogs_config: DiscogsConfig,
+        navidrom_config: NavidromeConfig,
         cancellation_token: CancellationToken,
     ) -> Result<Self> {
         let pg_listener = PgListener::connect_with(&pool).await?;
@@ -51,10 +60,11 @@ impl ScrobbleCrawler {
             client: reqwest::Client::new(),
             coverart_path,
             metadata_client: MetadataClient::new(
-                discogs_token,
-                navidrome_username,
-                navidrome_password,
-                navidrome_server_url,
+                discogs_config.key,
+                discogs_config.secret,
+                navidrom_config.username,
+                navidrom_config.password,
+                navidrom_config.server_url,
             ),
             cancellation_token,
         })

@@ -12,7 +12,10 @@ impl MetadataClient {
             .header("User-Agent", USER_AGENT)
             .header(
                 "Authorization",
-                &format!("Discogs token={}", self.discogs_token),
+                &format!(
+                    "Discogs key={}, secret={}",
+                    self.discogs_key, self.discogs_secret
+                ),
             )
             .send()
             .await
@@ -31,7 +34,10 @@ impl MetadataClient {
             .header("User-Agent", USER_AGENT)
             .header(
                 "Authorization",
-                &format!("Discogs token={}", self.discogs_token),
+                &format!(
+                    "Discogs key={}, secret={}",
+                    self.discogs_key, self.discogs_secret
+                ),
             )
             .send()
             .await

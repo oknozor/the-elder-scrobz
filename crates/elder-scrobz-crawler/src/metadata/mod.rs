@@ -23,12 +23,14 @@ static MB_CLIENT: Lazy<MusicBrainzClient> = Lazy::new(|| {
 pub struct MetadataClient {
     pub subsonic_client: SubsonicClient,
     client: reqwest::Client,
-    discogs_token: String,
+    discogs_key: String,
+    discogs_secret: String,
 }
 
 impl MetadataClient {
     pub fn new(
-        discogs_token: String,
+        discogs_key: String,
+        discogs_secret: String,
         navidrome_username: String,
         navidrome_password: String,
         navidrome_url: String,
@@ -38,7 +40,8 @@ impl MetadataClient {
                 .user_agent("TheElderScrobz")
                 .build()
                 .unwrap(),
-            discogs_token,
+            discogs_key,
+            discogs_secret,
             subsonic_client: SubsonicClient::new(SubsonicConfig {
                 username: navidrome_username,
                 password: navidrome_password,
