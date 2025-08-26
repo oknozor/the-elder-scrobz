@@ -15,7 +15,10 @@ impl MetadataClient {
             .await
     }
 
-    pub async fn get_wikipedia_description(&self, title: &str) -> Result<String, reqwest::Error> {
+    pub async fn get_wikipedia_description(
+        &self,
+        title: &str,
+    ) -> Result<Option<String>, reqwest::Error> {
         let value: Value = self
             .client
             .get(format!(
@@ -26,7 +29,7 @@ impl MetadataClient {
             .json()
             .await?;
 
-        let value = value["extract"].as_str().unwrap().to_string();
+        let value = value["extract"].as_str().map(ToString::to_string);
         Ok(value)
     }
 }
