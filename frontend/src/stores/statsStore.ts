@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import {
+import apiClient from "@/services/api";
+import type {
   Album,
   Artist,
   MusicStats,
@@ -11,7 +12,6 @@ import {
   Track,
   User,
 } from "@/types/music";
-import apiClient from "@/services/api";
 
 export const useStatsStore = defineStore("stats", {
   state: () => ({

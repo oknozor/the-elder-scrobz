@@ -11,7 +11,7 @@ use utoipa::IntoParams;
 #[derive(Deserialize, IntoParams, Debug)]
 pub struct PulseQuery {
     period: Period,
-    user_id: Option<String>,
+    username: Option<String>,
 }
 
 #[debug_handler]
@@ -32,6 +32,6 @@ pub async fn pulses(
     State(db): State<PgPool>,
 ) -> AppResult<Json<Vec<Pulse>>> {
     Ok(Json(
-        Pulse::for_period(query.period, query.user_id, &db).await?,
+        Pulse::for_period(query.period, query.username, &db).await?,
     ))
 }
