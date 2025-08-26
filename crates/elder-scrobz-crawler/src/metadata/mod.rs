@@ -127,8 +127,8 @@ impl MetadataClient {
                         .map(|d| d.title.clone());
 
                     if let Some(title) = wiki_title {
-                        let description = self.get_wikipedia_description(&title).await?;
-                        artist_metadata.description = Some(description);
+                        artist_metadata.description =
+                            self.get_wikipedia_description(&title).await?;
                     }
                 }
                 Err(err) => error!("Failed to fetch Wikidata artist: {}", err),
@@ -253,8 +253,7 @@ impl MetadataClient {
                         .map(|d| d.title.clone());
 
                     if let Some(title) = wiki_title {
-                        let description = self.get_wikipedia_description(&title).await?;
-                        metadata.description = Some(description);
+                        metadata.description = self.get_wikipedia_description(&title).await?;
                     }
                 }
                 Err(err) => error!("Failed to fetch Wikidata item: {}", err),
