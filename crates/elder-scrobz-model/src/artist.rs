@@ -42,6 +42,7 @@ pub struct Artist {
     pub name: Option<String>,
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
+    pub musicbrainz_url: String,
 }
 
 impl From<ArtistEntity> for Artist {
@@ -49,6 +50,7 @@ impl From<ArtistEntity> for Artist {
         Artist {
             r#type: "Artist",
             thumbnail_url: local_image(&artist.mbid).or(artist.thumbnail_url),
+            musicbrainz_url: format!("https://musicbrainz.org/artist/{}", artist.mbid),
             mbid: artist.mbid,
             subsonic_url: artist.subsonic_id.map(|id| {
                 let frontend_url = &SETTINGS.navidrome_frontend_url;

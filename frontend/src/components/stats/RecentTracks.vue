@@ -116,10 +116,12 @@ const props = defineProps({
     tracks: {
         type: Array as PropType<RecentTrack[]>,
         required: true,
+        default: [],
     },
     totalPages: {
         type: Number,
         required: true,
+        default: 0,
     },
 });
 

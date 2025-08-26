@@ -1,4 +1,4 @@
-use crate::{Period, WithLocalImage};
+use crate::Period;
 use serde::Serialize;
 use sqlx::PgPool;
 use sqlx::types::chrono::{DateTime, Utc};
@@ -19,16 +19,6 @@ pub struct TopArtist {
     pub listens: Option<i64>,
     #[serde(skip)]
     pub total: Option<i64>,
-}
-
-impl WithLocalImage for TopArtist {
-    fn mbid(&self) -> &str {
-        &self.id
-    }
-
-    fn set_image_path(&mut self, path: String) {
-        self.thumbnail_url = Some(path);
-    }
 }
 
 pub async fn get_most_listened_artists(

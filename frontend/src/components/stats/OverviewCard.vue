@@ -29,10 +29,11 @@ defineProps({
     value: {
         type: [String, Number],
         required: true,
+        default: 0,
     },
     percentageChange: {
         type: Number,
-        default: null,
+        default: 0,
     },
     comparisonText: {
         type: String,

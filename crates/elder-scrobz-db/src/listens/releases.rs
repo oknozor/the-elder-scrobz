@@ -1,5 +1,5 @@
+use crate::PgPool;
 use crate::listens::tracks::Track;
-use crate::{PgPool, WithLocalImage};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -99,25 +99,5 @@ impl Release {
         .await?;
 
         Ok(())
-    }
-}
-
-impl WithLocalImage for Release {
-    fn set_image_path(&mut self, path: String) {
-        self.thumbnail_url = Some(path);
-    }
-
-    fn mbid(&self) -> &str {
-        &self.mbid
-    }
-}
-
-impl WithLocalImage for AlbumWithTracks {
-    fn set_image_path(&mut self, path: String) {
-        self.album.thumbnail_url = Some(path);
-    }
-
-    fn mbid(&self) -> &str {
-        &self.album.id
     }
 }

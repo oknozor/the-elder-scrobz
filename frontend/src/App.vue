@@ -17,9 +17,11 @@
                 <slot name="header-right"></slot>
             </template>
         </PageHeader>
-        <Transition name="slide" mode="out-in">
-            <RouterView />
-        </Transition>
+        <RouterView v-slot="{ Component }">
+            <Transition name="slide" mode="out-in">
+                <component :is="Component" />
+            </Transition>
+        </RouterView>
     </div>
 </template>
 

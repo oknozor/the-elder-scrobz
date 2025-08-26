@@ -1,4 +1,4 @@
-use crate::{Period, WithLocalImage};
+use crate::Period;
 use serde::Serialize;
 use sqlx::PgPool;
 use std::result::Result;
@@ -20,16 +20,6 @@ pub struct TopTrack {
     pub listens: Option<i64>,
     #[serde(skip)]
     pub total: Option<i64>,
-}
-
-impl WithLocalImage for TopTrack {
-    fn mbid(&self) -> &str {
-        &self.release_mbid
-    }
-
-    fn set_image_path(&mut self, path: String) {
-        self.thumbnail_url = Some(path);
-    }
 }
 
 pub async fn get_most_listened_tracks(

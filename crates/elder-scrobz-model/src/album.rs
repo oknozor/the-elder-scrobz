@@ -47,6 +47,7 @@ pub struct AlbumDetails {
     pub description: Option<String>,
     pub thumbnail_url: Option<String>,
     pub subsonic_url: Option<String>,
+    pub musicbrainz_url: String,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
     pub tracks: Vec<Track>,
@@ -61,6 +62,7 @@ impl From<AlbumWithTracksEntity> for AlbumDetails {
                 let frontend_url = &SETTINGS.navidrome_frontend_url;
                 format!("{frontend_url}/app/#/album/{id}/show")
             }),
+            musicbrainz_url: format!("https://musicbrainz.org/release/{}", album.album.id),
             id: album.album.id,
             name: album.album.name,
             artist_id: album.album.artist_id,
