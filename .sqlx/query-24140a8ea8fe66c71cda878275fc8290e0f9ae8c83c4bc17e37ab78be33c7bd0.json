@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT count(distinct artists.mbid) as artist_listened,\n       count(distinct t.mbid)       as track_listened,\n       sum(t.length)                as time_listened,\n       CASE\n           WHEN last_week.artist_listened > 0 THEN\n               (count(distinct artists.mbid) - last_week.artist_listened) * 100.0 /\n               last_week.artist_listened\n           ELSE null::float8\n           END                      as artist_listened_percentage_increase,\n       CASE\n           WHEN last_week.track_listened > 0 THEN\n               (count(distinct t.mbid) - last_week.track_listened) * 100.0 /\n               last_week.track_listened\n           ELSE null::float8\n           END                      as track_listened_percentage_increase,\n       CASE\n           WHEN last_week.time_listened > 0 THEN\n               (sum(t.length) - last_week.time_listened) * 100.0 /\n               last_week.time_listened\n           ELSE null::float8\n           END                      as time_listened_percentage_increase\nFROM artists\n         JOIN public.tracks t on artists.mbid = t.artist_mbid\n         JOIN public.scrobbles s on t.mbid = s.track_id AND s.user_id = $1\n         LEFT JOIN (SELECT count(distinct artists.mbid) as artist_listened,\n                           count(distinct t.mbid)       as track_listened,\n                           sum(t.length)                as time_listened\n                    FROM artists\n                             JOIN public.tracks t on artists.mbid = t.artist_mbid\n                             JOIN public.scrobbles s on t.mbid = s.track_id\n                    WHERE s.user_id = $1\n                      AND s.created_at::date >= date_trunc('week', CURRENT_DATE - interval '1 week')\n                      AND s.created_at::date < date_trunc('week', CURRENT_DATE)) as last_week ON true\nWHERE s.created_at::date >= date_trunc('week', CURRENT_DATE)\nGROUP BY last_week.artist_listened, last_week.track_listened, last_week.time_listened;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "artist_listened",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "track_listened",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "time_listened",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "artist_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 4,
+        "name": "track_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 5,
+        "name": "time_listened_percentage_increase",
+        "type_info": "Float8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "24140a8ea8fe66c71cda878275fc8290e0f9ae8c83c4bc17e37ab78be33c7bd0"
+}
