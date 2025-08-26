@@ -12,10 +12,10 @@ pub struct Pulse {
 impl Pulse {
     pub async fn for_period(
         period: Period,
-        user_id: Option<String>,
+        username: Option<String>,
         pool: &PgPool,
     ) -> Result<Vec<Pulse>, sqlx::Error> {
-        let result = match user_id {
+        let result = match username {
             None => match period {
                 Period::Week => {
                     sqlx::query_file_as!(Pulse, "queries/pulses/week.sql")
