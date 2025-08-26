@@ -1,14 +1,15 @@
-(function() {
-  if (window.parent && window.parent.oidcUserManager) {
-    console.log('Processing silent renew callback');
-    window.parent.oidcUserManager.signinSilentCallback()
-      .then(function() {
-        console.log('Silent renew completed successfully');
+(() => {
+  if (window.parent?.oidcUserManager) {
+    console.log("Processing silent renew callback");
+    window.parent.oidcUserManager
+      .signinSilentCallback()
+      .then(() => {
+        console.log("Silent renew completed successfully");
       })
-      .catch(function(error) {
-        console.error('Silent renew error:', error);
+      .catch((error) => {
+        console.error("Silent renew error:", error);
       });
   } else {
-    console.error('Unable to access UserManager from parent window');
+    console.error("Unable to access UserManager from parent window");
   }
 })();

@@ -1,4 +1,4 @@
-import { UserManager, UserManagerSettings, User } from 'oidc-client-ts';
+import { User, UserManager, UserManagerSettings } from "oidc-client-ts";
 
 // Use runtime environment variables from window.env if available, otherwise fall back to import.meta.env
 const env = (window as any).env || import.meta.env;
@@ -10,13 +10,23 @@ const oidcSettings: UserManagerSettings = {
   client_secret: env.VITE_OIDC_CLIENT_SECRET,
   redirect_uri: `${window.location.origin}/callback`,
   post_logout_redirect_uri: window.location.origin,
-  response_type: 'code',
-  scope: 'openid profile email',
+  response_type: "code",
+  scope: "openid profile email offline_access",
   automaticSilentRenew: true,
   silent_redirect_uri: `${window.location.origin}/silent-renew.html`,
 };
 
 const userManager = new UserManager(oidcSettings);
+
+userManager.events.addAccessTokenExpired(async () => {
+  console.warn("Access token expired, trying silent renew...");
+  try {
+    await userManager.signinSilent();
+    console.log("Silent renew succeeded");
+  } catch (err) {
+    console.error("Silent renew failed", err);
+  }
+});
 
 (window as any).oidcUserManager = userManager;
 
@@ -36,12 +46,12 @@ export default {
 
   async handleLoginCallback(): Promise<User> {
     try {
-      console.log('Handling login callback in auth service');
+      console.log("Handling login callback in auth service");
       const user = await userManager.signinRedirectCallback();
-      console.log('Login callback processed successfully');
+      console.log("Login callback processed successfully");
       return user;
     } catch (error) {
-      console.error('Error in signinRedirectCallback:', error);
+      console.error("Error in signinRedirectCallback:", error);
       throw error;
     }
   },
@@ -51,7 +61,18 @@ export default {
   },
 
   async getAccessToken(): Promise<string | null> {
-    const user = await userManager.getUser();
+    let user = await userManager.getUser();
+
+    if (!user || user.expired) {
+      console.log("Access token expired, trying silent renew...");
+      try {
+        user = await userManager.signinSilent();
+      } catch (err) {
+        console.error("Silent renew failed:", err);
+        return null;
+      }
+    }
+
     return user?.access_token || null;
   },
 };

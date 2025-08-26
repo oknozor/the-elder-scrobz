@@ -1,4 +1,4 @@
-use crate::{PgPool, WithLocalImage};
+use crate::PgPool;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -81,15 +81,5 @@ impl ArtistCredited {
         .execute(pool)
         .await?;
         Ok(())
-    }
-}
-
-impl WithLocalImage for Artist {
-    fn mbid(&self) -> &str {
-        &self.mbid
-    }
-
-    fn set_image_path(&mut self, path: String) {
-        self.thumbnail_url = Some(path);
     }
 }
