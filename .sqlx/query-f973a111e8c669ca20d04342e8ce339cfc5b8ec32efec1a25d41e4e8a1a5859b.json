@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT release.mbid             as id,\n       release.subsonic_id      as subsonic_id,\n       release.name           as name,\n       release.cover_art_url  as thumbnail_url,\n       release.description    as description,\n       release.year           as year,\n       artist.name            as artist_name,\n       artist.mbid           as artist_id,\n       max(raw.listened_at)   as last_listened_at,\n       count(distinct raw.id) as listens\nFROM scrobbles\n         JOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\n         JOIN tracks track ON track.mbid = scrobbles.track_id\n         JOIN releases release ON track.release_mbid = release.mbid\n         JOIN artists artist ON artist.mbid = release.artist_mbid\nWHERE release.mbid = $1\nGROUP BY release.mbid, release.subsonic_id, release.name, release.cover_art_url, artist.mbid, artist.name\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "thumbnail_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "artist_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "artist_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "last_listened_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "listens",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "f973a111e8c669ca20d04342e8ce339cfc5b8ec32efec1a25d41e4e8a1a5859b"
+}

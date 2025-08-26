@@ -18,6 +18,7 @@ pub struct Release {
 #[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
 pub struct AlbumDetails {
     pub id: String,
+    pub subsonic_id: Option<String>,
     pub name: String,
     pub artist_id: Option<String>,
     pub artist_name: Option<String>,

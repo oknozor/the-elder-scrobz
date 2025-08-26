@@ -1,4 +1,5 @@
 SELECT release.mbid             as id,
+       release.subsonic_id      as subsonic_id,
        release.name           as name,
        release.cover_art_url  as thumbnail_url,
        release.description    as description,
@@ -13,4 +14,4 @@ FROM scrobbles
          JOIN releases release ON track.release_mbid = release.mbid
          JOIN artists artist ON artist.mbid = release.artist_mbid
 WHERE release.mbid = $1
-GROUP BY release.mbid, release.name, release.cover_art_url, artist.mbid, artist.name
+GROUP BY release.mbid, release.subsonic_id, release.name, release.cover_art_url, artist.mbid, artist.name
