@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use elder_scrobz_db::charts::artists::TopArtist;
+use elder_scrobz_db::listens::artists::Artist as ArtistEntity;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -20,7 +21,7 @@ impl From<TopArtist> for ChartArtist {
     fn from(artist: TopArtist) -> Self {
         ChartArtist {
             r#type: "Artist",
-            thumbnail_url: artist.thumbnail_url.or(local_image(&artist.id)),
+            thumbnail_url: local_image(&artist.id).or(artist.thumbnail_url),
             subsonic_url: artist.subsonic_id.map(|id| {
                 let frontend_url = &SETTINGS.navidrome_frontend_url;
                 format!("{frontend_url}/app/#/artist/{id}/show")
@@ -29,6 +30,32 @@ impl From<TopArtist> for ChartArtist {
             name: artist.name,
             last_listened_at: artist.last_listened_at,
             listens: artist.listens,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, ToSchema, Debug)]
+pub struct Artist {
+    pub r#type: &'static str,
+    pub mbid: String,
+    pub subsonic_url: Option<String>,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub thumbnail_url: Option<String>,
+}
+
+impl From<ArtistEntity> for Artist {
+    fn from(artist: ArtistEntity) -> Self {
+        Artist {
+            r#type: "Artist",
+            thumbnail_url: local_image(&artist.mbid).or(artist.thumbnail_url),
+            mbid: artist.mbid,
+            subsonic_url: artist.subsonic_id.map(|id| {
+                let frontend_url = &SETTINGS.navidrome_frontend_url;
+                format!("{frontend_url}/app/#/artist/{id}/show")
+            }),
+            name: artist.name,
+            description: artist.description,
         }
     }
 }
