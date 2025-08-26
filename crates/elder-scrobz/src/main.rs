@@ -3,7 +3,7 @@ use axum::Extension;
 use axum::routing::get;
 use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
-use elder_scrobz_crawler::{MetadataClient, ScrobbleCrawler};
+use elder_scrobz_crawler::{DiscogsConfig, MetadataClient, NavidromeConfig, ScrobbleCrawler};
 use elder_scrobz_db::build_pg_pool;
 use elder_scrobz_settings::Settings;
 use std::net::SocketAddr;
@@ -52,7 +52,8 @@ async fn main() -> anyhow::Result<()> {
     let app = router(settings.debug, pool.clone())
         .layer(TraceLayer::new_for_http())
         .layer(Extension(MetadataClient::new(
-            settings.discogs_token.clone(),
+            settings.discogs_key.clone(),
+            settings.discogs_secret.clone(),
             settings.navidrome_username.clone(),
             settings.navidrome_password.clone(),
             settings.navidrome_server_url.clone(),
@@ -109,10 +110,15 @@ async fn main() -> anyhow::Result<()> {
     let mut crawler = ScrobbleCrawler::create(
         pool.clone(),
         coverart_path,
-        settings.discogs_token.clone(),
-        settings.navidrome_username.clone(),
-        settings.navidrome_password.clone(),
-        settings.navidrome_server_url.clone(),
+        DiscogsConfig {
+            key: settings.discogs_key.clone(),
+            secret: settings.discogs_secret.clone(),
+        },
+        NavidromeConfig {
+            username: settings.navidrome_username.clone(),
+            password: settings.navidrome_password.clone(),
+            server_url: settings.navidrome_server_url.clone(),
+        },
         token.clone(),
     )
     .await?;
