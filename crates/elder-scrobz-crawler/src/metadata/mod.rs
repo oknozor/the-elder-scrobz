@@ -7,6 +7,7 @@ use musicbrainz_rs::entity::relations::{Relation, RelationContent};
 use musicbrainz_rs::entity::release::Release;
 use musicbrainz_rs::{Fetch, FetchCoverart};
 use once_cell::sync::Lazy;
+use tracing::error;
 
 mod discogs;
 mod wiki;
@@ -90,48 +91,63 @@ impl MetadataClient {
             .context("Failed to fetch artist from MusicBrainz")?;
 
         let relations = artist.relations.unwrap_or_default();
-
         let wikidata_id: Option<String> = extract_relation_id(&relations, "wikidata");
         let discogs_id: Option<String> = extract_relation_id(&relations, "discogs");
         let mut artist_metadata = ArtistMetadata::new(artist_mbid);
-
         artist_metadata.name = Some(artist.name);
+
         if let Some(discogs_id) = discogs_id {
-            let artist = self.get_discogs_artist(&discogs_id).await?;
-            artist_metadata.thumbnail_url = artist_metadata.thumbnail_url.or_else(|| {
-                artist
-                    .images
-                    .unwrap_or_default()
-                    .into_iter()
-                    .filter(|image| image.r#type == "primary")
-                    .filter(|image| !image.resource_url.is_empty())
-                    .map(|image| image.resource_url)
-                    .next()
-            });
-
-            artist_metadata.description = Some(artist.profile);
-        }
-
-        if let Some(wikidata_id) = wikidata_id {
-            let item = self.get_wikidata(&wikidata_id).await?;
-            let wiki_title = item
-                .entities
-                .get(&wikidata_id)
-                .and_then(|e| e.sitelinks.get("enwiki"))
-                .map(|d| d.title.clone());
-
-            if let Some(title) = wiki_title {
-                let description = self.get_wikipedia_description(&title).await?;
-                artist_metadata.description = Some(description);
+            match self.get_discogs_artist(&discogs_id).await {
+                Ok(artist) => {
+                    artist_metadata.thumbnail_url = artist_metadata.thumbnail_url.or_else(|| {
+                        artist
+                            .images
+                            .unwrap_or_default()
+                            .into_iter()
+                            .filter(|image| image.r#type == "primary")
+                            .filter(|image| !image.resource_url.is_empty())
+                            .map(|image| image.resource_url)
+                            .next()
+                    });
+                    artist_metadata.description = Some(artist.profile);
+                }
+                Err(err) => {
+                    error!("Failed to fetch Discogs artist: {}", err);
+                }
             }
         }
 
-        let subsonic_data = self.subsonic_client.search_by_mbid(artist_mbid).await?;
-        if let Some(artist) = subsonic_data.artist.first() {
-            artist_metadata.subsonic_id = Some(artist.id.clone());
-            artist_metadata.thumbnail_url = artist_metadata
-                .thumbnail_url
-                .or(artist.artist_image_url.clone());
+        if let Some(wikidata_id) = wikidata_id {
+            match self.get_wikidata(&wikidata_id).await {
+                Ok(item) => {
+                    let wiki_title = item
+                        .entities
+                        .get(&wikidata_id)
+                        .and_then(|e| e.sitelinks.get("enwiki"))
+                        .map(|d| d.title.clone());
+
+                    if let Some(title) = wiki_title {
+                        let description = self.get_wikipedia_description(&title).await?;
+                        artist_metadata.description = Some(description);
+                    }
+                }
+                Err(err) => error!("Failed to fetch Wikidata artist: {}", err),
+            }
+        }
+
+        match self.subsonic_client.search_by_mbid(artist_mbid).await {
+            Ok(subsonic_data) => {
+                if let Some(artist) = subsonic_data.artist.first() {
+                    artist_metadata.subsonic_id = Some(artist.id.clone());
+                    artist_metadata.thumbnail_url = artist_metadata
+                        .thumbnail_url
+                        .or(artist.artist_image_url.clone());
+                }
+            }
+
+            Err(err) => {
+                error!("Failed to fetch Subsonic artist: {}", err);
+            }
         }
 
         Ok(artist_metadata)
@@ -208,39 +224,52 @@ impl MetadataClient {
         };
 
         if let Some(discogs_id) = discogs_id {
-            let release = self.get_discogs_release(&discogs_id).await?;
-            metadata.year = Some(release.year as i32);
-            metadata.thumbnail_url = metadata.thumbnail_url.or(release.thumb).or_else(|| {
-                release
-                    .images
-                    .unwrap_or_default()
-                    .into_iter()
-                    .filter(|image| image.r#type == "primary")
-                    .filter(|image| !image.resource_url.is_empty())
-                    .map(|image| image.resource_url)
-                    .next()
-            });
-        }
-
-        if let Some(wikidata_id) = wikidata_id {
-            let item = self.get_wikidata(&wikidata_id).await?;
-            let wiki_title = item
-                .entities
-                .get(&wikidata_id)
-                .and_then(|e| e.sitelinks.get("enwiki"))
-                .map(|d| d.title.clone());
-
-            if let Some(title) = wiki_title {
-                let description = self.get_wikipedia_description(&title).await?;
-                metadata.description = Some(description);
+            match self.get_discogs_release(&discogs_id).await {
+                Ok(release) => {
+                    metadata.year = Some(release.year as i32);
+                    metadata.thumbnail_url =
+                        metadata.thumbnail_url.or(release.thumb).or_else(|| {
+                            release
+                                .images
+                                .unwrap_or_default()
+                                .into_iter()
+                                .filter(|image| image.r#type == "primary")
+                                .filter(|image| !image.resource_url.is_empty())
+                                .map(|image| image.resource_url)
+                                .next()
+                        });
+                }
+                Err(err) => error!("Failed to fetch Discogs release: {}", err),
             }
         }
 
-        let subsonic_data = self.subsonic_client.search_by_mbid(release_mbid).await?;
-        if let Some(release) = subsonic_data.album.first() {
-            metadata.subsonic_id = Some(release.id.clone());
-            metadata.thumbnail_url = metadata.thumbnail_url.or(release.cover_art.clone());
-            metadata.year = metadata.year.or(release.year.map(|year| year as i32));
+        if let Some(wikidata_id) = wikidata_id {
+            match self.get_wikidata(&wikidata_id).await {
+                Ok(item) => {
+                    let wiki_title = item
+                        .entities
+                        .get(&wikidata_id)
+                        .and_then(|e| e.sitelinks.get("enwiki"))
+                        .map(|d| d.title.clone());
+
+                    if let Some(title) = wiki_title {
+                        let description = self.get_wikipedia_description(&title).await?;
+                        metadata.description = Some(description);
+                    }
+                }
+                Err(err) => error!("Failed to fetch Wikidata item: {}", err),
+            }
+        }
+
+        match self.subsonic_client.search_by_mbid(release_mbid).await {
+            Ok(subsonic_data) => {
+                if let Some(release) = subsonic_data.album.first() {
+                    metadata.subsonic_id = Some(release.id.clone());
+                    metadata.thumbnail_url = metadata.thumbnail_url.or(release.cover_art.clone());
+                    metadata.year = metadata.year.or(release.year.map(|year| year as i32));
+                }
+            }
+            Err(err) => error!("Failed to fetch Subsonic album: {}", err),
         }
 
         Ok(metadata)
