@@ -30,29 +30,58 @@ impl Default for Overview {
     }
 }
 
-pub async fn get_overview(period: Period, pool: &PgPool) -> Result<Option<Overview>, sqlx::Error> {
-    let result = match period {
-        Period::Week => {
-            sqlx::query_file_as!(Overview, "queries/charts/overview/week.sql")
-                .fetch_optional(pool)
-                .await?
-        }
-        Period::Month => {
-            sqlx::query_file_as!(Overview, "queries/charts/overview/month.sql")
-                .fetch_optional(pool)
-                .await?
-        }
-        Period::Year => {
-            sqlx::query_file_as!(Overview, "queries/charts/overview/year.sql")
-                .fetch_optional(pool)
-                .await?
-        }
-        Period::Today => {
-            sqlx::query_file_as!(Overview, "queries/charts/overview/today.sql")
-                .fetch_optional(pool)
-                .await?
-        }
-        Period::All => todo!(),
+pub async fn get_overview(
+    period: Period,
+    username: Option<String>,
+    pool: &PgPool,
+) -> Result<Option<Overview>, sqlx::Error> {
+    let result = match username {
+        Some(username) => match period {
+            Period::Week => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/user_week.sql", username)
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::Month => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/user_month.sql", username)
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::Year => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/user_year.sql", username)
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::Today => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/user_today.sql", username)
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::All => todo!(),
+        },
+        None => match period {
+            Period::Week => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/week.sql")
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::Month => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/month.sql")
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::Year => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/year.sql")
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::Today => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/today.sql")
+                    .fetch_optional(pool)
+                    .await?
+            }
+            Period::All => todo!(),
+        },
     };
 
     Ok(result)

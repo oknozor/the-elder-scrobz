@@ -1,6 +1,6 @@
-import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
+import { defineConfig, loadEnv } from "vite";
 
 export default ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
@@ -19,11 +19,6 @@ export default ({ mode }) => {
           secure: true,
           changeOrigin: true,
         },
-      },
-    },
-    // vue.config.js
-    devServer: {
-      proxy: {
         "/coverart": {
           target: "http://localhost:3000", // your backend
           changeOrigin: true,
