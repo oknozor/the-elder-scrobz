@@ -39,7 +39,6 @@ async fn main() -> anyhow::Result<()> {
     let settings = Settings::get()?;
     let settings = Arc::new(settings);
     let pool = build_pg_pool(&settings.database_url).await;
-    let coverart_path = settings.coverart_path.clone();
 
     elder_scrobz_db::migrate_db(&pool).await?;
 
@@ -93,7 +92,7 @@ async fn main() -> anyhow::Result<()> {
 
     let router = router
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
-        .nest_service("/coverarts", ServeDir::new(&coverart_path))
+        .nest_service("/coverarts", ServeDir::new(&settings.coverart_path))
         .fallback_service(serve_frontend);
 
     let token = CancellationToken::new();
@@ -109,7 +108,7 @@ async fn main() -> anyhow::Result<()> {
 
     let mut crawler = ScrobbleCrawler::create(
         pool.clone(),
-        coverart_path,
+        settings.coverart_path.clone(),
         DiscogsConfig {
             key: settings.discogs_key.clone(),
             secret: settings.discogs_secret.clone(),
