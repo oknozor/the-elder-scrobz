@@ -30,8 +30,8 @@ import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import PageHeader from "@/components/PageHeader.vue";
 import UsernameSelector from "@/components/UsernameSelector.vue";
-import { AppUser, useUsersStore } from "./stores/usersStore";
-import { useAuthStore } from "./stores/authStore";
+import { AppUser, useUsersStore } from "./stores";
+import { useAuthStore } from "./stores";
 
 const route = useRoute();
 const usersStore = useUsersStore();

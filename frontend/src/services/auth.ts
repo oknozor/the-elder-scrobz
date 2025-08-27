@@ -1,4 +1,8 @@
-import { User, UserManager, UserManagerSettings } from "oidc-client-ts";
+import {
+  type User,
+  UserManager,
+  type UserManagerSettings,
+} from "oidc-client-ts";
 
 // Use runtime environment variables from window.env if available, otherwise fall back to import.meta.env
 const env = (window as any).env || import.meta.env;

@@ -8,7 +8,7 @@ import UsersView from "@/views/UsersView.vue";
 import ApiKeysView from "@/views/ApiKeysView.vue";
 import TrackView from "@/views/TrackView.vue";
 import CallbackView from "@/views/CallbackView.vue";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/stores";
 import TopDetailView from "@/views/TopDetailView.vue";
 
 const router = createRouter({

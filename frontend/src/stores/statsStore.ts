@@ -8,10 +8,10 @@ import type {
   PaginatedResponse,
   PulseData,
   RecentTrack,
-  TimeRange,
   Track,
   User,
 } from "@/types/music";
+import type { TimeRange } from "./timeRangeStore";
 
 export const useStatsStore = defineStore("stats", {
   state: () => ({
@@ -44,7 +44,6 @@ export const useStatsStore = defineStore("stats", {
       }
     },
 
-    /** Fetch all users */
     async fetchUsers() {
       try {
         this.isLoading = true;
@@ -75,6 +74,7 @@ export const useStatsStore = defineStore("stats", {
         this.topAlbumsForStatsView = response.data;
       }
     },
+
     async fetchTopArtistsForStatsView(
       username: string | null,
       period: TimeRange,
@@ -91,6 +91,7 @@ export const useStatsStore = defineStore("stats", {
         this.topArtistsForStatsView = response.data;
       }
     },
+
     async fetchTopTracksForStatsView(
       username: string | null,
       period: TimeRange,

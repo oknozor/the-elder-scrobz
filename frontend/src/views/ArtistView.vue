@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 import { useRoute } from "vue-router";
-import { useUsersStore } from "@/stores/usersStore";
+import { useUsersStore } from "@/stores";
 import apiClient from "@/services/api";
 import type { Artist } from "@/types/music";
 

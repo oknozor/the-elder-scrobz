@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { AppUser } from "@/stores/usersStore";
+import { AppUser } from "@/stores";
 
 const router = useRouter();
 defineProps<{

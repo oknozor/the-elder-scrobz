@@ -1,8 +1,8 @@
-import {defineStore} from 'pinia';
-import authService from '@/services/auth';
-import {User} from 'oidc-client-ts';
+import type { User } from "oidc-client-ts";
+import { defineStore } from "pinia";
+import authService from "@/services/auth";
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null as User | null,
     isAuthenticated: false,
@@ -11,10 +11,10 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     // Get the user's name from the profile
-    userName: (state) => state.user?.profile?.name || '',
+    userName: (state) => state.user?.profile?.name || "",
 
     // Get the user's email from the profile
-    userEmail: (state) => state.user?.profile?.email || '',
+    userEmail: (state) => state.user?.profile?.email || "",
   },
 
   actions: {
@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await this.checkAuth();
       } catch (error) {
-        console.error('Failed to initialize auth store:', error);
+        console.error("Failed to initialize auth store:", error);
       } finally {
         this.isLoading = false;
       }
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
         this.user = await authService.getUser();
         this.isAuthenticated = await authService.isAuthenticated();
       } catch (error) {
-        console.error('Failed to check authentication:', error);
+        console.error("Failed to check authentication:", error);
         this.user = null;
         this.isAuthenticated = false;
       }
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await authService.login();
       } catch (error) {
-        console.error('Login failed:', error);
+        console.error("Login failed:", error);
         throw error;
       }
     },
@@ -52,14 +52,14 @@ export const useAuthStore = defineStore('auth', {
     async handleLoginCallback() {
       this.isLoading = true;
       try {
-        console.log('Processing login callback in auth store');
+        console.log("Processing login callback in auth store");
         const user = await authService.handleLoginCallback();
-        console.log('Login callback successful, user:', user);
+        console.log("Login callback successful, user:", user);
         this.user = user;
         this.isAuthenticated = true;
         return user;
       } catch (error) {
-        console.error('Login callback failed:', error);
+        console.error("Login callback failed:", error);
         this.user = null;
         this.isAuthenticated = false;
         throw error;
@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', {
         this.user = null;
         this.isAuthenticated = false;
       } catch (error) {
-        console.error('Logout failed:', error);
+        console.error("Logout failed:", error);
         throw error;
       }
     },
