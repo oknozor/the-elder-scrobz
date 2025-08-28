@@ -1,8 +1,9 @@
 use crate::PgPool;
-use crate::listens::tracks::Track;
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use serde::Deserialize;
+use sqlx::types::Json;
+
+use super::tracks::PlayCount;
 
 #[derive(sqlx::FromRow, Deserialize, Debug)]
 pub struct Release {
@@ -15,7 +16,7 @@ pub struct Release {
     pub year: Option<i32>,
 }
 
-#[derive(sqlx::FromRow, Serialize, ToSchema, Debug)]
+#[derive(sqlx::FromRow, Debug)]
 pub struct AlbumDetails {
     pub id: String,
     pub subsonic_id: Option<String>,
@@ -27,24 +28,26 @@ pub struct AlbumDetails {
     pub thumbnail_url: Option<String>,
     pub last_listened_at: Option<DateTime<Utc>>,
     pub listens: Option<i64>,
+    pub tracks: Option<Json<Vec<AlbumTrackWithPlayCount>>>,
 }
 
-#[derive(Serialize, ToSchema, Debug)]
-pub struct AlbumWithTracks {
-    #[serde(flatten)]
-    pub album: AlbumDetails,
-    pub tracks: Vec<Track>,
+#[derive(sqlx::FromRow, Deserialize, Debug, Clone)]
+pub struct AlbumTrackWithPlayCount {
+    #[serde(default)]
+    pub mbid: String,
+    pub subsonic_id: Option<String>,
+    pub name: String,
+    pub artist_name: Option<String>,
+    pub number: Option<i32>,
+    pub length: Option<i32>,
+    pub playcount: Option<Json<Vec<PlayCount>>>,
 }
 
-impl AlbumWithTracks {
-    pub async fn by_id(mbid: &str, db: &PgPool) -> Result<AlbumWithTracks, sqlx::Error> {
-        let album = sqlx::query_file_as!(AlbumDetails, "queries/details/album.sql", mbid)
+impl AlbumDetails {
+    pub async fn by_id(mbid: &str, db: &PgPool) -> Result<AlbumDetails, sqlx::Error> {
+        sqlx::query_file_as!(AlbumDetails, "queries/details/album.sql", mbid)
             .fetch_one(db)
-            .await?;
-
-        let tracks = Track::by_album(mbid, db).await?;
-
-        Ok(AlbumWithTracks { album, tracks })
+            .await
     }
 }
 

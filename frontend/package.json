@@ -5,8 +5,8 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "format": "npx @biomejs/biome format --staged --write",
-        "lint": "npx @biomejs/biome lint --staged",
+        "format": "npx @biomejs/biome format --write",
+        "lint": "npx @biomejs/biome lint",
         "build": "vue-tsc && vite build",
         "preview": "vite preview"
     },

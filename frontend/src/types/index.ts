@@ -1,6 +1,7 @@
 export * from "./album";
 export * from "./api-param";
 export * from "./artist";
+export * from "./playcount";
 export * from "./stats";
 export * from "./track";
 export * from "./user";

@@ -1,9 +1,39 @@
-use elder_scrobz_db::charts::tracks::TopTrack;
-use elder_scrobz_db::listens::tracks::Track as TrackEntity;
+use elder_scrobz_db::listens::tracks::PlayCount as PlayCountEntity;
+use elder_scrobz_db::{
+    charts::tracks::TopTrack, listens::tracks::Track as TrackEntity,
+    listens::tracks::TrackWithPlayCount as TrackWithPlayCountEntity,
+};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use crate::{SETTINGS, local_image};
+
+#[derive(Deserialize, Serialize, ToSchema, Debug)]
+pub struct Track {
+    pub mbid: String,
+    pub artist_mbid: String,
+    pub release_mbid: String,
+    pub subsonic_id: Option<String>,
+    pub artist_display_name: Option<String>,
+    pub name: String,
+    pub number: Option<i32>,
+    pub length: Option<i32>,
+}
+
+impl From<TrackEntity> for Track {
+    fn from(track: TrackEntity) -> Self {
+        Track {
+            mbid: track.mbid,
+            artist_mbid: track.artist_mbid,
+            release_mbid: track.release_mbid,
+            subsonic_id: track.subsonic_id,
+            artist_display_name: track.artist_display_name,
+            name: track.name,
+            number: track.number,
+            length: track.length,
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, ToSchema)]
 pub struct ChartTrack {
@@ -38,7 +68,7 @@ impl From<TopTrack> for ChartTrack {
 }
 
 #[derive(Deserialize, Serialize, ToSchema, Debug)]
-pub struct Track {
+pub struct TrackWithPlayCount {
     pub mbid: String,
     pub artist_mbid: String,
     pub release_mbid: String,
@@ -47,11 +77,48 @@ pub struct Track {
     pub name: String,
     pub number: Option<i32>,
     pub length: Option<i32>,
+    pub playcount: Vec<PlayCount>,
+    pub total_playcount: i64,
+    pub total_listen_duration: Option<i64>,
 }
 
-impl From<TrackEntity> for Track {
-    fn from(track: TrackEntity) -> Self {
-        Track {
+#[derive(Deserialize, Serialize, ToSchema, Debug)]
+pub struct PlayCount {
+    pub username: String,
+    pub count: i64,
+    pub total_duration: i64,
+}
+
+impl PlayCount {
+    pub fn from_entity(track_duration: Option<i32>, playcount: &PlayCountEntity) -> Option<Self> {
+        track_duration.map(|track_duration| {
+            let count = playcount.count.unwrap_or_default();
+            let total_duration = count * track_duration as i64;
+            PlayCount {
+                username: playcount.username.clone(),
+                count,
+                total_duration,
+            }
+        })
+    }
+}
+
+impl From<TrackWithPlayCountEntity> for TrackWithPlayCount {
+    fn from(track: TrackWithPlayCountEntity) -> Self {
+        let playcount: Vec<PlayCount> = track
+            .playcount
+            .map(|playcounts| {
+                playcounts
+                    .iter()
+                    .filter_map(|playcount| PlayCount::from_entity(track.length, playcount))
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+
+        let total_playcount: i64 = playcount.iter().map(|playcount| playcount.count).sum();
+        let total_listen_duration = track.length.map(|length| length as i64 * total_playcount);
+
+        TrackWithPlayCount {
             mbid: track.mbid,
             artist_mbid: track.artist_mbid,
             release_mbid: track.release_mbid,
@@ -60,6 +127,9 @@ impl From<TrackEntity> for Track {
             name: track.name,
             number: track.number,
             length: track.length,
+            playcount,
+            total_playcount,
+            total_listen_duration,
         }
     }
 }
