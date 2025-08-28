@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useWindowWidth } from "@/composables/useWindowWidth";
-import type { Album, Artist, Track } from "@/types/music";
+import type { Album, Artist, Track } from "@/types";
 import Card from "../Card.vue";
 
 interface Props {

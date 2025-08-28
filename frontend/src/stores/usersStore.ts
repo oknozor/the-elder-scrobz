@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import apiClient from "@/services/api";
-import type { PaginatedResponse } from "@/types/music.ts";
+import type { PaginatedResponse } from "@/types";
 
 export interface AppUser {
     username: string;

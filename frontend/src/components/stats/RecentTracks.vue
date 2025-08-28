@@ -104,7 +104,7 @@ import {
     ref,
     watch,
 } from "vue";
-import type { RecentTrack } from "@/types/music";
+import type { RecentTrack } from "@/types";
 import { formatTimeAgo } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
 

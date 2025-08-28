@@ -75,7 +75,7 @@ import { isAxiosError } from "axios";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import apiClient from "@/services/api";
-import { useUsersStore } from "@/stores/usersStore";
+import { useUsersStore } from "@/stores";
 import type { AlbumDetails } from "@/types";
 import { formatTrackLength } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
