@@ -1,22 +1,22 @@
 <template>
-	<div class="top-albums-view">
-		<div>
-			<h1>{{ title }}</h1>
-		</div>
-		<div class="time-range-container">
-			<h3 class="time-range-title">Time Range</h3>
-			<TimeRangeSelector
-				v-model="sharedTimeRange"
-				@update:modelValue="updateChart"
-			/>
-		</div>
-		<InfiniteCardGrid
-			:items="paginatedData"
-			:loading="isLoading"
-			:link="{ name: linkName }"
-			@load-more="loadMoreItems"
-		/>
-	</div>
+    <div class="top-albums-view">
+        <div>
+            <h1>{{ title }}</h1>
+        </div>
+        <div class="time-range-container">
+            <h3 class="time-range-title">Time Range</h3>
+            <TimeRangeSelector
+                v-model="sharedTimeRange"
+                @update:modelValue="updateChart"
+            />
+        </div>
+        <InfiniteCardGrid
+            :items="paginatedData"
+            :loading="isLoading"
+            :link="{ name: linkName }"
+            @load-more="loadMoreItems"
+        />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -25,15 +25,14 @@ import { useRoute } from "vue-router";
 import InfiniteCardGrid from "@/components/InfiniteCardGrid.vue";
 import TimeRangeSelector from "@/components/TimeRangeSelector.vue";
 import { useWindowWidth } from "@/composables/useWindowWidth";
-import { useStatsStore } from "@/stores/statsStore";
-import { type AppUser, useUsersStore } from "@/stores/usersStore";
+import { type AppUser, useStatsStore, useUsersStore } from "@/stores";
 import type {
     Album,
     Artist,
     PaginatedResponse,
     TimeRange,
     Track,
-} from "@/types/music";
+} from "@/types";
 
 const windowSize = useWindowWidth();
 const ELEMENT_PER_PAGE = windowSize.value > 650 ? 15 : 5;
@@ -138,10 +137,10 @@ onMounted(() => {
 
 <style scoped>
 .top-albums-view {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	height: calc(100vh - calc(2 * var(--header-height)) - var(--app-padding));
-	overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: calc(100vh - calc(2 * var(--header-height)) - var(--app-padding));
+    overflow: hidden;
 }
 </style>
