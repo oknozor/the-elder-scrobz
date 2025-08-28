@@ -1,4 +1,4 @@
-import type { Item, PlayCount, Track } from ".";
+import type { Item, PlayCount } from ".";
 
 export interface Album extends Item {
     artist_id: string;

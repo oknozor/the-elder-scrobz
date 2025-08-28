@@ -200,19 +200,19 @@ const imageUrl = computed(() =>
 
 const topListeners = computed(() => {
     if (!album.value?.tracks) return [];
-    const listenerMap = new Map<string, number>();
+
+    const allPlays: { username: string; count: number }[] = [];
+
     album.value.tracks.forEach((track) => {
         track.playcount?.forEach((pc) => {
-            listenerMap.set(
-                pc.username,
-                (listenerMap.get(pc.username) || 0) + pc.count,
-            );
+            allPlays.push({
+                username: pc.username,
+                count: Number(pc.count) || 0,
+            });
         });
     });
-    return Array.from(listenerMap.entries())
-        .map(([username, count]) => ({ username, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5);
+
+    return allPlays.sort((a, b) => b.count - a.count).slice(0, 5);
 });
 
 watch(() => route.params.id, fetchAlbum);
