@@ -4,8 +4,8 @@
             v-for="range in timeRanges"
             :key="range"
             class="time-range-btn"
-            :class="{ active: modelValue === range }"
-            @click="$emit('update:modelValue', range)"
+            :class="{ active: sharedTimeRange === range }"
+            @click="setTimeRange(range)"
         >
             <TimeRangeIcon
                 v-if="windowWidth < 650"
@@ -13,31 +13,31 @@
                 :timeRange="range"
             />
             <span v-else>
-                {{
-                    range === "all"
-                        ? "All time"
-                        : range === "today"
-                          ? "Today"
-                          : `This ${range}`
-                }}
+                {{ formatRange(range) }}
             </span>
         </button>
     </div>
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
 import { useWindowWidth } from "@/composables/useWindowWidth";
+import { useTimeRangeStore } from "@/stores";
 import type { TimeRange } from "@/types";
 import TimeRangeIcon from "./TimeRangeIcon.vue";
 
-const windowWidth = useWindowWidth();
 const timeRanges: TimeRange[] = ["today", "week", "month", "year", "all"];
 
-defineProps<{
-    modelValue: TimeRange;
-}>();
+const windowWidth = useWindowWidth();
+const timeRangeStore = useTimeRangeStore();
+const { sharedTimeRange } = storeToRefs(timeRangeStore);
+const { setTimeRange } = timeRangeStore;
 
-defineEmits<(e: "update:modelValue", value: TimeRange) => void>();
+const formatRange = (range: TimeRange) => {
+    if (range === "all") return "All time";
+    if (range === "today") return "Today";
+    return `This ${range}`;
+};
 </script>
 
 <style scoped>
