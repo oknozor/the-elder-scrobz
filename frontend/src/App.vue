@@ -26,12 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import PageHeader from "@/components/PageHeader.vue";
 import UsernameSelector from "@/components/UsernameSelector.vue";
-import { AppUser, useUsersStore } from "./stores/usersStore";
 import { useAuthStore } from "./stores/authStore";
+import { type AppUser, useUsersStore } from "./stores/usersStore";
 
 const route = useRoute();
 const usersStore = useUsersStore();

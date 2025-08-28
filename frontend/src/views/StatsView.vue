@@ -198,19 +198,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
-import { TimeRange } from '@/types/music';
-import TimeRangeSelector from '@/components/TimeRangeSelector.vue';
-import SectionHeader from '@/components/stats/SectionHeader.vue';
-import StatGrid from '@/components/stats/StatGrid.vue';
-import {formatDuration} from '@/utils/formatter';
-import OverviewCard from '@/components/stats/OverviewCard.vue';
-import PulseMixedChart from '@/components/stats/PulseMixedChart.vue';
-import { useStatsStore } from '@/stores/statsStore';
-import { AppUser, useUsersStore } from '@/stores/usersStore';
-import RecentTracks from '@/components/stats/RecentTracks.vue';
+import { computed, onMounted, ref, watch } from "vue";
+import OverviewCard from "@/components/stats/OverviewCard.vue";
+import PulseMixedChart from "@/components/stats/PulseMixedChart.vue";
+import RecentTracks from "@/components/stats/RecentTracks.vue";
+import SectionHeader from "@/components/stats/SectionHeader.vue";
+import StatGrid from "@/components/stats/StatGrid.vue";
+import TimeRangeSelector from "@/components/TimeRangeSelector.vue";
+import { useStatsStore } from "@/stores/statsStore";
+import { type AppUser, useUsersStore } from "@/stores/usersStore";
+import type { TimeRange } from "@/types/music";
+import { formatDuration } from "@/utils/formatter";
 
-const sharedTimeRange = ref<TimeRange>('week');
+const sharedTimeRange = ref<TimeRange>("week");
 
 const currentWidth = ref(window.innerWidth);
 
@@ -220,69 +220,67 @@ const usersStore = useUsersStore();
 const selectedUser = ref<AppUser | null>(usersStore.selectedUser || null);
 
 const handleLoadMore = async (page: number) => {
-	await statsStore.fetchRecentTracks(
-		selectedUser.value?.username || null,
-		page,
-		20
-	);
+    await statsStore.fetchRecentTracks(
+        selectedUser.value?.username || null,
+        page,
+        20,
+    );
 };
 
 const getComparisonText = (currentRange: TimeRange): string => {
-	switch (currentRange) {
-		case 'today':
-			return 'than yesterday';
-		case 'week':
-			return 'than last week';
-		case 'month':
-			return 'than last month';
-		case 'year':
-			return 'than last year';
-		default:
-			return '';
-	}
+    switch (currentRange) {
+        case "today":
+            return "than yesterday";
+        case "week":
+            return "than last week";
+        case "month":
+            return "than last month";
+        case "year":
+            return "than last year";
+        default:
+            return "";
+    }
 };
 
 const currentTimeRange = computed(() => sharedTimeRange.value);
 
 const comparisonText = computed(() => {
-	return getComparisonText(currentTimeRange.value);
+    return getComparisonText(currentTimeRange.value);
 });
 
 const updateAllCharts = () => {
-	fetchAllStats(selectedUser.value?.username || null);
+    fetchAllStats(selectedUser.value?.username || null);
 };
 
 watch(
-	() => usersStore.selectedUser,
-	(newValue) => {
-		fetchAllStats(newValue?.username || null);
-	}
+    () => usersStore.selectedUser,
+    (newValue) => {
+        fetchAllStats(newValue?.username || null);
+    },
 );
 
-const fetchAllStats = async (
-	username: string | null,
-) => {
-	await Promise.all([
-    statsStore.fetchOverview(username, sharedTimeRange.value),
-		statsStore.fetchTopArtistsForStatsView(username, sharedTimeRange.value),
-		statsStore.fetchTopTracksForStatsView(username, sharedTimeRange.value),
-		statsStore.fetchTopAlbumsForStatsView(username, sharedTimeRange.value),
-		statsStore.fetchPulses(username, sharedTimeRange.value),
-		statsStore.fetchRecentTracks(username, 1, 20),
-	]);
+const fetchAllStats = async (username: string | null) => {
+    await Promise.all([
+        statsStore.fetchOverview(username, sharedTimeRange.value),
+        statsStore.fetchTopArtistsForStatsView(username, sharedTimeRange.value),
+        statsStore.fetchTopTracksForStatsView(username, sharedTimeRange.value),
+        statsStore.fetchTopAlbumsForStatsView(username, sharedTimeRange.value),
+        statsStore.fetchPulses(username, sharedTimeRange.value),
+        statsStore.fetchRecentTracks(username, 1, 20),
+    ]);
 };
 
 // Watch for changes in the shared time range
 watch(sharedTimeRange, () => {
-	updateAllCharts();
+    updateAllCharts();
 });
 
 onMounted(async () => {
-	try {
-		await fetchAllStats(selectedUser.value?.username || null);
-	} catch (error) {
-		console.error('Error fetching data:', error);
-	}
+    try {
+        await fetchAllStats(selectedUser.value?.username || null);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
 });
 </script>
 

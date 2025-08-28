@@ -42,21 +42,21 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps<{
-	link?: {
-		name: string;
-	};
+    link?: {
+        name: string;
+    };
 }>();
 
 const route = useRoute();
 const router = useRouter();
 
 const navigateToLink = () => {
-	if (props.link) {
-		router.push({ name: props.link.name });
-	}
+    if (props.link) {
+        router.push({ name: props.link.name });
+    }
 };
 </script>
 <style scoped>

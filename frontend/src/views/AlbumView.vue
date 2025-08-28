@@ -71,13 +71,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue";
+import { isAxiosError } from "axios";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useUsersStore } from "@/stores/usersStore";
 import apiClient from "@/services/api";
-import { AlbumDetails } from "@/types/music";
-import { loadImage } from "@/utils/thumbail";
+import { useUsersStore } from "@/stores/usersStore";
+import type { AlbumDetails } from "@/types/music";
 import { formatTrackLength } from "@/utils/formatter";
+import { loadImage } from "@/utils/thumbail";
 
 const route = useRoute();
 const usersStore = useUsersStore();
@@ -114,12 +115,16 @@ const fetchAlbum = async () => {
         );
         const data = response.data;
         album.value = data;
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error("Error fetching album:", err);
-        error.value =
-            err.response?.status === 404
-                ? "Album not found"
-                : "Failed to load album data";
+        if (isAxiosError(err)) {
+            error.value =
+                err.response?.status === 404
+                    ? "Album not found"
+                    : "Failed to load album data";
+        } else {
+            error.value = "Unexpected error";
+        }
     } finally {
         isLoading.value = false;
     }

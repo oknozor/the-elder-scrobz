@@ -12,27 +12,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/authStore';
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const error = ref<string | null>(null);
 
 onMounted(async () => {
-  try {
-    console.log("Processing authentication callback");
-    await authStore.handleLoginCallback();
-    await router.push('/');
-  } catch (err) {
-    console.error('Authentication callback error:', err);
-    if (err instanceof Error) {
-      error.value = `Authentication error: ${err.message}`;
-    } else {
-      error.value = 'An error occurred during authentication. Please try again.';
+    try {
+        console.log("Processing authentication callback");
+        await authStore.handleLoginCallback();
+        await router.push("/");
+    } catch (err) {
+        console.error("Authentication callback error:", err);
+        if (err instanceof Error) {
+            error.value = `Authentication error: ${err.message}`;
+        } else {
+            error.value =
+                "An error occurred during authentication. Please try again.";
+        }
     }
-  }
 });
 </script>
 

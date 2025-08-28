@@ -1,5 +1,5 @@
 (() => {
-  if (window.parent?.oidcUserManager) {
-    window.parent.oidcUserManager.signinSilentCallback();
-  }
+    if (window.parent?.oidcUserManager) {
+        window.parent.oidcUserManager.signinSilentCallback();
+    }
 })();

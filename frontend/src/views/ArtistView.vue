@@ -31,10 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from "vue";
+import { isAxiosError } from "axios";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useUsersStore } from "@/stores/usersStore";
 import apiClient from "@/services/api";
+import { useUsersStore } from "@/stores/usersStore";
 import type { Artist } from "@/types/music";
 
 const route = useRoute();
@@ -73,12 +74,16 @@ const fetchArtist = async () => {
         const data = response.data;
 
         artist.value = data.artist || data;
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error("Error fetching artist:", err);
-        error.value =
-            err.response?.status === 404
-                ? "Artist not found"
-                : "Failed to load artist data";
+        if (isAxiosError(err)) {
+            error.value =
+                err.response?.status === 404
+                    ? "Artist not found"
+                    : "Failed to load artist data";
+        } else {
+            error.value = "Unexpected error";
+        }
     } finally {
         isLoading.value = false;
     }

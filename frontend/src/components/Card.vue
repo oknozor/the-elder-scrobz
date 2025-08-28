@@ -55,9 +55,9 @@
 </template>
 
 <script setup lang="ts">
-import { formatMillisecondsToMinutes } from "@/utils/formatter";
-import type { Artist, Track, Album, Item } from "@/types/music";
 import { computed } from "vue";
+import type { Album, Artist, Item, Track } from "@/types/music";
+import { formatMillisecondsToMinutes } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
 
 interface Props {
@@ -97,7 +97,7 @@ const playCount = computed(() => {
 });
 
 const duration = computed(() => {
-    if (props.item.type == "Track") {
+    if (props.item.type === "Track") {
         return (props.item as Track).length;
     }
     return null;

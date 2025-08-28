@@ -122,106 +122,108 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
-import type {ApiKey} from '@/types/music';
-import Modal from '@/components/Modal.vue';
-import Toast from '@/components/Toast.vue';
-import {formatTimeAgo} from '@/utils/formatter';
-import {apiKeyService} from '@/services/apiKeyService';
+import { onMounted, ref } from "vue";
+import Modal from "@/components/Modal.vue";
+import Toast from "@/components/Toast.vue";
+import { apiKeyService } from "@/services/apiKeyService";
+import type { ApiKey } from "@/types/music";
+import { formatTimeAgo } from "@/utils/formatter";
 
 const apiKeys = ref<ApiKey[]>([]);
 
 const showCreateKeyModal = ref(false);
 const showDeleteKeyModal = ref(false);
-const newKeyLabel = ref('');
+const newKeyLabel = ref("");
 const apiKeyToDelete = ref<ApiKey | null>(null);
 const showToast = ref(false);
-const toastMessage = ref('');
-const toastType = ref<'success' | 'error' | 'info'>('info');
+const toastMessage = ref("");
+const toastType = ref<"success" | "error" | "info">("info");
 
 const formatDate = (timestamp: string): string => {
-	return new Date(timestamp).toLocaleDateString();
+    return new Date(timestamp).toLocaleDateString();
 };
 
 const copyToClipboard = async (text: string) => {
-	try {
-		await navigator.clipboard.writeText(text);
-		toastMessage.value = 'API key copied to clipboard';
-		toastType.value = 'success';
-		showToast.value = true;
-	} catch (err) {
-		console.error('Failed to copy text:', err);
-		toastMessage.value = 'Failed to copy API key';
-		toastType.value = 'error';
-		showToast.value = true;
-	}
+    try {
+        await navigator.clipboard.writeText(text);
+        toastMessage.value = "API key copied to clipboard";
+        toastType.value = "success";
+        showToast.value = true;
+    } catch (err) {
+        console.error("Failed to copy text:", err);
+        toastMessage.value = "Failed to copy API key";
+        toastType.value = "error";
+        showToast.value = true;
+    }
 };
 
 const createApiKey = async () => {
-	if (!newKeyLabel.value.trim()) return;
+    if (!newKeyLabel.value.trim()) return;
 
-	try {
-		const newKey = await apiKeyService.createApiKey(newKeyLabel.value);
-		apiKeys.value.unshift({
-      label: newKeyLabel.value,
-      api_key: newKey.api_key,
-      created_at: new Date().toISOString(),
-      lastUsed: '',
-      id: '',
-    });
-		showCreateKeyModal.value = false;
-		newKeyLabel.value = '';
+    try {
+        const newKey = await apiKeyService.createApiKey(newKeyLabel.value);
+        apiKeys.value.unshift({
+            label: newKeyLabel.value,
+            api_key: newKey.api_key,
+            created_at: new Date().toISOString(),
+            lastUsed: "",
+            id: "",
+        });
+        showCreateKeyModal.value = false;
+        newKeyLabel.value = "";
 
-		toastMessage.value = 'API key created successfully 🎉';
-		toastType.value = 'success';
-		showToast.value = true;
-	} catch (error) {
-		console.error('Error creating API key:', error);
-		toastMessage.value = 'Failed to create API key 💔';
-		toastType.value = 'error';
-		showToast.value = true;
-	}
+        toastMessage.value = "API key created successfully 🎉";
+        toastType.value = "success";
+        showToast.value = true;
+    } catch (error) {
+        console.error("Error creating API key:", error);
+        toastMessage.value = "Failed to create API key 💔";
+        toastType.value = "error";
+        showToast.value = true;
+    }
 };
 
 const confirmDeleteApiKey = (apiKey: ApiKey) => {
-	apiKeyToDelete.value = apiKey;
-	showDeleteKeyModal.value = true;
+    apiKeyToDelete.value = apiKey;
+    showDeleteKeyModal.value = true;
 };
 
 const deleteApiKey = async () => {
-	if (!apiKeyToDelete.value) return;
+    if (!apiKeyToDelete.value) return;
 
-	try {
-		await apiKeyService.deleteApiKey(apiKeyToDelete.value.id);
-		apiKeys.value = apiKeys.value.filter(
-			(key) => key.id !== apiKeyToDelete.value?.id
-		);
-		showDeleteKeyModal.value = false;
-		apiKeyToDelete.value = null;
+    try {
+        await apiKeyService.deleteApiKey(apiKeyToDelete.value.id);
+        apiKeys.value = apiKeys.value.filter(
+            (key) => key.id !== apiKeyToDelete.value?.id,
+        );
+        showDeleteKeyModal.value = false;
+        apiKeyToDelete.value = null;
 
-		toastMessage.value = 'API key deleted successfully ☠️';
-		toastType.value = 'success';
-		showToast.value = true;
-	} catch (error) {
-		console.error('Error deleting API key:', error);
-		toastMessage.value = 'Failed to delete API key 😱';
-		toastType.value = 'error';
-		showToast.value = true;
-	}
+        toastMessage.value = "API key deleted successfully ☠️";
+        toastType.value = "success";
+        showToast.value = true;
+    } catch (error) {
+        console.error("Error deleting API key:", error);
+        toastMessage.value = "Failed to delete API key 😱";
+        toastType.value = "error";
+        showToast.value = true;
+    }
 };
 
 onMounted(async () => {
-	try {
-		const keys = await apiKeyService.listApiKeys();
-		apiKeys.value = keys.sort((a, b) =>
-			new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-		);
-	} catch (error) {
-		console.error('Error fetching user data:', error);
-		toastMessage.value = 'Failed to load user data';
-		toastType.value = 'error';
-		showToast.value = true;
-	}
+    try {
+        const keys = await apiKeyService.listApiKeys();
+        apiKeys.value = keys.sort(
+            (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime(),
+        );
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        toastMessage.value = "Failed to load user data";
+        toastType.value = "error";
+        showToast.value = true;
+    }
 });
 </script>
 

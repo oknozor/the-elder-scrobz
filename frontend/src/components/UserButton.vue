@@ -42,18 +42,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { AppUser } from "@/stores/usersStore";
+import type { AppUser } from "@/stores/usersStore";
 
 const router = useRouter();
 defineProps<{
     currentUser: AppUser | null;
 }>();
 
-const emit = defineEmits<{
-    (e: "logout"): void;
-}>();
+const emit = defineEmits<(e: "logout") => void>();
 
 const isOpen = ref(false);
 const buttonRef = ref<HTMLElement | null>(null);

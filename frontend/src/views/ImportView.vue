@@ -113,8 +113,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import apiClient from "@/services/api";
-import { ref, computed } from "vue";
 
 interface ImportHistoryItem {
     name: string;
@@ -172,14 +172,14 @@ const triggerFileInput = () => {
 
 const handleFileSelect = (event: Event) => {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
+    if (input.files?.[0]) {
         selectedFile.value = input.files[0];
     }
 };
 
 const handleDrop = (event: DragEvent) => {
     isDragging.value = false;
-    if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
+    if (event.dataTransfer?.files?.[0]) {
         selectedFile.value = event.dataTransfer.files[0];
     }
 };
@@ -248,7 +248,7 @@ const formatFileSize = (bytes: number): string => {
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 };
 </script>
 

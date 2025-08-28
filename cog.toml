@@ -24,11 +24,17 @@ cog check
 echo "[Refresh sql metadata]"
 cargo sqlx prepare --workspace
 
-echo "[Format code]"
+echo "[Backend - Format code]"
 cargo fmt -v --all --check
 
-echo "[Lints]"
+echo "[Backend - Lints]"
 cargo clippy
+
+cd frontend
+echo "[Frontend - Format code]"
+npm run format
+echo "[Frontend - Lint]"
+npm run lint
 """
 
 [commit_types]

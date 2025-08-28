@@ -110,11 +110,11 @@
 </template>
 <script setup lang="ts">
 defineProps({
-	timeRange: {
-		type: String,
-		required: true,
-		validator: (value: string) =>
-			['today', 'week', 'month', 'year', 'all'].includes(value),
-	},
+    timeRange: {
+        type: String,
+        required: true,
+        validator: (value: string) =>
+            ["today", "week", "month", "year", "all"].includes(value),
+    },
 });
 </script>

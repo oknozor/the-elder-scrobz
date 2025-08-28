@@ -69,91 +69,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { User } from '@/types/music'
-
+import { ref } from "vue";
+import type { User } from "@/types/music";
 
 // Mock data for users
 const users = ref<User[]>([
-  {
-    id: '1',
-    name: 'John Doe',
-    imageUrl: 'https://picsum.photos/32/32?random=1',
-    lastActive: new Date().toISOString(),
-    apiKeys: [],
-    stats: {
-      totalPlays: 1234,
-      totalDuration: 3600000,
-      topArtists: [],
-      topAlbums: [],
-      topTracks: []
-    }
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    imageUrl: 'https://picsum.photos/32/32?random=2',
-    lastActive: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    apiKeys: [],
-    stats: {
-      totalPlays: 567,
-      totalDuration: 1800000,
-      topArtists: [],
-      topAlbums: [],
-      topTracks: []
-    }
-  }
-])
+    {
+        id: "1",
+        name: "John Doe",
+        imageUrl: "https://picsum.photos/32/32?random=1",
+        lastActive: new Date().toISOString(),
+        apiKeys: [],
+        stats: {
+            totalPlays: 1234,
+            totalDuration: 3600000,
+            topArtists: [],
+            topAlbums: [],
+            topTracks: [],
+        },
+    },
+    {
+        id: "2",
+        name: "Jane Smith",
+        imageUrl: "https://picsum.photos/32/32?random=2",
+        lastActive: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        apiKeys: [],
+        stats: {
+            totalPlays: 567,
+            totalDuration: 1800000,
+            topArtists: [],
+            topAlbums: [],
+            topTracks: [],
+        },
+    },
+]);
 
-const showDeleteConfirmation = ref(false)
-const userToDelete = ref<string | null>(null)
+const showDeleteConfirmation = ref(false);
+const userToDelete = ref<string | null>(null);
 
 const handleDeleteUser = (userId: string) => {
-  userToDelete.value = userId
-  showDeleteConfirmation.value = true
-}
+    userToDelete.value = userId;
+    showDeleteConfirmation.value = true;
+};
 
 const confirmDeleteUser = () => {
-  if (userToDelete.value) {
-    // TODO: Implement user deletion logic
-    console.log('Delete user:', userToDelete.value)
-    users.value = users.value.filter(user => user.id !== userToDelete.value)
-    showDeleteConfirmation.value = false
-    userToDelete.value = null
-  }
-}
+    if (userToDelete.value) {
+        // TODO: Implement user deletion logic
+        console.log("Delete user:", userToDelete.value);
+        users.value = users.value.filter(
+            (user) => user.id !== userToDelete.value,
+        );
+        showDeleteConfirmation.value = false;
+        userToDelete.value = null;
+    }
+};
 
 const toggleAdmin = (user: User) => {
-  // Toggle the isAdmin property
-  user.isAdmin = !user.isAdmin
-  console.log(`User ${user.name} is now ${user.isAdmin ? 'an admin' : 'not an admin'}`)
-  // In a real application, you would send this update to the server
-}
+    // Toggle the isAdmin property
+    user.isAdmin = !user.isAdmin;
+    console.log(
+        `User ${user.name} is now ${user.isAdmin ? "an admin" : "not an admin"}`,
+    );
+    // In a real application, you would send this update to the server
+};
 
 const formatDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+};
 
 const formatNumber = (num: number): string => {
-  return num.toLocaleString()
-}
+    return num.toLocaleString();
+};
 
 const formatDuration = (ms: number): string => {
-  const hours = Math.floor(ms / (1000 * 60 * 60))
-  const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60))
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
 
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
-  }
-  return `${minutes}m`
-}
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+};
 </script>
 
 <style scoped>

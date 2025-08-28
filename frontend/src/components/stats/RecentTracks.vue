@@ -96,10 +96,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType, onMounted, onUnmounted, watch, nextTick } from "vue";
+import {
+    nextTick,
+    onMounted,
+    onUnmounted,
+    type PropType,
+    ref,
+    watch,
+} from "vue";
+import type { RecentTrack } from "@/types/music";
 import { formatTimeAgo } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
-import { RecentTrack } from "@/types/music";
 
 const loadedImages = ref<Set<string>>(new Set());
 const tableContainer = ref<HTMLElement | null>(null);
@@ -164,10 +171,8 @@ const loadMoreTracks = async () => {
 
 const beforeEnter = (el: Element) => {
     const index = Number((el as HTMLElement).dataset.index);
-    (el as HTMLElement).style.transitionDelay = `${Math.min(
-        index * 10,
-        300,
-    )}ms`;
+    (el as HTMLElement).style.transitionDelay =
+        `${Math.min(index * 10, 300)}ms`;
 };
 
 // IntersectionObserver to detect when the last row enters the viewport

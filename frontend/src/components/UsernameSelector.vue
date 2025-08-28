@@ -31,24 +31,23 @@
 </template>
 
 <script setup lang="ts">
-import Dropdown from './Dropdown.vue';
-import { AppUser } from '@/stores/usersStore';
+import type { AppUser } from "@/stores/usersStore";
+import Dropdown from "./Dropdown.vue";
 
 defineProps<{
-	modelValue: AppUser | null;
-	users: AppUser[];
+    modelValue: AppUser | null;
+    users: AppUser[];
 }>();
 
-const emit = defineEmits<{
-	(e: 'update:modelValue', value: AppUser | null): void;
-}>();
+const emit =
+    defineEmits<(e: "update:modelValue", value: AppUser | null) => void>();
 
 const selectUser = (user: AppUser) => {
-	emit('update:modelValue', user);
+    emit("update:modelValue", user);
 };
 
 const selectAll = () => {
-	emit('update:modelValue', null);
+    emit("update:modelValue", null);
 };
 </script>
 
