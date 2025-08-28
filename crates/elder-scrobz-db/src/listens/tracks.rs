@@ -1,8 +1,9 @@
-use crate::PgPool;
-use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use serde::Deserialize;
+use sqlx::types::Json;
 
-#[derive(sqlx::FromRow, Deserialize, Serialize, ToSchema, Debug)]
+use crate::PgPool;
+
+#[derive(sqlx::FromRow, Debug)]
 pub struct Track {
     pub mbid: String,
     pub artist_mbid: String,
@@ -12,6 +13,68 @@ pub struct Track {
     pub name: String,
     pub number: Option<i32>,
     pub length: Option<i32>,
+}
+
+#[derive(sqlx::FromRow, Deserialize, Debug, Clone)]
+pub struct TrackWithPlayCount {
+    #[serde(default)]
+    pub mbid: String,
+    pub artist_mbid: String,
+    pub release_mbid: String,
+    pub subsonic_id: Option<String>,
+    pub artist_display_name: Option<String>,
+    pub name: String,
+    pub number: Option<i32>,
+    pub length: Option<i32>,
+    pub playcount: Option<Json<Vec<PlayCount>>>,
+}
+
+#[derive(sqlx::FromRow, Deserialize, Debug, Clone)]
+pub struct PlayCount {
+    pub username: String,
+    pub count: Option<i64>,
+}
+
+impl TrackWithPlayCount {
+    pub async fn by_id(mbid: &str, db: &PgPool) -> Result<Option<TrackWithPlayCount>, sqlx::Error> {
+        sqlx::query_as!(
+            TrackWithPlayCount,
+            r#"SELECT
+                t.mbid,
+                t.subsonic_id,
+                t.release_mbid,
+                t.artist_mbid,
+                t.artist_display_name,
+                t.name,
+                t.number,
+                t.length,
+                COALESCE(
+                    (
+                        SELECT json_agg(
+                                   json_build_object(
+                                       'username', pc.user_id,
+                                       'count', pc.playcount
+                                   )
+                               )
+                        FROM (
+                            SELECT s.user_id, COUNT(*)::bigint AS playcount
+                            FROM scrobbles s
+                            WHERE s.track_id = t.mbid
+                            GROUP BY s.user_id
+                            ORDER BY COUNT(*) DESC
+                            LIMIT 10
+                        ) pc
+                    ),
+                    '[]'::json
+                ) AS "playcount: Json<Vec<PlayCount>>"
+            FROM tracks t
+            WHERE t.mbid = $1;
+            "#,
+            mbid
+        )
+        .fetch_optional(db)
+        .await
+    }
 }
 
 impl Track {

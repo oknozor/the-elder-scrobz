@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n  release.mbid            AS id,\n  release.subsonic_id     AS subsonic_id,\n  release.name            AS name,\n  release.cover_art_url   AS thumbnail_url,\n  release.description     AS description,\n  release.year            AS year,\n  artist.name             AS artist_name,\n  artist.mbid             AS artist_id,\n  MAX(raw.listened_at)    AS last_listened_at,\n  COUNT(DISTINCT raw.id)  AS listens,\n  COALESCE(\n    (\n      SELECT json_agg(\n        json_build_object(\n          'mbid', tr.mbid,\n          'subsonic_id', tr.subsonic_id,\n          'name', tr.name,\n          'number', tr.number,\n          'length', tr.length,\n          'playcount',\n            COALESCE(\n              (\n                SELECT json_agg(\n                  json_build_object(\n                    'username', pc.user_id,\n                    'count', pc.playcount\n                  )\n                )\n                FROM (\n                  SELECT s.user_id, COUNT(*)::bigint AS playcount\n                  FROM scrobbles s\n                  WHERE s.track_id = tr.mbid\n                  GROUP BY s.user_id\n                  ORDER BY COUNT(*) DESC\n                  LIMIT 10\n                ) pc\n              ),\n              '[]'::json\n            )\n        )\n        ORDER BY tr.number\n      )\n      FROM tracks tr\n      WHERE tr.release_mbid = release.mbid\n    ),\n    '[]'::json\n  ) AS \"tracks: Json<Vec<AlbumTrackWithPlayCount>>\"\nFROM scrobbles\nJOIN scrobbles_raw raw ON scrobbles.source_id = raw.id\nJOIN tracks track ON track.mbid = scrobbles.track_id\nJOIN releases release ON track.release_mbid = release.mbid\nJOIN artists artist ON artist.mbid = release.artist_mbid\nWHERE release.mbid = $1\nGROUP BY release.mbid, release.subsonic_id, release.name, release.cover_art_url,\n         release.description, release.year, artist.mbid, artist.name\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "thumbnail_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "artist_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "artist_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "last_listened_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "listens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "tracks: Json<Vec<AlbumTrackWithPlayCount>>",
+        "type_info": "Json"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "d4c3de70e68769e5e7a568338167b79b193d47c26a3302eaf0de7b52e3401ecf"
+}
