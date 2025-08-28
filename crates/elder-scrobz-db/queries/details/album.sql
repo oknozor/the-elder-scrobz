@@ -16,6 +16,7 @@ SELECT
           'mbid', tr.mbid,
           'subsonic_id', tr.subsonic_id,
           'name', tr.name,
+          'artist_name', tr.artist_display_name,
           'number', tr.number,
           'length', tr.length,
           'playcount',

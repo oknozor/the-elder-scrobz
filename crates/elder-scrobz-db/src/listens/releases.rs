@@ -37,6 +37,7 @@ pub struct AlbumTrackWithPlayCount {
     pub mbid: String,
     pub subsonic_id: Option<String>,
     pub name: String,
+    pub artist_name: Option<String>,
     pub number: Option<i32>,
     pub length: Option<i32>,
     pub playcount: Option<Json<Vec<PlayCount>>>,

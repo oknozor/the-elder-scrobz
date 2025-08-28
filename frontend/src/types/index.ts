@@ -4,6 +4,7 @@ export * from "./artist";
 export * from "./stats";
 export * from "./track";
 export * from "./user";
+export * from "./playcount";
 
 export interface Item {
     type: string;
