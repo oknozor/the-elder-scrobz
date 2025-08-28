@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { useWindowWidth } from "@/composables/useWindowWidth";
-import type { TimeRange } from "@/types/music";
+import type { TimeRange } from "@/types";
 import TimeRangeIcon from "./TimeRangeIcon.vue";
 
 const windowWidth = useWindowWidth();
