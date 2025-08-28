@@ -144,10 +144,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useUsersStore } from "@/stores";
 import apiClient from "@/services/api";
+import { useUsersStore } from "@/stores";
 import type { AlbumDetails } from "@/types";
 import { formatTrackLength } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
