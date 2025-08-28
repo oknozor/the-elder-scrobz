@@ -31,29 +31,27 @@
 
 <script setup lang="ts">
 interface Props {
-	modelValue: boolean;
-	title: string;
-	showCloseButton?: boolean;
-	closeOnOverlayClick?: boolean;
+    modelValue: boolean;
+    title: string;
+    showCloseButton?: boolean;
+    closeOnOverlayClick?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	showCloseButton: true,
-	closeOnOverlayClick: true,
+    showCloseButton: true,
+    closeOnOverlayClick: true,
 });
 
-const emit = defineEmits<{
-	(e: 'update:modelValue', value: boolean): void;
-}>();
+const emit = defineEmits<(e: "update:modelValue", value: boolean) => void>();
 
 const close = () => {
-	emit('update:modelValue', false);
+    emit("update:modelValue", false);
 };
 
 const handleOverlayClick = () => {
-	if (props.closeOnOverlayClick) {
-		close();
-	}
+    if (props.closeOnOverlayClick) {
+        close();
+    }
 };
 </script>
 

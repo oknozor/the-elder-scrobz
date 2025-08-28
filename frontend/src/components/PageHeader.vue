@@ -23,25 +23,25 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import UserButton from '@/components/UserButton.vue';
-import { AppUser } from '@/stores/usersStore';
+import { useRouter } from "vue-router";
+import UserButton from "@/components/UserButton.vue";
+import type { AppUser } from "@/stores/usersStore";
 
 const router = useRouter();
 
 defineProps<{
-	currentUser: AppUser | null;
-	showBackButton?: boolean;
+    currentUser: AppUser | null;
+    showBackButton?: boolean;
 }>();
 
 const emit = defineEmits<{
-	(e: 'logout'): void;
-	(e: 'back'): void;
+    (e: "logout"): void;
+    (e: "back"): void;
 }>();
 
 const handleBack = () => {
-	emit('back');
-	router.back();
+    emit("back");
+    router.back();
 };
 </script>
 

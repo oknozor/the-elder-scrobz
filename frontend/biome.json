@@ -1,0 +1,47 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true,
+        "defaultBranch": "main"
+    },
+    "files": {
+        "ignoreUnknown": false
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "style": {
+                "useConst": "off",
+                "useImportType": "off"
+            },
+
+            "correctness": {
+                "noUnusedVariables": "off",
+                "noUnusedImports": "off"
+            }
+        },
+        "domains": {
+            "vue": "recommended"
+        }
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "double"
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

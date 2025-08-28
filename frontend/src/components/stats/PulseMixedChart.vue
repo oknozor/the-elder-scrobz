@@ -5,22 +5,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { Chart } from "vue-chartjs";
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
+    BarController,
     BarElement,
-    PointElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Filler,
+    Legend,
+    LinearScale,
+    LineController,
     LineElement,
+    PointElement,
     Title,
     Tooltip,
-    Legend,
-    BarController,
-    LineController,
-    Filler,
+    TooltipItem,
 } from "chart.js";
+import { computed } from "vue";
+import { Chart } from "vue-chartjs";
 
 ChartJS.register(
     CategoryScale,
@@ -56,7 +57,7 @@ const chartData = computed(() => {
                 type: "bar" as const,
                 label: "Plays",
                 data: props.pulseData.map((d) => d.listens),
-                backgroundColor: primaryColor + "40",
+                backgroundColor: `${primaryColor}40`,
                 borderColor: primaryColor,
                 borderRadius: 4,
                 barPercentage: 0.5,
@@ -66,7 +67,7 @@ const chartData = computed(() => {
                 label: "Trend",
                 data: props.pulseData.map((d) => d.listens),
                 borderColor: primaryColor,
-                backgroundColor: primaryColor + "20",
+                backgroundColor: `${primaryColor}20`,
                 fill: true,
                 tension: 0.4,
                 pointRadius: 4,
@@ -87,7 +88,7 @@ const chartOptions = {
         },
         tooltip: {
             callbacks: {
-                label: (context: any) => `${context.raw} plays`,
+                label: (context: TooltipItem<"bar">) => `${context.raw} plays`,
             },
         },
     },

@@ -1,10 +1,10 @@
 #!/usr/bin/env just --justfile
 
 release:
-  cargo build --release    
+  cargo build --release
 
 lint:
-  cargo clippy
+  cargo clippy && cd frontend && biome check
 
 bin:
   cargo run --bin bin -- arg1

@@ -20,37 +20,35 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
+import { watch } from "vue";
 
 interface Props {
-	modelValue: boolean;
-	type?: 'success' | 'error' | 'info';
-	duration?: number;
+    modelValue: boolean;
+    type?: "success" | "error" | "info";
+    duration?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	type: 'info',
-	duration: 3000,
+    type: "info",
+    duration: 3000,
 });
 
-const emit = defineEmits<{
-	(e: 'update:modelValue', value: boolean): void;
-}>();
+const emit = defineEmits<(e: "update:modelValue", value: boolean) => void>();
 
 const close = () => {
-	emit('update:modelValue', false);
+    emit("update:modelValue", false);
 };
 
 // Auto-close after duration
 watch(
-	() => props.modelValue,
-	(newValue: boolean) => {
-		if (newValue) {
-			setTimeout(() => {
-				close();
-			}, props.duration);
-		}
-	}
+    () => props.modelValue,
+    (newValue: boolean) => {
+        if (newValue) {
+            setTimeout(() => {
+                close();
+            }, props.duration);
+        }
+    },
 );
 </script>
 

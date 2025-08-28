@@ -48,9 +48,10 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
-import Card from "../Card.vue";
-import type { Artist, Track, Album } from "@/types/music";
 import { useWindowWidth } from "@/composables/useWindowWidth";
+import type { Album, Artist, Track } from "@/types/music";
+import Card from "../Card.vue";
+
 interface Props {
     items: Artist[] | Track[] | Album[];
     limit?: number;
