@@ -36,7 +36,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import apiClient from "@/services/api";
 import { useUsersStore } from "@/stores/usersStore";
-import type { Artist } from "@/types/music";
+import type { Artist } from "@/types";
 
 const route = useRoute();
 const usersStore = useUsersStore();

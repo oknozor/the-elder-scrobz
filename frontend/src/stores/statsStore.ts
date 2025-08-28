@@ -11,7 +11,7 @@ import type {
     TimeRange,
     Track,
     User,
-} from "@/types/music";
+} from "@/types";
 
 export const useStatsStore = defineStore("stats", {
     state: () => ({
