@@ -5,10 +5,7 @@
         </div>
         <div class="time-range-container">
             <h3 class="time-range-title">Time Range</h3>
-            <TimeRangeSelector
-                v-model="sharedTimeRange"
-                @update:modelValue="updateChart"
-            />
+            <TimeRangeSelector />
         </div>
         <InfiniteCardGrid
             :items="paginatedData"
@@ -20,24 +17,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import InfiniteCardGrid from "@/components/InfiniteCardGrid.vue";
 import TimeRangeSelector from "@/components/TimeRangeSelector.vue";
 import { useWindowWidth } from "@/composables/useWindowWidth";
-import { type AppUser, useStatsStore, useUsersStore } from "@/stores";
-import type {
-    Album,
-    Artist,
-    PaginatedResponse,
-    TimeRange,
-    Track,
-} from "@/types";
+import { useStatsStore, useTimeRangeStore, useUsersStore } from "@/stores";
+import type { Album, Artist, PaginatedResponse, Track } from "@/types";
 
 const windowSize = useWindowWidth();
 const ELEMENT_PER_PAGE = windowSize.value > 650 ? 15 : 5;
-const statsStore = useStatsStore();
-const usersStore = useUsersStore();
 const route = useRoute();
 
 const currentRoute = computed(() => {
@@ -59,8 +49,12 @@ const title = computed(() => {
           ? "Top Tracks"
           : "Top Artists";
 });
-const selectedUser = ref<AppUser | null>(usersStore.selectedUser || null);
-const sharedTimeRange = ref<TimeRange>("week");
+
+const statsStore = useStatsStore();
+const { selectedUser } = storeToRefs(useUsersStore());
+const { sharedTimeRange } = storeToRefs(useTimeRangeStore());
+const { topAlbums, topTracks, topArtists } = storeToRefs(statsStore);
+
 const isLoading = ref(false);
 
 const paginatedData = ref<PaginatedResponse<Album | Track | Artist>>({
@@ -81,10 +75,10 @@ const loadMoreItems = async (page: number) => {
                 ELEMENT_PER_PAGE,
             );
             paginatedData.value = {
-                data: statsStore.topAlbums.data,
-                page: statsStore.topAlbums.page,
-                page_size: statsStore.topAlbums.page_size,
-                total: statsStore.topAlbums.total,
+                data: topAlbums.value.data,
+                page: topAlbums.value.page,
+                page_size: topAlbums.value.page_size,
+                total: topAlbums.value.total,
             };
         } else if (currentRoute.value === "topTracks") {
             await statsStore.fetchTopTracksForTracksView(
@@ -94,10 +88,10 @@ const loadMoreItems = async (page: number) => {
                 ELEMENT_PER_PAGE,
             );
             paginatedData.value = {
-                data: statsStore.topTracks.data,
-                page: statsStore.topTracks.page,
-                page_size: statsStore.topTracks.page_size,
-                total: statsStore.topTracks.total,
+                data: topTracks.value.data,
+                page: topTracks.value.page,
+                page_size: topTracks.value.page_size,
+                total: topTracks.value.total,
             };
         } else if (currentRoute.value === "topArtists") {
             await statsStore.fetchTopArtistsForArtistsView(
@@ -107,10 +101,10 @@ const loadMoreItems = async (page: number) => {
                 ELEMENT_PER_PAGE,
             );
             paginatedData.value = {
-                data: statsStore.topArtists.data,
-                page: statsStore.topArtists.page,
-                page_size: statsStore.topArtists.page_size,
-                total: statsStore.topArtists.total,
+                data: topArtists.value.data,
+                page: topArtists.value.page,
+                page_size: topArtists.value.page_size,
+                total: topArtists.value.total,
             };
         }
     } catch (error) {
@@ -119,6 +113,11 @@ const loadMoreItems = async (page: number) => {
         isLoading.value = false;
     }
 };
+
+watch(sharedTimeRange, () => {
+    console.log("Time range changed");
+    updateChart();
+});
 
 const updateChart = async () => {
     paginatedData.value = {

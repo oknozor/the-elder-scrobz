@@ -2,10 +2,7 @@
     <div class="stats">
         <div class="time-range-container">
             <h3 class="time-range-title">Time Range</h3>
-            <TimeRangeSelector
-                v-model="sharedTimeRange"
-                @update:modelValue="updateAllCharts"
-            />
+            <TimeRangeSelector />
         </div>
         <div class="stats-section">
             <SectionHeader>
@@ -26,28 +23,25 @@
             <div class="overview-cards">
                 <OverviewCard
                     title="Songs listened"
-                    :value="statsStore.overview.track_listened"
+                    :value="overview.track_listened"
                     :percentageChange="
-                        statsStore.overview
-                            .track_listened_percentage_increase ?? 0
+                        overview.track_listened_percentage_increase ?? 0
                     "
                     :comparisonText="comparisonText"
                 />
                 <OverviewCard
                     title="Time listened"
-                    :value="formatDuration(statsStore.overview.time_listened)"
+                    :value="formatDuration(overview.time_listened)"
                     :percentageChange="
-                        statsStore.overview.time_listened_percentage_increase ??
-                        0
+                        overview.time_listened_percentage_increase ?? 0
                     "
                     :comparisonText="comparisonText"
                 />
                 <OverviewCard
                     title="Artists listened"
-                    :value="statsStore.overview.artist_listened"
+                    :value="overview.artist_listened"
                     :percentageChange="
-                        statsStore.overview
-                            .artist_listened_percentage_increase ?? 0
+                        overview.artist_listened_percentage_increase ?? 0
                     "
                     :comparisonText="comparisonText"
                 />
@@ -55,7 +49,7 @@
             <Suspense>
                 <template #default>
                     <div class="pulse-charts">
-                        <PulseMixedChart :pulseData="statsStore.pulses" />
+                        <PulseMixedChart :pulseData="pulses" />
                     </div>
                 </template>
                 <template #fallback>
@@ -86,7 +80,7 @@
             <Suspense>
                 <template #default>
                     <StatGrid
-                        :items="statsStore.topArtistsForStatsView"
+                        :items="topArtistsForStatsView"
                         :limit="currentWidth > 500 ? 15 : 10"
                         :link="{ name: 'artist' }"
                     />
@@ -122,7 +116,7 @@
             <Suspense>
                 <template #default>
                     <StatGrid
-                        :items="statsStore.topTracksForStatsView"
+                        :items="topTracksForStatsView"
                         :limit="currentWidth > 500 ? 15 : 10"
                         :link="{ name: 'track' }"
                     />
@@ -158,7 +152,7 @@
             <Suspense>
                 <template #default>
                     <StatGrid
-                        :items="statsStore.topAlbumsForStatsView"
+                        :items="topAlbumsForStatsView"
                         :limit="currentWidth > 500 ? 15 : 10"
                         :link="{ name: 'album' }"
                     />
@@ -189,10 +183,8 @@
             <Suspense>
                 <template #default>
                     <RecentTracks
-                        :tracks="statsStore.recentTracks.data"
-                        :total-pages="
-                            Math.ceil(statsStore.recentTracks.total / 15)
-                        "
+                        :tracks="recentTracks.data"
+                        :total-pages="Math.ceil(recentTracks.total / 15)"
                         @load-more="handleLoadMore"
                     />
                 </template>
@@ -207,25 +199,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { computed, ref, watch } from "vue";
 import OverviewCard from "@/components/stats/OverviewCard.vue";
 import PulseMixedChart from "@/components/stats/PulseMixedChart.vue";
 import RecentTracks from "@/components/stats/RecentTracks.vue";
 import SectionHeader from "@/components/stats/SectionHeader.vue";
 import StatGrid from "@/components/stats/StatGrid.vue";
 import TimeRangeSelector from "@/components/TimeRangeSelector.vue";
-import { type AppUser, useStatsStore, useUsersStore } from "@/stores";
+import { useStatsStore, useTimeRangeStore, useUsersStore } from "@/stores";
 import type { TimeRange } from "@/types";
 import { formatDuration } from "@/utils/formatter";
 
-const sharedTimeRange = ref<TimeRange>("week");
-
 const currentWidth = ref(window.innerWidth);
 
-const statsStore = useStatsStore();
 const usersStore = useUsersStore();
+const { selectedUser } = storeToRefs(usersStore);
 
-const selectedUser = ref<AppUser | null>(usersStore.selectedUser || null);
+const statsStore = useStatsStore();
+const {
+    overview,
+    topAlbumsForStatsView,
+    topArtistsForStatsView,
+    topTracksForStatsView,
+    pulses,
+    recentTracks,
+} = storeToRefs(statsStore);
+
+const timeRangeStore = useTimeRangeStore();
+const { sharedTimeRange } = storeToRefs(timeRangeStore);
 
 const handleLoadMore = async (page: number) => {
     await statsStore.fetchRecentTracks(
@@ -250,46 +252,28 @@ const getComparisonText = (currentRange: TimeRange): string => {
     }
 };
 
-const currentTimeRange = computed(() => sharedTimeRange.value);
-
 const comparisonText = computed(() => {
-    return getComparisonText(currentTimeRange.value);
+    return getComparisonText(sharedTimeRange.value);
 });
 
-const updateAllCharts = () => {
-    fetchAllStats(selectedUser.value?.username || null);
-};
-
-watch(
-    () => usersStore.selectedUser,
-    (newValue) => {
-        fetchAllStats(newValue?.username || null);
-    },
-);
-
-const fetchAllStats = async (username: string | null) => {
+const fetchAllStats = async (username: string | null, timeRange: TimeRange) => {
     await Promise.all([
-        statsStore.fetchOverview(username, sharedTimeRange.value),
-        statsStore.fetchTopArtistsForStatsView(username, sharedTimeRange.value),
-        statsStore.fetchTopTracksForStatsView(username, sharedTimeRange.value),
-        statsStore.fetchTopAlbumsForStatsView(username, sharedTimeRange.value),
-        statsStore.fetchPulses(username, sharedTimeRange.value),
+        statsStore.fetchOverview(username, timeRange),
+        statsStore.fetchTopArtistsForStatsView(username, timeRange),
+        statsStore.fetchTopTracksForStatsView(username, timeRange),
+        statsStore.fetchTopAlbumsForStatsView(username, timeRange),
+        statsStore.fetchPulses(username, timeRange),
         statsStore.fetchRecentTracks(username, 1, 20),
     ]);
 };
 
-// Watch for changes in the shared time range
-watch(sharedTimeRange, () => {
-    updateAllCharts();
-});
-
-onMounted(async () => {
-    try {
-        await fetchAllStats(selectedUser.value?.username || null);
-    } catch (error) {
-        console.error("Error fetching data:", error);
-    }
-});
+watch(
+    [() => usersStore.selectedUser, sharedTimeRange],
+    ([newUser, newTimeRange]) => {
+        fetchAllStats(newUser?.username || null, newTimeRange);
+    },
+    { immediate: true },
+);
 </script>
 
 <style scoped>
