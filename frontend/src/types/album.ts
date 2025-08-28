@@ -1,4 +1,4 @@
-import type { Item } from ".";
+import type { Item, Track } from ".";
 
 export interface Album extends Item {
     artist_id: string;

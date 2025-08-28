@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Album, Artist, Item, Track } from "@/types/music";
+import type { Album, Artist, Item, Track } from "@/types";
 import { formatMillisecondsToMinutes } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
 

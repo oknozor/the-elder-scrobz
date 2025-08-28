@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import type { Album, Artist, PaginatedResponse, Track } from "@/types/music";
+import type { Album, Artist, PaginatedResponse, Track } from "@/types";
 import Card from "./Card.vue";
 
 interface Props {

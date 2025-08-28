@@ -1,4 +1,4 @@
-import type { ApiKey } from "@/types/music";
+import type { ApiKey } from "@/types";
 import apiClient from "./api";
 
 export const apiKeyService = {
