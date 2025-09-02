@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo "Generating frontend environment configuration..."
 
@@ -14,4 +14,6 @@ echo "Frontend environment configuration generated at /app/frontend/config.js"
 
 echo "Starting application..."
 
-exec "$@"
+exec \
+     /app/backend/scrobz \
+         "$@"
