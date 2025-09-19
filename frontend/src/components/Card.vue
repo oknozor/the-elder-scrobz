@@ -21,7 +21,7 @@
                 :src="imageUrl || 'will-trigger-error'"
                 :alt="item.name"
                 class="card-image"
-                @error="onImageError"
+                @error="handleImageError($event, '0.5', 'scale(0.4)')"
             />
         </component>
         <div class="card-content">
@@ -59,6 +59,7 @@ import { computed } from "vue";
 import type { Album, Artist, Item, Track } from "@/types";
 import { formatMillisecondsToMinutes } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
+import { handleImageError } from "@/utils/errors";
 
 interface Props {
     item: Artist | Track | Album;
@@ -102,13 +103,6 @@ const duration = computed(() => {
     }
     return null;
 });
-
-const onImageError = (event: Event) => {
-    const target = event.target as HTMLImageElement;
-    target.src = "/img/photo-off.svg";
-    target.style.opacity = "0.5";
-    target.style.transform = "scale(0.4)";
-};
 </script>
 
 <style scoped>

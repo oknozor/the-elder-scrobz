@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO scrobbles_errored (user_id, data)\n                VALUES ($1, $2)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "52ede9be6dcd9cb291fcef43605e0ac3bec8ca32a75fd0e32b74aff3ea4ebb9b"
+}

@@ -36,6 +36,12 @@
             "quoteStyle": "double"
         }
     },
+    "html": {
+        "formatter": {
+            "indentWidth": 2,
+            "indentStyle": "space"
+        }
+    },
     "assist": {
         "enabled": true,
         "actions": {
