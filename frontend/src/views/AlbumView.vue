@@ -71,12 +71,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import TrackList from "@/components/album/TrackList.vue";
 import apiClient from "@/services/api";
 import { useUsersStore } from "@/stores";
 import type { AlbumDetails } from "@/types";
-import { loadImage } from "@/utils/thumbail";
 import { handleImageError } from "@/utils/errors";
-import TrackList from "@/components/album/TrackList.vue";
+import { loadImage } from "@/utils/thumbail";
 
 const route = useRoute();
 const usersStore = useUsersStore();

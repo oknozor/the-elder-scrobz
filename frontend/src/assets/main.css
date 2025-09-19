@@ -30,7 +30,11 @@ body {
 
 .time-range-container {
     position: fixed;
-    left: calc(50% - 600px - 140px); /* 50% - half of max-width - container width - margin */
+    left: calc(
+        50% -
+        600px -
+        140px
+    ); /* 50% - half of max-width - container width - margin */
     top: 100px;
     z-index: 10;
     background: var(--card-background);
