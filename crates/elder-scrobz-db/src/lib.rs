@@ -1,5 +1,6 @@
 pub mod api_key;
 pub mod charts;
+pub mod dlc;
 pub mod listens;
 pub mod pulses;
 pub mod stats;

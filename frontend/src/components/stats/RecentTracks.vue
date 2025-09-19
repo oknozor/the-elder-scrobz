@@ -37,7 +37,7 @@
                                         'image-loaded': imageLoaded(track.id),
                                     }"
                                     @load="onImageLoad(track.id)"
-                                    @error="onImageError"
+                                    @error="handleImageError"
                                 />
                                 <div class="track-info-container">
                                     <router-link
@@ -107,6 +107,7 @@ import {
 import type { RecentTrack } from "@/types";
 import { formatTimeAgo } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
+import { handleImageError } from "@/utils/errors";
 
 const loadedImages = ref<Set<string>>(new Set());
 const tableContainer = ref<HTMLElement | null>(null);
@@ -138,11 +139,6 @@ const onImageLoad = (trackId: string) => {
 
 const imageLoaded = (trackId: string) => {
     return loadedImages.value.has(trackId);
-};
-
-const onImageError = (event: Event) => {
-    const target = event.target as HTMLImageElement;
-    target.src = "/img/photo-off.svg";
 };
 
 const scrollToTop = () => {

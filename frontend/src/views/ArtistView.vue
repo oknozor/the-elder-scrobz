@@ -37,6 +37,7 @@ import { useRoute } from "vue-router";
 import apiClient from "@/services/api";
 import { useUsersStore } from "@/stores";
 import type { Artist } from "@/types";
+import { handleImageError } from "@/utils/errors";
 
 const route = useRoute();
 const usersStore = useUsersStore();
@@ -46,11 +47,6 @@ const error = ref<string | null>(null);
 const artist = ref<Artist | null>(null);
 
 const artistId = computed(() => route.params.id as string);
-
-const handleImageError = (event: Event) => {
-    const img = event.target as HTMLImageElement;
-    img.src = "/img/photo-off.svg";
-};
 
 const fetchArtist = async () => {
     if (!artistId.value) {

@@ -9,7 +9,6 @@ interface Window {
     env?: ImportMetaEnv;
 }
 
-// Use runtime environment variables from window.env if available, otherwise fall back to import.meta.env
 const env = (window as Window).env || import.meta.env;
 
 const oidcSettings: UserManagerSettings = {

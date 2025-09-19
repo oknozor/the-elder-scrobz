@@ -6,12 +6,14 @@ use axum::Json;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
+use elder_scrobz_db::dlc::CreateErroredScrobble;
 use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
 use elder_scrobz_db::listens::raw::listenbrainz::{raw, typed, ListenType};
 use elder_scrobz_db::user::User;
 use elder_scrobz_db::PgPool;
 use serde::Serialize;
-use tracing::debug;
+use serde_json::Value;
+use tracing::{debug, warn};
 
 #[derive(Debug, Default, Serialize)]
 pub struct Empty {}
@@ -34,30 +36,33 @@ pub struct Empty {}
 pub async fn submit_listens(
     State(db): State<PgPool>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
-    Json(payload): Json<raw::SubmitListens>,
+    Json(payload): Json<Value>,
 ) -> AppResult<Json<Empty>> {
-    match payload.listen_type {
-        ListenType::Single | ListenType::Import => store_scrobble(&db, auth, payload).await?,
-        ListenType::PlayingNow => debug!("Received PlayingNow listen. Ignoring."),
-    };
-
-    Ok(Empty::default().into())
-}
-
-async fn store_scrobble(
-    db: &PgPool,
-    auth: Authorization<Token>,
-    payload: raw::SubmitListens,
-) -> Result<(), AppError> {
     let Some(token) = auth.0.token()? else {
         return Err(AppError::Unauthorized("Missing token".to_string()));
     };
 
-    let Some(user) = User::get_user_id_by_api_key(db, token).await? else {
+    let Some(user) = User::get_user_id_by_api_key(&db, token).await? else {
         return Err(AppError::Unauthorized("Invalid token".to_string()));
     };
 
-    CreateRawScrobble::batch_insert(user.username, payload, db).await?;
+    match serde_json::from_value::<raw::SubmitListens>(payload.clone()) {
+        Ok(listens) => match listens.listen_type {
+            ListenType::Single | ListenType::Import => {
+                CreateRawScrobble::batch_insert(user.username, listens, &db).await?
+            }
+            ListenType::PlayingNow => debug!("Received PlayingNow listen. Ignoring."),
+        },
+        Err(err) => {
+            warn!("Failed to deserialize listen, sending to DLC {err}");
+            CreateErroredScrobble {
+                user_id: user.username,
+                data: payload,
+            }
+            .save(&db)
+            .await?;
+        }
+    };
 
-    Ok(())
+    Ok(Empty::default().into())
 }

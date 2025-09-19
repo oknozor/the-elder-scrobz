@@ -48,7 +48,6 @@ impl FromRequestParts<PgPool> for AuthenticatedUser {
                             .insert(db)
                             .await?;
                         }
-
                         Ok(user)
                     }
                 },
