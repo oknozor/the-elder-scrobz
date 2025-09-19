@@ -57,9 +57,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Album, Artist, Item, Track } from "@/types";
+import { handleImageError } from "@/utils/errors";
 import { formatMillisecondsToMinutes } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
-import { handleImageError } from "@/utils/errors";
 
 interface Props {
     item: Artist | Track | Album;

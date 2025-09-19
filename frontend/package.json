@@ -20,7 +20,7 @@
         "vue-router": "^4.2.5"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.2.2",
+        "@biomejs/biome": "2.2.4",
         "@types/chart.js": "^2.9.41",
         "@types/node": "^20.11.16",
         "@vitejs/plugin-vue": "^5.0.3",

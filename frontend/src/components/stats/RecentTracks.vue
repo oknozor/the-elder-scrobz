@@ -105,9 +105,9 @@ import {
     watch,
 } from "vue";
 import type { RecentTrack } from "@/types";
+import { handleImageError } from "@/utils/errors";
 import { formatTimeAgo } from "@/utils/formatter";
 import { loadImage } from "@/utils/thumbail";
-import { handleImageError } from "@/utils/errors";
 
 const loadedImages = ref<Set<string>>(new Set());
 const tableContainer = ref<HTMLElement | null>(null);
