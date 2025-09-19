@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, sqlx::FromRow, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow, sqlx::Type, ToSchema)]
 pub struct ErroredScrobble {
     pub id: i64,
     pub user_id: String,

@@ -11,6 +11,6 @@ pub fn router() -> OpenApiRouter<PgPool> {
     OpenApiRouter::new()
         .routes(routes!(scan::scan_db))
         .routes(routes!(stats::stats))
-        .routes(routes!(scrobbles::get_by_id))
         .routes(routes!(releases::remove_coverart))
+        .merge(scrobbles::router())
 }
