@@ -38,6 +38,7 @@ pub async fn submit_listens(
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
     Json(payload): Json<Value>,
 ) -> AppResult<Json<Empty>> {
+    println!("{:?}", serde_json::to_string_pretty(&payload).unwrap());
     let Some(token) = auth.0.token()? else {
         return Err(AppError::Unauthorized("Missing token".to_string()));
     };
