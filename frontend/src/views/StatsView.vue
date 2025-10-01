@@ -4,6 +4,7 @@
             <h3 class="time-range-title">Time Range</h3>
             <TimeRangeSelector />
         </div>
+        <NowPlayingDisplay />
         <div class="stats-section">
             <SectionHeader>
                 <template #icon>
@@ -201,6 +202,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { computed, ref, watch } from "vue";
+import NowPlayingDisplay from "@/components/NowPlayingGrid.vue";
 import OverviewCard from "@/components/stats/OverviewCard.vue";
 import PulseMixedChart from "@/components/stats/PulseMixedChart.vue";
 import RecentTracks from "@/components/stats/RecentTracks.vue";

@@ -5,6 +5,7 @@ export type PlayingNow = {
     artist: string;
     album: string;
     cover_art_url?: string;
+    track_duration: number;
 };
 
 export type ScrobzEvent = PlayingNow;
