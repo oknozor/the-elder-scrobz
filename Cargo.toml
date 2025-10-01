@@ -17,6 +17,7 @@ autometrics = { version = "2.0.0", features = ["prometheus-exporter"] }
 
 tokio = { version = "1", features = ["full"] }
 tokio-util = "0.7.14"
+tokio-stream = { version = "0.1.17", features = ["sync"] }
 reqwest = { version = "0.12.15", features = ["native-tls-vendored"] }
 oauth2 = "5.0.0"
 futures-util = "0.3.31"

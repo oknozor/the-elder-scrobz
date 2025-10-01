@@ -22,6 +22,7 @@
                 <component :is="Component" />
             </Transition>
         </RouterView>
+        <EventToaster />
     </div>
 </template>
 
@@ -31,10 +32,13 @@ import { useRoute } from "vue-router";
 import PageHeader from "@/components/PageHeader.vue";
 import UsernameSelector from "@/components/UsernameSelector.vue";
 import { type AppUser, useAuthStore, useUsersStore } from "@/stores";
+import EventToaster from "./components/EventToaster.vue";
+import { startSse } from "./services/sseService";
 
 const route = useRoute();
 const usersStore = useUsersStore();
 const authStore = useAuthStore();
+startSse();
 
 const showBackButton = computed(() => {
     return route.name !== "stats";

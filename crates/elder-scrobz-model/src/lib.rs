@@ -7,6 +7,7 @@ static SETTINGS: Lazy<Settings> = Lazy::new(|| Settings::get().unwrap());
 
 pub mod album;
 pub mod artist;
+pub mod events;
 pub mod track;
 
 #[derive(Serialize, Deserialize, Debug, ToSchema)]

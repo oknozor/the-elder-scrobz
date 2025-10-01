@@ -1,5 +1,4 @@
-use crate::listens::raw::listenbrainz::typed;
-use crate::listens::raw::listenbrainz::typed::{AdditionalInfo, MbidMapping};
+use crate::listens::raw::listenbrainz::typed::{self};
 use crate::{Pagination, PgPool};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -152,56 +151,33 @@ impl TypedScrobble {
     }
 
     pub fn recording_mbid(&self) -> Option<String> {
-        self.additional_info()
-            .and_then(|info| info.recording_mbid.clone())
-            .or_else(|| {
-                self.mappings()
-                    .and_then(|mapping| mapping.recording_mbid.clone())
-            })
+        self.data.0.recording_mbid()
     }
 
     pub fn artist_mbids(&self) -> Option<Vec<String>> {
-        self.additional_info()
-            .and_then(|info| info.artist_mbids.clone())
-            .or_else(|| {
-                self.mappings()
-                    .and_then(|mapping| mapping.artist_mbids.clone())
-            })
+        self.data.0.artist_mbids()
     }
 
-    pub fn release_mbid(&self) -> Option<String> {
-        self.additional_info()
-            .and_then(|info| info.release_mbid.clone())
-            .or_else(|| {
-                self.mappings()
-                    .and_then(|mapping| mapping.release_mbid.clone())
-            })
+    pub fn release_mbid(&self) -> Option<&str> {
+        self.data.0.release_mbid()
     }
 
-    pub fn track_name(&self) -> String {
-        self.data.0.track_metadata.track_name.clone()
+    pub fn track_name(&self) -> &str {
+        self.data.0.track_name()
     }
-    pub fn artist_name(&self) -> String {
-        self.data.0.track_metadata.artist_name.clone()
+    pub fn artist_name(&self) -> &str {
+        self.data.0.artist_name()
     }
 
-    pub fn release_name(&self) -> String {
-        self.data.0.track_metadata.release_name.clone()
+    pub fn release_name(&self) -> &str {
+        self.data.0.release_name()
     }
 
     pub fn track_number(&self) -> Option<i32> {
-        self.additional_info().and_then(|info| info.tracknumber)
+        self.data.0.track_number()
     }
 
     pub fn track_duration(&self) -> Option<i32> {
-        self.additional_info().and_then(|info| info.duration_ms)
-    }
-
-    fn mappings(&self) -> Option<&MbidMapping> {
-        self.data.0.track_metadata.mbid_mapping.as_deref()
-    }
-
-    fn additional_info(&self) -> Option<&AdditionalInfo> {
-        self.data.0.track_metadata.additional_info.as_ref()
+        self.data.0.track_duration()
     }
 }

@@ -14,7 +14,7 @@ pub enum ListenType {
 /// These are untyped scrobbled we receive from client,
 /// This is needed to keep scrobbles we are not able to process yet.
 pub mod raw {
-    use crate::listens::raw::listenbrainz::ListenType;
+    use crate::listens::raw::listenbrainz::{ListenType, typed};
     use serde::{Deserialize, Serialize};
     use utoipa::ToSchema;
 
@@ -27,8 +27,42 @@ pub mod raw {
 
     #[derive(Serialize, Deserialize, ToSchema, Debug)]
     pub struct SubmitListensPayload {
+        #[serde(default = "now_timestamp")]
         pub listened_at: i64,
         pub track_metadata: serde_json::Value,
+    }
+
+    fn now_timestamp() -> i64 {
+        chrono::Utc::now().timestamp()
+    }
+
+    impl TryInto<typed::SubmitListens> for SubmitListens {
+        type Error = serde_json::Error;
+
+        fn try_into(self) -> Result<typed::SubmitListens, Self::Error> {
+            let payload = self
+                .payload
+                .into_iter()
+                .map(|p| p.try_into())
+                .collect::<Result<Vec<_>, _>>()?;
+
+            Ok(typed::SubmitListens {
+                listen_type: self.listen_type,
+                payload,
+            })
+        }
+    }
+
+    impl TryInto<typed::SubmitListensPayload> for SubmitListensPayload {
+        type Error = serde_json::Error;
+
+        fn try_into(self) -> Result<typed::SubmitListensPayload, Self::Error> {
+            let track_metadata = serde_json::from_value(self.track_metadata)?;
+            Ok(typed::SubmitListensPayload {
+                listened_at: self.listened_at,
+                track_metadata,
+            })
+        }
     }
 }
 
@@ -160,5 +194,61 @@ pub mod typed {
         pub artist_mbid: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub join_phrase: Option<String>,
+    }
+
+    impl SubmitListensPayload {
+        pub fn recording_mbid(&self) -> Option<String> {
+            self.additional_info()
+                .and_then(|info| info.recording_mbid.clone())
+                .or_else(|| {
+                    self.mappings()
+                        .and_then(|mapping| mapping.recording_mbid.clone())
+                })
+        }
+
+        pub fn artist_mbids(&self) -> Option<Vec<String>> {
+            self.additional_info()
+                .and_then(|info| info.artist_mbids.clone())
+                .or_else(|| {
+                    self.mappings()
+                        .and_then(|mapping| mapping.artist_mbids.clone())
+                })
+        }
+
+        pub fn release_mbid(&self) -> Option<&str> {
+            self.additional_info()
+                .and_then(|info| info.release_mbid.as_deref())
+                .or_else(|| {
+                    self.mappings()
+                        .and_then(|mapping| mapping.release_mbid.as_deref())
+                })
+        }
+
+        pub fn track_name(&self) -> &str {
+            &self.track_metadata.track_name
+        }
+        pub fn artist_name(&self) -> &str {
+            &self.track_metadata.artist_name
+        }
+
+        pub fn release_name(&self) -> &str {
+            &self.track_metadata.release_name
+        }
+
+        pub fn track_number(&self) -> Option<i32> {
+            self.additional_info().and_then(|info| info.tracknumber)
+        }
+
+        pub fn track_duration(&self) -> Option<i32> {
+            self.additional_info().and_then(|info| info.duration_ms)
+        }
+
+        fn mappings(&self) -> Option<&MbidMapping> {
+            self.track_metadata.mbid_mapping.as_deref()
+        }
+
+        fn additional_info(&self) -> Option<&AdditionalInfo> {
+            self.track_metadata.additional_info.as_ref()
+        }
     }
 }

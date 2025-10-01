@@ -898,6 +898,7 @@ dependencies = [
  "elder-scrobz-api",
  "elder-scrobz-crawler",
  "elder-scrobz-db",
+ "elder-scrobz-model",
  "elder-scrobz-settings",
  "tokio",
  "tokio-util",
@@ -932,6 +933,7 @@ dependencies = [
  "speculoos",
  "testcontainers-modules",
  "tokio",
+ "tokio-stream",
  "tower",
  "tracing",
  "utoipa",
@@ -945,6 +947,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "elder-scrobz-db",
+ "elder-scrobz-model",
  "elder-scrobz-subsonic",
  "musicbrainz_rs",
  "once_cell",
@@ -997,6 +1000,7 @@ dependencies = [
  "elder-scrobz-settings",
  "once_cell",
  "serde",
+ "serde_json",
  "utoipa",
 ]
 
@@ -4149,6 +4153,7 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
+ "tokio-util",
 ]
 
 [[package]]

@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 serde.workspace = true
+serde_json.workspace = true
 elder-scrobz-db.workspace = true
 elder-scrobz-settings.workspace = true
 utoipa.workspace = true
