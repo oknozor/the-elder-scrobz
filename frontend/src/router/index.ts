@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores";
+import AdminView from "@/views/AdminView.vue";
 import AlbumView from "@/views/AlbumView.vue";
 import ApiKeysView from "@/views/ApiKeysView.vue";
 import ArtistView from "@/views/ArtistView.vue";
@@ -85,6 +86,12 @@ const router = createRouter({
             name: "callback",
             component: CallbackView,
             meta: { requiresAuth: false },
+        },
+        {
+            path: "/admin",
+            name: "admin",
+            component: AdminView,
+            meta: { requiresAuth: true },
         },
     ],
 });

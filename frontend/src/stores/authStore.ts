@@ -10,10 +10,7 @@ export const useAuthStore = defineStore("auth", {
     }),
 
     getters: {
-        // Get the user's name from the profile
         userName: (state) => state.user?.profile?.name || "",
-
-        // Get the user's email from the profile
         userEmail: (state) => state.user?.profile?.email || "",
     },
 

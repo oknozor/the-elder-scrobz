@@ -1,5 +1,4 @@
-use crate::api::pagination::{PageQuery, ToOffset};
-use crate::api::PaginatedResponse;
+use crate::api::pagination::{PageQuery, PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::{Query, State};
@@ -46,12 +45,7 @@ pub async fn recent_listens(
         .map(RecentTrack::Track)
         .collect::<Vec<_>>();
 
-    let response = PaginatedResponse {
-        data: listens,
-        page: query.page(),
-        page_size: query.per_page(),
-        total,
-    };
+    let response = PaginatedResponse::from_query(listens, total, query);
 
     Ok(Json(response))
 }

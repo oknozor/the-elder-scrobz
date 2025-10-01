@@ -33,6 +33,10 @@
                 <div class="user-option" @click="handleApiKeys">
                     <span class="option-text">API Keys</span>
                 </div>
+                <!--TODO: IS ADMIN  -->
+                <div class="user-option" @click="handleAdmin">
+                    <span class="option-text"> Administration </span>
+                </div>
                 <div class="user-option" @click="handleLogout">
                     <span class="option-text">Logout</span>
                 </div>
@@ -92,6 +96,11 @@ const handleUsers = () => {
 
 const handleApiKeys = () => {
     router.push({ name: "apiKeys" });
+    isOpen.value = false;
+};
+
+const handleAdmin = () => {
+    router.push({ name: "admin" });
     isOpen.value = false;
 };
 </script>

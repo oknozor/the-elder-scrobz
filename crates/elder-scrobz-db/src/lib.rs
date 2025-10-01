@@ -25,7 +25,7 @@ pub async fn migrate_db(pool: &PgPool) -> Result<(), sqlx::Error> {
     Ok(())
 }
 
-#[derive(Debug, ToSchema, Deserialize, Serialize, Default)]
+#[derive(Debug, ToSchema, Deserialize, Serialize, Default, Copy, Clone)]
 #[serde(rename_all = "lowercase")]
 #[schema(default = "year", example = "month")]
 pub enum Period {

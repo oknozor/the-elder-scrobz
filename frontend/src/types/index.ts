@@ -1,3 +1,5 @@
+export * from "./admin/json";
+export * from "./admin/stats";
 export * from "./album";
 export * from "./api-param";
 export * from "./artist";

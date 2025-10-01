@@ -252,18 +252,12 @@ export const useStatsStore = defineStore("stats", {
             const usernameParam = username ? `&username=${username}&` : "";
             try {
                 this.error = null;
-                const { data } = await apiClient
-                    .get<PaginatedResponse<RecentTrack>>(
-                        `/listens/recent?${usernameParam}page=${page}&page_size=${pageSize}`,
-                    )
-                    .then((response) => response.data);
-                // Will change when api is updated:
-                this.recentTracks = {
-                    data: data,
-                    total: 100,
-                    page_size: pageSize,
-                    page: page,
-                };
+                const response = await apiClient.get<
+                    PaginatedResponse<RecentTrack>
+                >(
+                    `/listens/recent?${usernameParam}page=${page}&page_size=${pageSize}`,
+                );
+                this.recentTracks = response.data;
             } catch (error) {
                 this.error = "Failed to fetch recent tracks";
                 console.error("Error fetching recent tracks:", error);

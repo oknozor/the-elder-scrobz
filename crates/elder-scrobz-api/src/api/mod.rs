@@ -1,9 +1,8 @@
 use crate::oauth::AuthenticatedUser;
 use axum::middleware::from_extractor_with_state;
 use elder_scrobz_db::PgPool;
-use serde::Serialize;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
-use utoipa::{Modify, OpenApi, ToSchema};
+use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
 
 pub mod admin;
@@ -60,14 +59,6 @@ impl Modify for SecurityAddon {
             )
         }
     }
-}
-
-#[derive(Serialize, ToSchema, Debug)]
-pub struct PaginatedResponse<T> {
-    data: Vec<T>,
-    page: i64,
-    page_size: i64,
-    total: i64,
 }
 
 pub fn router(no_oauth: bool, pool: PgPool) -> OpenApiRouter<PgPool> {
