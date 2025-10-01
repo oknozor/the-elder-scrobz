@@ -22,6 +22,10 @@
                 </div>
                 <ScanForm />
             </div>
+
+            <div class="admin-section">
+                <ScrobbleJsonViewer />
+            </div>
         </div>
     </div>
 </template>
@@ -29,6 +33,7 @@
 <script setup lang="ts">
 import ScanForm from "@/components/admin/ScanForm.vue";
 import StatsVue from "@/components/admin/StatsVue.vue";
+import ScrobbleJsonViewer from "@/components/admin/ScrobbleJsonViewer.vue";
 </script>
 
 <style scoped>

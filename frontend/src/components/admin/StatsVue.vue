@@ -169,7 +169,7 @@
                 >
                     <div class="issue-item error">
                         <span class="issue-count">{{
-                            stats.unparsabble_scrobbles.count
+                            stats.unparsable_scrobbles.count
                         }}</span>
                         <span class="issue-label">Unparseable Scrobbles</span>
                     </div>
