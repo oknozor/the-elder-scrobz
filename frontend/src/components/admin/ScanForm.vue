@@ -244,7 +244,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useAdminStore, type ScanParams } from "@/stores/adminStore";
+import { type ScanParams, useAdminStore } from "@/stores/adminStore";
 
 const adminStore = useAdminStore();
 

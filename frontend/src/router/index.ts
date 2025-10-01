@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores";
+import AdminView from "@/views/AdminView.vue";
 import AlbumView from "@/views/AlbumView.vue";
 import ApiKeysView from "@/views/ApiKeysView.vue";
 import ArtistView from "@/views/ArtistView.vue";
@@ -10,7 +11,6 @@ import StatsView from "@/views/StatsView.vue";
 import TopDetailView from "@/views/TopDetailView.vue";
 import TrackView from "@/views/TrackView.vue";
 import UsersView from "@/views/UsersView.vue";
-import AdminView from "@/views/AdminView.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),

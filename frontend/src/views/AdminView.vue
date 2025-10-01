@@ -35,10 +35,10 @@
 </template>
 
 <script setup lang="ts">
-import ScanForm from "@/components/admin/ScanForm.vue";
-import StatsVue from "@/components/admin/StatsVue.vue";
-import ScrobbleJsonViewer from "@/components/admin/ScrobbleJsonViewer.vue";
 import ErroredScrobblesViewer from "@/components/admin/ErroredScrobblesViewer.vue";
+import ScanForm from "@/components/admin/ScanForm.vue";
+import ScrobbleJsonViewer from "@/components/admin/ScrobbleJsonViewer.vue";
+import StatsVue from "@/components/admin/StatsVue.vue";
 </script>
 
 <style scoped>
