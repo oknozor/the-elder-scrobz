@@ -24,7 +24,7 @@
             <div v-if="isExpanded" class="json-expanded">
                 <div v-if="isObject" class="json-content">
                     <div
-                        v-for="(val, key) in value as Record<string, any>"
+                        v-for="(val, key) in objectValue"
                         :key="key"
                         class="json-property"
                     >
@@ -32,9 +32,9 @@
                         <span class="json-colon">:</span>
                         <JsonNode
                             :value="val"
-                            :path="[...path, String(key)]"
+                            :path="[...path, key]"
                             :expanded="expanded"
-                            @toggle="$emit('toggle', $event)"
+                            @toggle="toggle"
                         />
                         <span v-if="!isLastProperty(key)" class="json-comma"
                             >,</span
@@ -44,7 +44,7 @@
 
                 <div v-if="isArray" class="json-content">
                     <div
-                        v-for="(item, index) in value as any[]"
+                        v-for="(item, index) in arrayValue"
                         :key="index"
                         class="json-property"
                     >
@@ -52,9 +52,11 @@
                             :value="item"
                             :path="[...path, String(index)]"
                             :expanded="expanded"
-                            @toggle="$emit('toggle', $event)"
+                            @toggle="toggle"
                         />
-                        <span v-if="index < value.length - 1" class="json-comma"
+                        <span
+                            v-if="index < arrayValue.length - 1"
+                            class="json-comma"
                             >,</span
                         >
                     </div>
@@ -74,42 +76,45 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { ValueType } from "@/types/admin/json";
 
 interface Props {
-    value: unknown;
+    value: ValueType;
     path: string[];
     expanded: boolean;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
-    toggle: [path: string[]];
-}>();
+const emit = defineEmits<(e: "toggle", path: string[]) => void>();
 
+const isArray = computed(() => Array.isArray(props.value));
 const isObject = computed(
     () =>
-        typeof props.value === "object" &&
         props.value !== null &&
+        typeof props.value === "object" &&
         !Array.isArray(props.value),
 );
 
-const isArray = computed(() => Array.isArray(props.value));
+// Computed helpers for arrays and objects
+const arrayValue = computed(() =>
+    isArray.value ? (props.value as ValueType[]) : [],
+);
+const objectValue = computed(() =>
+    isObject.value ? (props.value as Record<string, ValueType>) : {},
+);
 
-const isExpanded = computed(() => {
-    return props.expanded;
-});
+const isExpanded = computed(() => props.expanded);
 
 const openBracket = computed(() => (isArray.value ? "[" : "{"));
 const closeBracket = computed(() => (isArray.value ? "]" : "}"));
 
 const collapsedText = computed(() => {
     if (isArray.value) {
-        const length = (props.value as unknown[]).length;
+        const length = arrayValue.value.length;
         return length === 0 ? "" : `${length} item${length === 1 ? "" : "s"}`;
     } else if (isObject.value) {
-        const obj = props.value as Record<string, unknown>; // type assertion
-        const keys = Object.keys(obj);
+        const keys = Object.keys(objectValue.value);
         const length = keys.length;
         return length === 0
             ? ""
@@ -133,12 +138,12 @@ const formattedValue = computed(() => {
 });
 
 const isLastProperty = (key: string) => {
-    if (!isObject.value) return false;
-    const keys = Object.keys(props.value as Record<string, unknown>);
+    const keys = Object.keys(objectValue.value);
     return keys[keys.length - 1] === key;
 };
+
 const toggle = () => {
-    emit("toggle", props.path);
+    emit("toggle", props.path as string[]);
 };
 </script>
 

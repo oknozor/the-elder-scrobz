@@ -57,56 +57,46 @@ const { topAlbums, topTracks, topArtists } = storeToRefs(statsStore);
 
 const isLoading = ref(false);
 
+const routeMap = {
+    topAlbums: {
+        fetch: statsStore.fetchTopAlbumsForAlbumsView,
+        source: topAlbums,
+    },
+    topTracks: {
+        fetch: statsStore.fetchTopTracksForTracksView,
+        source: topTracks,
+    },
+    topArtists: {
+        fetch: statsStore.fetchTopArtistsForArtistsView,
+        source: topArtists,
+    },
+} as const;
+
 const paginatedData = ref<PaginatedResponse<Album | Track | Artist>>({
     data: [],
     page: 1,
     page_size: ELEMENT_PER_PAGE,
     total: 0,
+    total_pages: 1,
+    previous_page: null,
+    next_page: null,
+    last_page: 1,
 });
 
 const loadMoreItems = async (page: number) => {
     isLoading.value = true;
     try {
-        if (currentRoute.value === "topAlbums") {
-            await statsStore.fetchTopAlbumsForAlbumsView(
-                selectedUser.value?.username || null,
-                sharedTimeRange.value,
-                page,
-                ELEMENT_PER_PAGE,
-            );
-            paginatedData.value = {
-                data: topAlbums.value.data,
-                page: topAlbums.value.page,
-                page_size: topAlbums.value.page_size,
-                total: topAlbums.value.total,
-            };
-        } else if (currentRoute.value === "topTracks") {
-            await statsStore.fetchTopTracksForTracksView(
-                selectedUser.value?.username || null,
-                sharedTimeRange.value,
-                page,
-                ELEMENT_PER_PAGE,
-            );
-            paginatedData.value = {
-                data: topTracks.value.data,
-                page: topTracks.value.page,
-                page_size: topTracks.value.page_size,
-                total: topTracks.value.total,
-            };
-        } else if (currentRoute.value === "topArtists") {
-            await statsStore.fetchTopArtistsForArtistsView(
-                selectedUser.value?.username || null,
-                sharedTimeRange.value,
-                page,
-                ELEMENT_PER_PAGE,
-            );
-            paginatedData.value = {
-                data: topArtists.value.data,
-                page: topArtists.value.page,
-                page_size: topArtists.value.page_size,
-                total: topArtists.value.total,
-            };
-        }
+        const route = currentRoute.value as keyof typeof routeMap;
+        const { fetch, source } = routeMap[route];
+
+        await fetch(
+            selectedUser.value?.username || null,
+            sharedTimeRange.value,
+            page,
+            ELEMENT_PER_PAGE,
+        );
+
+        paginatedData.value = source.value;
     } catch (error) {
         console.error("Failed to load items", error);
     } finally {
@@ -125,6 +115,10 @@ const updateChart = async () => {
         page: 1,
         page_size: ELEMENT_PER_PAGE,
         total: 0,
+        total_pages: 1,
+        previous_page: null,
+        next_page: null,
+        last_page: 1,
     };
     loadMoreItems(1);
 };

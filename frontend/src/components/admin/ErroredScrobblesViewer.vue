@@ -83,7 +83,11 @@
                 </div>
 
                 <div
-                    v-else-if="erroredScrobbles.length === 0 && !error"
+                    v-else-if="
+                        erroredScrobbles !== undefined &&
+                        erroredScrobbles.length === 0 &&
+                        !error
+                    "
                     class="empty-state"
                 >
                     <div class="empty-icon">
@@ -180,14 +184,19 @@
                                 :value="scrobble.data"
                                 :path="[]"
                                 :expanded="true"
-                                @toggle="onJsonToggle"
                             />
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div v-if="erroredScrobbles.length > 0" class="pagination-footer">
+            <div
+                v-if="
+                    erroredScrobbles !== undefined &&
+                    erroredScrobbles.length > 0
+                "
+                class="pagination-footer"
+            >
                 <button
                     @click="previousPage"
                     :disabled="currentPage === 1 || isLoading"
@@ -263,11 +272,11 @@ const error = ref("");
 const expandedScrobbles = reactive(new Set<number>());
 const copiedScrobbles = reactive(new Set<number>());
 
-const erroredScrobbles = computed(() => adminStore.erroredScrobbles);
+const erroredScrobbles = computed(() => adminStore.erroredScrobbles.data);
 
 const visiblePages = computed(() => {
     const pages = [];
-    const totalPages = Math.ceil(100 / itemsPerPage.value); // Rough estimate since we don't know total
+    const totalPages = adminStore.erroredScrobbles.total_pages;
     const current = currentPage.value;
 
     // Always show first page
@@ -368,11 +377,6 @@ const copyScrobbleJson = async (scrobble: ErroredScrobble) => {
     } catch (err) {
         console.error("Failed to copy JSON:", err);
     }
-};
-
-const onJsonToggle = (path: string[]) => {
-    // Handle JSON node expansion - could be implemented for per-node state
-    console.log("JSON node toggled:", path);
 };
 
 const formatDate = (dateString: string) => {

@@ -1,5 +1,4 @@
-use crate::api::pagination::{PageQuery, ToOffset};
-use crate::api::PaginatedResponse;
+use crate::api::pagination::{PageQuery, PaginatedResponse, ToOffset};
 use crate::error::AppResult;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
@@ -56,12 +55,7 @@ pub async fn get_users(
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<PaginatedResponse<User>>> {
     let (total, users) = DbUser::all(&db, query.per_page(), query.to_offset()).await?;
-    let response = PaginatedResponse {
-        data: users,
-        page: query.page(),
-        page_size: query.per_page(),
-        total,
-    };
+    let response = PaginatedResponse::from_query(users, total, query);
 
     Ok(Json(response))
 }

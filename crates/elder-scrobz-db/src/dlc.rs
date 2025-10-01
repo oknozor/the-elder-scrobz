@@ -36,8 +36,18 @@ impl ErroredScrobble {
         pool: &sqlx::PgPool,
         limit: i64,
         offset: i64,
-    ) -> Result<Vec<Self>, sqlx::Error> {
-        sqlx::query_as!(
+    ) -> Result<(Vec<Self>, i64), sqlx::Error> {
+        let total = sqlx::query_scalar!(
+            r#"
+                SELECT COUNT(*) as count
+                FROM scrobbles_errored
+            "#
+        )
+        .fetch_one(pool)
+        .await?
+        .unwrap_or(0);
+
+        let records = sqlx::query_as!(
             Self,
             r#"
                 SELECT id, user_id, data, created_at
@@ -48,6 +58,8 @@ impl ErroredScrobble {
             offset
         )
         .fetch_all(pool)
-        .await
+        .await?;
+
+        Ok((records, total))
     }
 }

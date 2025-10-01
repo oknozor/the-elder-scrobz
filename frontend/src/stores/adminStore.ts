@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import apiClient from "@/services/api";
-import type { Stats } from "@/types";
+import type { PaginatedResponse, Stats, ValueType } from "@/types";
 
 export interface ErroredScrobble {
     id: number;
     user_id: string;
-    data: unknown;
+    data: ValueType;
     created_at: string;
 }
 
@@ -27,7 +27,7 @@ export interface ScanParams {
 export const useAdminStore = defineStore("admin", {
     state: () => ({
         stats: {} as Stats,
-        erroredScrobbles: [] as ErroredScrobble[],
+        erroredScrobbles: {} as PaginatedResponse<ErroredScrobble>,
         isScanning: false,
     }),
 

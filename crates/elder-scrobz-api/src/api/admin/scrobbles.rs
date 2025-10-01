@@ -1,4 +1,4 @@
-use crate::api::pagination::{PageQuery, ToOffset};
+use crate::api::pagination::{PageQuery, PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::{Path, Query, State};
@@ -45,10 +45,10 @@ pub async fn get_by_id(
 pub async fn get_all_errored(
     Query(page): Query<PageQuery>,
     State(db): State<PgPool>,
-) -> AppResult<Json<Vec<ErroredScrobble>>> {
-    Ok(Json(
-        ErroredScrobble::all(&db, page.per_page(), page.to_offset()).await?,
-    ))
+) -> AppResult<Json<PaginatedResponse<ErroredScrobble>>> {
+    let (scrobbles, total) = ErroredScrobble::all(&db, page.per_page(), page.to_offset()).await?;
+    let pagination = PaginatedResponse::from_query(scrobbles, total, page);
+    Ok(Json(pagination))
 }
 
 pub(crate) fn router() -> OpenApiRouter<PgPool> {

@@ -14,12 +14,6 @@
             </div>
 
             <div class="admin-section">
-                <div class="section-header">
-                    <h2>Database Operations</h2>
-                    <p class="section-description">
-                        Configure and run database maintenance tasks.
-                    </p>
-                </div>
                 <ScanForm />
             </div>
 

@@ -1,6 +1,5 @@
 use crate::api::charts::ChartQuery;
-use crate::api::pagination::ToOffset;
-use crate::api::PaginatedResponse;
+use crate::api::pagination::{PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::{Query, State};
@@ -28,18 +27,17 @@ pub async fn album_charts(
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<PaginatedResponse<ChartAlbum>>> {
     let offset = query.to_offset();
-    let (total, albums) =
-        get_most_listened_albums(query.period, query.username, query.page_size, offset, &db)
-            .await?;
+    let (total, albums) = get_most_listened_albums(
+        query.period,
+        query.username.as_ref(),
+        query.page_size,
+        offset,
+        &db,
+    )
+    .await?;
 
     let albums: Vec<_> = albums.into_iter().map(ChartAlbum::from).collect();
 
-    let response = PaginatedResponse {
-        data: albums,
-        page: query.page,
-        page_size: query.page_size,
-        total,
-    };
-
+    let response = PaginatedResponse::from_query(albums, total, query);
     Ok(Json(response))
 }

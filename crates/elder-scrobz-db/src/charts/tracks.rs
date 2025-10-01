@@ -24,7 +24,7 @@ pub struct TopTrack {
 
 pub async fn get_most_listened_tracks(
     period: Period,
-    username: Option<String>,
+    username: Option<&String>,
     limit: i64,
     offset: i64,
     pool: &PgPool,

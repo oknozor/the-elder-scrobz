@@ -1,6 +1,5 @@
 use crate::api::charts::ChartQuery;
-use crate::api::pagination::ToOffset;
-use crate::api::PaginatedResponse;
+use crate::api::pagination::{PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
 use autometrics::autometrics;
 use axum::extract::{Query, State};
@@ -28,18 +27,15 @@ pub async fn artist_charts(
     State(db): State<PgPool>,
 ) -> AppResult<Json<PaginatedResponse<ChartArtist>>> {
     let offset = query.to_offset();
-    let (total, artists) =
-        get_most_listened_artists(query.period, query.username, query.page_size, offset, &db)
-            .await?;
-
+    let (total, artists) = get_most_listened_artists(
+        query.period,
+        query.username.as_ref(),
+        query.page_size,
+        offset,
+        &db,
+    )
+    .await?;
     let artists: Vec<_> = artists.into_iter().map(ChartArtist::from).collect();
-
-    let response = PaginatedResponse {
-        data: artists,
-        page: query.page,
-        page_size: query.page_size,
-        total,
-    };
-
+    let response = PaginatedResponse::from_query(artists, total, query);
     Ok(Json(response))
 }
