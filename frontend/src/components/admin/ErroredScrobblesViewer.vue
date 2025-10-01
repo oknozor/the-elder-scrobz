@@ -249,7 +249,7 @@
 </template>
 
 <script setup lang="ts">
-import { AxiosError, isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { computed, onMounted, reactive, ref } from "vue";
 import { type ErroredScrobble, useAdminStore } from "@/stores/adminStore";
 import JsonNode from "./JsonNode.vue";

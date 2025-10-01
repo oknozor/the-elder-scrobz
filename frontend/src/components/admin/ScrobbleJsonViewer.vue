@@ -109,7 +109,6 @@
 </template>
 
 <script setup lang="ts">
-import { AxiosError } from "axios";
 import { reactive, ref } from "vue";
 import { type RawScrobble, useAdminStore } from "@/stores/adminStore";
 import JsonNode from "./JsonNode.vue";

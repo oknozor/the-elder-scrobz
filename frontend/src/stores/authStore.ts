@@ -1,7 +1,6 @@
 import type { User } from "oidc-client-ts";
 import { defineStore } from "pinia";
 import authService from "@/services/auth";
-import type { Stats } from "@/types";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({

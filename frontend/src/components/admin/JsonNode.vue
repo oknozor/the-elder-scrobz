@@ -105,10 +105,11 @@ const closeBracket = computed(() => (isArray.value ? "]" : "}"));
 
 const collapsedText = computed(() => {
     if (isArray.value) {
-        const length = props.value.length;
+        const length = (props.value as unknown[]).length;
         return length === 0 ? "" : `${length} item${length === 1 ? "" : "s"}`;
     } else if (isObject.value) {
-        const keys = Object.keys(props.value);
+        const obj = props.value as Record<string, unknown>; // type assertion
+        const keys = Object.keys(obj);
         const length = keys.length;
         return length === 0
             ? ""
@@ -133,10 +134,9 @@ const formattedValue = computed(() => {
 
 const isLastProperty = (key: string) => {
     if (!isObject.value) return false;
-    const keys = Object.keys(props.value);
+    const keys = Object.keys(props.value as Record<string, unknown>);
     return keys[keys.length - 1] === key;
 };
-
 const toggle = () => {
     emit("toggle", props.path);
 };
