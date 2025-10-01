@@ -276,6 +276,44 @@ impl MetadataClient {
 
         Ok(metadata)
     }
+
+    pub async fn get_release_cover_art(
+        &self,
+        release_mbid: &str,
+    ) -> anyhow::Result<Option<String>> {
+        let release = Release::fetch()
+            .id(release_mbid)
+            .with_annotations()
+            .with_release_group_level_relations()
+            .with_genres()
+            .with_artist_credits()
+            .with_artists()
+            .with_recordings()
+            .with_release_groups()
+            .with_release_group_relations()
+            .with_release_group_level_relations()
+            .with_url_relations()
+            .execute_with_client(&MB_CLIENT)
+            .await?;
+
+        let coverart_url: Option<String> = release
+            .get_coverart()
+            .front()
+            .res_250()
+            .execute_with_client(&MB_CLIENT)
+            .await
+            .ok()
+            .and_then(is_valid_coverart);
+
+        let coverart_url = match coverart_url {
+            Some(coverart_url) => Some(coverart_url),
+            None => get_release_group_coverart(&release)
+                .await
+                .and_then(is_valid_coverart),
+        };
+
+        Ok(coverart_url)
+    }
 }
 
 fn is_valid_coverart(coverart_url: CoverartResponse) -> Option<String> {

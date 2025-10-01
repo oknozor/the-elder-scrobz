@@ -6,11 +6,15 @@ use anyhow::anyhow;
 use artists::process_artist;
 use elder_scrobz_db::PgPool;
 use elder_scrobz_db::listens::artists::ArtistCredited;
+use elder_scrobz_db::listens::raw::listenbrainz::raw::SubmitListensPayload;
+use elder_scrobz_db::listens::raw::listenbrainz::typed;
 use elder_scrobz_db::listens::raw::scrobble::{RawScrobble, TypedScrobble};
 use elder_scrobz_db::listens::scrobble::Scrobble;
+use elder_scrobz_model::events::ScrobzEvent;
 use sqlx::postgres::{PgListener, PgNotification};
 use tokio::select;
 use tokio_util::sync::CancellationToken;
+use tracing::debug;
 use tracing::{error, info, warn};
 
 mod artists;
@@ -244,8 +248,8 @@ pub async fn process_scrobble(
     }
 
     Release {
-        mbid: release_mbid.clone(),
-        name: release_name,
+        mbid: release_mbid.to_string(),
+        name: release_name.to_string(),
         artist_mbid: None,
         description: None,
         thumbnail_url: None,
@@ -284,9 +288,9 @@ pub async fn process_scrobble(
     Track {
         mbid: recording_mbid.clone(),
         artist_mbid: main_artist,
-        release_mbid: release_mbid.clone(),
-        artist_display_name: Some(artist_name),
-        name: track_name.clone(),
+        release_mbid: release_mbid.to_string(),
+        artist_display_name: Some(artist_name.to_string()),
+        name: track_name.to_string(),
         number: track_number,
         length: track_duration,
         subsonic_id,
@@ -308,4 +312,29 @@ pub async fn process_scrobble(
 
     TypedScrobble::set_processed(&pool, &scrobble_id).await?;
     Ok(scrobble_id)
+}
+
+pub async fn get_now_playing(
+    user: &str,
+    client: &MetadataClient,
+    scrobble: SubmitListensPayload,
+) -> Result<ScrobzEvent> {
+    let user = user.to_string();
+    let scrobble: typed::SubmitListensPayload = scrobble.try_into()?;
+    let track_name = scrobble.track_name().to_string();
+    let artist = scrobble.artist_name().to_string();
+    let album = scrobble.release_name().to_string();
+    debug!("Fetching cover art for now playing : {track_name} - {artist} ({user})",);
+    let cover_art_url = match scrobble.release_mbid() {
+        Some(mbid) => client.get_release_cover_art(mbid).await?,
+        None => None,
+    };
+
+    Ok(ScrobzEvent::PlayingNow {
+        user,
+        track_name,
+        artist,
+        album,
+        cover_art_url,
+    })
 }

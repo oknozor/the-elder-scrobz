@@ -5,10 +5,12 @@ use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
 use elder_scrobz_crawler::{DiscogsConfig, MetadataClient, NavidromeConfig, ScrobbleCrawler};
 use elder_scrobz_db::build_pg_pool;
+use elder_scrobz_model::events::ScrobzEvent;
 use elder_scrobz_settings::Settings;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::signal::unix::{SignalKind, signal};
+use tokio::sync::broadcast;
 use tokio_util::sync::CancellationToken;
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
@@ -47,6 +49,7 @@ async fn main() -> anyhow::Result<()> {
 
     info!("listening on {}", listener.local_addr()?);
     let oauth_client = get_oauth2_client(&settings).await?;
+    let (sse_sender, _sse_receiver) = broadcast::channel::<ScrobzEvent>(100);
 
     let app = router(settings.debug, pool.clone())
         .layer(TraceLayer::new_for_http())
@@ -59,6 +62,7 @@ async fn main() -> anyhow::Result<()> {
         )))
         .layer(Extension(oauth_client))
         .layer(Extension(settings.clone()))
+        .layer(Extension(sse_sender))
         .with_state(pool.clone());
 
     #[cfg(debug_assertions)]

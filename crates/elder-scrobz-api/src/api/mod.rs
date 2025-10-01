@@ -9,6 +9,7 @@ pub mod admin;
 pub mod albums;
 pub mod artists;
 pub mod charts;
+pub mod events;
 pub mod listenbrainz;
 pub mod listens;
 pub mod pagination;
@@ -75,5 +76,7 @@ pub fn router(no_oauth: bool, pool: PgPool) -> OpenApiRouter<PgPool> {
         router = router.layer(from_extractor_with_state::<AuthenticatedUser, PgPool>(pool))
     }
 
-    router.merge(listenbrainz::router())
+    router
+        .merge(listenbrainz::router())
+        .nest("/events", events::router())
 }
