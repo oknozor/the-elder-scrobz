@@ -37,8 +37,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
@@ -63,8 +63,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-            target: x86_64-apple-darwin
           - os: macos-latest
             target: aarch64-apple-darwin
           - os: ubuntu-latest
@@ -102,8 +100,6 @@ jobs:
           name: ${{ matrix.target }}
           path: target/${{ matrix.target }}/release/scrobz
 
-
-
   upload_to_release:
     needs: [build, build_frontend, upload_license]
     name: Publish scrobz binaries
@@ -135,11 +131,11 @@ jobs:
           cp -r /home/runner/artifacts/LICENSE/LICENSE aarch64-unknown-linux-gnu/
           tar -czf scrobz-unknown-linux-gnu.tar.gz aarch64-unknown-linux-gnu/*
 
-          mkdir x86_64-apple-darwin
-          cp -r /home/runner/artifacts/x86_64-apple-darwin/scrobz x86_64-apple-darwin/scrobz
-          chmod +x -R  x86_64-apple-darwin/scrobz
-          cp -r /home/runner/artifacts/LICENSE/LICENSE x86_64-apple-darwin/
-          tar -czf oknozor-the-elder-scrobz-apple-darwin.tar.gz x86_64-apple-darwin/*
+          mkdir aarch64-apple-darwin
+          cp -r /home/runner/artifacts/aarch64-apple-darwin/scrobz aarch64-apple-darwin/scrobz
+          chmod +x -R  aarch64-apple-darwin/scrobz
+          cp -r /home/runner/artifacts/LICENSE/LICENSE aarch64-apple-darwin/
+          tar -czf oknozor-the-elder-scrobz-apple-darwin.tar.gz aarch64-apple-darwin/*
 
       - uses: svenstaro/upload-release-action@v1-release
         with:
@@ -167,7 +163,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: the-elder-scrobz-apple-darwin.tar.gz
           tag: ${{ github.ref_name }}
-          asset_name: the-elder-scrobz{{ github.ref_name }}-x86_64-apple-darwin.tar.gz
+          asset_name: the-elder-scrobz{{ github.ref_name }}-aarch64-apple-darwin.tar.gz
 
   docker:
     needs: [build, build_frontend]
