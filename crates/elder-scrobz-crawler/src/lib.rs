@@ -324,6 +324,8 @@ pub async fn get_now_playing(
     let track_name = scrobble.track_name().to_string();
     let artist = scrobble.artist_name().to_string();
     let album = scrobble.release_name().to_string();
+    let track_duration = scrobble.track_duration().unwrap_or(0);
+
     debug!("Fetching cover art for now playing : {track_name} - {artist} ({user})",);
     let cover_art_url = match scrobble.release_mbid() {
         Some(mbid) => client.get_release_cover_art(mbid).await?,
@@ -336,5 +338,6 @@ pub async fn get_now_playing(
         artist,
         album,
         cover_art_url,
+        track_duration,
     })
 }

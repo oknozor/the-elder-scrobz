@@ -10,5 +10,6 @@ pub enum ScrobzEvent {
         artist: String,
         album: String,
         cover_art_url: Option<String>,
+        track_duration: i32,
     },
 }

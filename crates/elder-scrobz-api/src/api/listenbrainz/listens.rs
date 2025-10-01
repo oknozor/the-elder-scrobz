@@ -54,14 +54,18 @@ pub async fn submit_listens(
     match serde_json::from_value::<raw::SubmitListens>(payload.clone()) {
         Ok(listens) => match listens.listen_type {
             ListenType::Single | ListenType::Import => {
-                CreateRawScrobble::batch_insert(user.username, listens, &db).await?
+                CreateRawScrobble::batch_insert(user.username, listens, &db).await?;
             }
             ListenType::PlayingNow => {
-                for scrobble in listens.payload {
-                    let now_playing =
-                        get_now_playing(&user.username, &metadata_client, scrobble).await?;
-                    sse_sender.send(now_playing)?;
-                }
+                tokio::spawn(async move {
+                    for scrobble in listens.payload {
+                        let now_playing =
+                            get_now_playing(&user.username, &metadata_client, scrobble).await?;
+                        sse_sender.send(now_playing)?;
+                    }
+
+                    anyhow::Ok(())
+                });
             }
         },
         Err(err) => {

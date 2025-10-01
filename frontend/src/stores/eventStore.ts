@@ -7,6 +7,15 @@ export const useSseStore = defineStore("sse", () => {
 
     const addMessage = (msg: ScrobzEvent) => {
         messages.value.push(msg);
+
+        if (msg.track_duration) {
+            setTimeout(() => {
+                const index = messages.value.indexOf(msg);
+                if (index > -1) {
+                    messages.value.splice(index, 1);
+                }
+            }, msg.track_duration);
+        }
     };
 
     return { messages, addMessage };
