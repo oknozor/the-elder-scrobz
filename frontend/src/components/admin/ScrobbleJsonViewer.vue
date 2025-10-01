@@ -112,6 +112,7 @@
 import { ref, reactive } from "vue";
 import { useAdminStore, type RawScrobble } from "@/stores/adminStore";
 import JsonNode from "./JsonNode.vue";
+import { AxiosError } from "axios";
 
 const adminStore = useAdminStore();
 
@@ -135,11 +136,8 @@ const fetchScrobble = async () => {
         );
         allExpanded.value = true;
         expandedPaths.clear();
-    } catch (err: any) {
-        error.value =
-            err.response?.data?.message ||
-            err.message ||
-            "Failed to fetch scrobble";
+    } catch (err: unknown) {
+        error.value = "Failed to fetch scrobble";
         scrobbleData.value = null;
     } finally {
         isLoading.value = false;

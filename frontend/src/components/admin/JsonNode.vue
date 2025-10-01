@@ -76,7 +76,7 @@
 import { computed } from "vue";
 
 interface Props {
-    value: any;
+    value: unknown;
     path: string[];
     expanded: boolean;
 }

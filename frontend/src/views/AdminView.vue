@@ -26,6 +26,10 @@
             <div class="admin-section">
                 <ScrobbleJsonViewer />
             </div>
+
+            <div class="admin-section">
+                <ErroredScrobblesViewer />
+            </div>
         </div>
     </div>
 </template>
@@ -34,6 +38,7 @@
 import ScanForm from "@/components/admin/ScanForm.vue";
 import StatsVue from "@/components/admin/StatsVue.vue";
 import ScrobbleJsonViewer from "@/components/admin/ScrobbleJsonViewer.vue";
+import ErroredScrobblesViewer from "@/components/admin/ErroredScrobblesViewer.vue";
 </script>
 
 <style scoped>
