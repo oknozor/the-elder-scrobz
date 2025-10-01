@@ -649,7 +649,7 @@ const refreshStats = async () => {
 };
 
 const formatNumber = (num: number | undefined | null): string => {
-    if (num === undefined || num === null || isNaN(num)) return "0";
+    if (num === undefined || num === null || Number.isNaN(num)) return "0";
     return num.toLocaleString();
 };
 
