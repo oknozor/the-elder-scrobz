@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-import { TransitionGroup } from "vue";
 import { useSseStore } from "@/stores";
 
 const sseStore = useSseStore();
