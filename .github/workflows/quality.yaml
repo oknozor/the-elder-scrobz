@@ -45,6 +45,12 @@ jobs:
           command: clippy
           args: -- -D warnings
 
+      - name: Install Sqruff CLI
+        uses: quarylabs/install-sqruff-cli-action@main
+
+      - name: Run Sqruff lint
+        run: sqruff lint crates/elder-scrobz-db/queries
+
   lint_frontend:
     runs-on: ubuntu-latest
     permissions:
