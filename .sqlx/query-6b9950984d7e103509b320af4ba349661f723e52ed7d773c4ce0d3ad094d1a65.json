@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n    track_id AS id,\n    track.name,\n    track.length,\n    release.mbid AS release_mbid,\n    release.name AS release_name,\n    release.cover_art_url AS thumbnail_url,\n    track.subsonic_id,\n    release.subsonic_id AS release_subsonic_id,\n    count(*) AS listens,\n    count(*) OVER () AS total\nFROM\n    scrobbles\n    INNER JOIN scrobbles_raw AS raw ON scrobbles.source_id = raw.id\n    INNER JOIN tracks AS track ON scrobbles.track_id = track.mbid\n    INNER JOIN releases AS release ON track.release_mbid = release.mbid\nWHERE\n    extract(\n        YEAR\n        FROM\n        listened_at\n    ) = extract(\n        YEAR\n        FROM\n        now()\n    )\nGROUP BY\n    track_id,\n    track.name,\n    track.length,\n    release.mbid,\n    release.name,\n    release.cover_art_url,\n    track.subsonic_id,\n    release.subsonic_id\nORDER BY\n    listens DESC\nLIMIT $1 OFFSET $2;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "length",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "release_mbid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "release_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "thumbnail_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "release_subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "listens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "total",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "6b9950984d7e103509b320af4ba349661f723e52ed7d773c4ce0d3ad094d1a65"
+}

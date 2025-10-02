@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n    release.mbid AS id,\n    release.name,\n    release.subsonic_id,\n    release.cover_art_url AS thumbnail_url,\n    release.year,\n    MAX(raw.listened_at) AS last_listened_at,\n    COUNT(DISTINCT raw.id) AS listens,\n    COUNT(*) OVER () AS total\nFROM scrobbles\n    INNER JOIN scrobbles_raw AS raw ON scrobbles.source_id = raw.id\n    INNER JOIN tracks AS track ON scrobbles.track_id = track.mbid\n    INNER JOIN releases AS release ON track.release_mbid = release.mbid\nWHERE DATE_TRUNC('month', raw.listened_at) = DATE_TRUNC('month', NOW())\nGROUP BY\n    release.mbid,\n    release.name,\n    release.subsonic_id,\n    release.cover_art_url,\n    release.year\nORDER BY listens DESC\nLIMIT $1 OFFSET $2;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "thumbnail_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_listened_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "listens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "total",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "51ccb0cb1f32d333ef8432d9f36a48f805e6a00be96309914e058c4d355a1a77"
+}

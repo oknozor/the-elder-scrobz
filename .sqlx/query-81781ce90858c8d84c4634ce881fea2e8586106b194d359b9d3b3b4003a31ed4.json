@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n    release.mbid AS id,\n    release.subsonic_id,\n    release.name,\n    release.cover_art_url AS thumbnail_url,\n    release.description,\n    release.year,\n    artist.name AS artist_name,\n    artist.mbid AS artist_id,\n    MAX(raw.listened_at) AS last_listened_at,\n    COUNT(DISTINCT raw.id) AS listens,\n    COALESCE(\n        (\n            SELECT\n                JSON_AGG(\n                    JSON_BUILD_OBJECT(\n                        'mbid', tr.mbid,\n                        'subsonic_id', tr.subsonic_id,\n                        'name', tr.name,\n                        'artist_name', tr.artist_display_name,\n                        'number', tr.number,\n                        'length', tr.length,\n                        'playcount',\n                        COALESCE(\n                            (\n                                SELECT\n                                    JSON_AGG(\n                                        JSON_BUILD_OBJECT(\n                                            'username', pc.user_id,\n                                            'count', pc.playcount\n                                        )\n                                    )\n                                FROM (\n                                    SELECT\n                                        s.user_id,\n                                        COUNT(*)::bigint AS playcount\n                                    FROM scrobbles AS s\n                                    WHERE s.track_id = tr.mbid\n                                    GROUP BY s.user_id\n                                    ORDER BY COUNT(*) DESC\n                                    LIMIT 10\n                                ) AS pc\n                            ),\n                            '[]'::json\n                        )\n                    )\n                    ORDER BY tr.number\n                )\n            FROM tracks AS tr\n            WHERE tr.release_mbid = release.mbid\n        ),\n        '[]'::json\n    ) AS \"tracks: Json<Vec<AlbumTrackWithPlayCount>>\"\nFROM scrobbles\n    INNER JOIN scrobbles_raw AS raw ON scrobbles.source_id = raw.id\n    INNER JOIN tracks AS track ON scrobbles.track_id = track.mbid\n    INNER JOIN releases AS release ON track.release_mbid = release.mbid\n    INNER JOIN artists AS artist ON release.artist_mbid = artist.mbid\nWHERE release.mbid = $1\nGROUP BY\n    release.mbid, release.subsonic_id, release.name, release.cover_art_url,\n    release.description, release.year, artist.mbid, artist.name\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "subsonic_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "thumbnail_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "year",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "artist_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "artist_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "last_listened_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "listens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "tracks: Json<Vec<AlbumTrackWithPlayCount>>",
+        "type_info": "Json"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "81781ce90858c8d84c4634ce881fea2e8586106b194d359b9d3b3b4003a31ed4"
+}

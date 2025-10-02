@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH time_series AS (\n    SELECT generate_series(\n        date_trunc('day', now()),\n        date_trunc('day', now()) + INTERVAL '23 hour',\n        '1 hour'\n    ) AS period\n)\n\nSELECT\n    extract(HOUR FROM ts.period)::TEXT AS period,\n    coalesce(count(sr.listened_at), 0) AS listens\nFROM time_series AS ts\n    LEFT JOIN scrobbles_raw AS sr\n        ON date_trunc('hour', sr.listened_at) = ts.period\nWHERE\n    sr.listened_at >= date_trunc('day', now())\n    OR sr.listened_at IS NULL\nGROUP BY ts.period\nORDER BY ts.period;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "listens",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "b7ffbba19a79b775f5557b2099b642338df7594bdb23460d23b17ca276e5dffd"
+}

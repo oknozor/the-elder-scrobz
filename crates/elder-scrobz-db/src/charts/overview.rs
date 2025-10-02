@@ -57,7 +57,15 @@ pub async fn get_overview(
                     .fetch_optional(pool)
                     .await?
             }
-            Period::All => todo!(),
+            Period::All => {
+                sqlx::query_file_as!(
+                    Overview,
+                    "queries/charts/overview/user_all_time.sql",
+                    username
+                )
+                .fetch_optional(pool)
+                .await?
+            }
         },
         None => match period {
             Period::Week => {
@@ -80,7 +88,11 @@ pub async fn get_overview(
                     .fetch_optional(pool)
                     .await?
             }
-            Period::All => todo!(),
+            Period::All => {
+                sqlx::query_file_as!(Overview, "queries/charts/overview/all_time.sql")
+                    .fetch_optional(pool)
+                    .await?
+            }
         },
     };
 
