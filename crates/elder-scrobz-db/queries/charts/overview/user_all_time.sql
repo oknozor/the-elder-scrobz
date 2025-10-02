@@ -5,7 +5,7 @@ SELECT
     count(DISTINCT artists.mbid) AS artist_listened,
     count(DISTINCT t.mbid) AS track_listened,
     sum(t.length) AS time_listened
-FROM artists
-    INNER JOIN public.tracks AS t ON artists.mbid = t.artist_mbid
-    INNER JOIN public.scrobbles AS s ON t.mbid = s.track_id
+FROM scrobbles AS s
+    INNER JOIN tracks AS t ON s.track_id = t.mbid
+    INNER JOIN artists ON t.artist_mbid = artists.mbid
 WHERE s.user_id = $1
