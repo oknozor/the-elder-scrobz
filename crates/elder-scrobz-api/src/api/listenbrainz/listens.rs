@@ -61,7 +61,7 @@ pub async fn submit_listens(
                     for scrobble in listens.payload {
                         let now_playing =
                             get_now_playing(&user.username, &metadata_client, scrobble).await?;
-                        sse_sender.send(now_playing)?;
+                        let _ = sse_sender.send(now_playing);
                     }
 
                     anyhow::Ok(())
