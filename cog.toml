@@ -17,6 +17,10 @@ post_package_bump_hooks = []
 script = """
 echo "[Check current commit message]"
 cog verify --file $1
+"""
+
+[git_hooks.pre-commit]
+script = """
 
 echo "[Conventional commit check]"
 cog check
@@ -29,6 +33,9 @@ cargo fmt -v --all --check
 
 echo "[Backend - Lints]"
 cargo clippy
+
+echo "[SQL - Lints]"
+sqruff lint crates/elder-scrobz-db/queries
 
 cd frontend
 echo "[Frontend - Format code]"
