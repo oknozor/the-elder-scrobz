@@ -13,3 +13,6 @@ database-reset:
   sqlx database drop -y
   sqlx database create
   sqlx migrate run --source crates/elder-scrobz-db/migrations
+
+generate-mock-data:
+  assets/init_mock.sh assets/listens.jsonl assets/mock.jsonl
