@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH months AS (\n    SELECT\n        month_start,\n        TO_CHAR(month_start, 'Month') AS period,\n        DATE_PART('month', month_start) AS month_num\n    FROM (\n        SELECT\n            DATE_TRUNC('month', NOW())\n            - INTERVAL '1 month' * (12 - generate_series) AS month_start\n        FROM GENERATE_SERIES(1, 12)\n    ) AS month_series\n),\n\nmonthly_listens AS (\n    SELECT\n        TO_CHAR(listened_at, 'Month') AS period,\n        DATE_PART('month', listened_at) AS month_num,\n        DATE_TRUNC('month', listened_at) AS listen_month,\n        COUNT(*) AS listens\n    FROM scrobbles\n        INNER JOIN scrobbles_raw ON scrobbles.source_id = scrobbles_raw.id\n    WHERE\n        listened_at >= DATE_TRUNC('month', NOW()) - INTERVAL '11 months'\n        AND listened_at < DATE_TRUNC('month', NOW()) + INTERVAL '1 month'\n        AND scrobbles_raw.user_id = $1\n    GROUP BY\n        TO_CHAR(listened_at, 'Month'),\n        DATE_PART('month', listened_at),\n        DATE_TRUNC('month', listened_at)\n)\n\nSELECT\n    m.period,\n    COALESCE(ml.listens, 0) AS listens\nFROM months AS m\n    LEFT JOIN monthly_listens AS ml ON m.month_start = ml.listen_month\nORDER BY m.month_start;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "listens",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "8c35e216c17581f4e0d7639f7dadeedb040c9338d787e8a86c38b4e705e71f6b"
+}

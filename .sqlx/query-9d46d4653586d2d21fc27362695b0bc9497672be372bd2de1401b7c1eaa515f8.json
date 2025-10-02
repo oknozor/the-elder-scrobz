@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n    extract(YEAR FROM sr.listened_at)::text AS period,\n    count(sr.listened_at) AS listens\nFROM scrobbles_raw AS sr\nGROUP BY extract(YEAR FROM sr.listened_at)::text\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "listens",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "9d46d4653586d2d21fc27362695b0bc9497672be372bd2de1401b7c1eaa515f8"
+}

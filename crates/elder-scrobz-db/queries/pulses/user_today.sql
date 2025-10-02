@@ -1,17 +1,19 @@
 WITH time_series AS (
     SELECT generate_series(
-        DATE_TRUNC('day', NOW()),
-        DATE_TRUNC('day', NOW()) + INTERVAL '23 hour',
+        date_trunc('day', now()),
+        date_trunc('day', now()) + INTERVAL '23 hour',
         '1 hour'
     ) AS period
 )
+
 SELECT
-    extract(hour from ts.period)::text AS period,
-    COALESCE(COUNT(sr.listened_at), 0) AS listens
-FROM time_series ts
-LEFT JOIN scrobbles_raw sr
-    ON DATE_TRUNC('hour', sr.listened_at) = ts.period
-   AND sr.user_id = $1
-   AND sr.listened_at >= DATE_TRUNC('day', NOW())
+    extract(HOUR FROM ts.period)::TEXT AS period,
+    coalesce(count(sr.listened_at), 0) AS listens
+FROM time_series AS ts
+    LEFT JOIN scrobbles_raw AS sr
+        ON
+            date_trunc('hour', sr.listened_at) = ts.period
+            AND sr.user_id = $1
+            AND sr.listened_at >= date_trunc('day', now())
 GROUP BY ts.period
 ORDER BY ts.period;

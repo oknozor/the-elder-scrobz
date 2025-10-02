@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH weekdays AS (\n    SELECT\n        CASE\n            WHEN d = current_date THEN to_char(d, 'Day') || ' (Today)'\n            ELSE to_char(d, 'Day')\n        END AS period,\n        d AS date_val,\n        extract(ISODOW FROM d) AS isodow\n    FROM\n        generate_series(\n            current_date - interval '6 days',\n            current_date,\n            interval '1 day'\n        ) AS d\n)\n\nSELECT\n    w.period,\n    coalesce(count(scrobbles_raw.id), 0) AS listens\nFROM weekdays AS w\n    LEFT JOIN scrobbles_raw\n        ON\n            w.isodow = extract(ISODOW FROM scrobbles_raw.listened_at)\n            AND scrobbles_raw.listened_at >= current_date - interval '6 days'\n\nWHERE scrobbles_raw.user_id = $1\nGROUP BY w.period, w.isodow, w.date_val\nORDER BY w.date_val;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "listens",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "93d1cfe7bf6bbad0be5faeb1fd5585efc286fce95dec8eb5d5f3351a6a570687"
+}

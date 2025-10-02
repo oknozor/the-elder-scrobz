@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n    NULL::double precision AS artist_listened_percentage_increase,\n    NULL::double precision AS track_listened_percentage_increase,\n    NULL::double precision AS time_listened_percentage_increase,\n    count(DISTINCT artists.mbid) AS artist_listened,\n    count(DISTINCT t.mbid) AS track_listened,\n    sum(t.length) AS time_listened\nFROM artists\n    INNER JOIN public.tracks AS t ON artists.mbid = t.artist_mbid\n    INNER JOIN public.scrobbles AS s ON t.mbid = s.track_id\nWHERE s.user_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "artist_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 1,
+        "name": "track_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 2,
+        "name": "time_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 3,
+        "name": "artist_listened",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "track_listened",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "time_listened",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "1021db3a44c312238e2f2e93ad6f93a1c6e0d4d68aadc60f0ae5702c59fa488b"
+}

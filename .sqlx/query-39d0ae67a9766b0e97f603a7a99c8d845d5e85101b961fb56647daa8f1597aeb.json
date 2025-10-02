@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "WITH all_days AS (\n    SELECT generate_series(\n        current_date - interval '29 days',\n        current_date,\n        interval '1 day'\n    )::date AS day\n)\n\nSELECT\n    extract(DAY FROM all_days.day)::text\n    || '/'\n    || lpad(extract(MONTH FROM all_days.day)::text, 2, '0') AS period,\n    coalesce(count(scrobbles_raw.listened_at), 0) AS listens\nFROM all_days\n    LEFT JOIN scrobbles_raw\n        ON\n            date_trunc('day', scrobbles_raw.listened_at) = all_days.day\n            AND scrobbles_raw.user_id = $1\nWHERE\n    scrobbles_raw.listened_at >= current_date - interval '29 days'\n    OR scrobbles_raw.listened_at IS NULL\nGROUP BY all_days.day\nORDER BY all_days.day;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "period",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "listens",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "39d0ae67a9766b0e97f603a7a99c8d845d5e85101b961fb56647daa8f1597aeb"
+}
