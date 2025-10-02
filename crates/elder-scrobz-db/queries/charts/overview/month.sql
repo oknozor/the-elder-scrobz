@@ -40,4 +40,6 @@ FROM scrobbles AS s
     ) AS last_30_days ON TRUE
 WHERE r.listened_at::date >= current_date - interval '30 days'
 GROUP BY
-    last_30_days.artist_listened, last_30_days.track_listened, last_30_days.time_listened;
+    last_30_days.artist_listened,
+    last_30_days.track_listened,
+    last_30_days.time_listened;

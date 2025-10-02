@@ -36,7 +36,9 @@ FROM scrobbles AS s
         WHERE
             s.user_id = $1
             AND r.listened_at::date = current_date - 1
-    ) AS yesterday ON true
+    ) AS yesterday ON TRUE
 WHERE s.user_id = $1 AND r.listened_at::date = current_date
 GROUP BY
-    yesterday.artist_listened, yesterday.track_listened, yesterday.time_listened;
+    yesterday.artist_listened,
+    yesterday.track_listened,
+    yesterday.time_listened;

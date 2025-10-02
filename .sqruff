@@ -1,6 +1,6 @@
 [sqruff]
 dialect = postgres
-rules = all
+rules = core
 
 [sqruff:indentation]
 indent_unit = space

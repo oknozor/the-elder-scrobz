@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n    CASE\n        WHEN yesterday.artist_listened = 0 THEN NULL::float8\n        ELSE\n            (count(DISTINCT artists.mbid) - yesterday.artist_listened) * 100.0\n            / yesterday.artist_listened\n    END AS artist_listened_percentage_increase,\n    CASE\n        WHEN yesterday.track_listened = 0 THEN NULL::float8\n        ELSE\n            (count(DISTINCT t.mbid) - yesterday.track_listened) * 100.0\n            / yesterday.track_listened\n    END AS track_listened_percentage_increase,\n    CASE\n        WHEN yesterday.time_listened = 0 THEN NULL::float8\n        ELSE\n            (sum(t.length) - yesterday.time_listened) * 100.0\n            / yesterday.time_listened\n    END AS time_listened_percentage_increase,\n    count(DISTINCT artists.mbid) AS artist_listened,\n    count(DISTINCT t.mbid) AS track_listened,\n    sum(t.length) AS time_listened\nFROM scrobbles AS s\n    INNER JOIN scrobbles_raw AS r ON s.source_id = r.id\n    INNER JOIN tracks AS t ON s.track_id = t.mbid\n    INNER JOIN artists ON t.artist_mbid = artists.mbid\n    LEFT JOIN (\n        SELECT\n            count(DISTINCT artists.mbid) AS artist_listened,\n            count(DISTINCT t.mbid) AS track_listened,\n            sum(t.length) AS time_listened\n        FROM scrobbles AS s\n            INNER JOIN scrobbles_raw AS r ON s.source_id = r.id\n            INNER JOIN tracks AS t ON s.track_id = t.mbid\n            INNER JOIN artists ON t.artist_mbid = artists.mbid\n        WHERE\n            s.user_id = $1\n            AND r.listened_at::date = current_date - 1\n    ) AS yesterday ON TRUE\nWHERE s.user_id = $1 AND r.listened_at::date = current_date\nGROUP BY\n    yesterday.artist_listened, yesterday.track_listened, yesterday.time_listened;\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "artist_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 1,
+        "name": "track_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 2,
+        "name": "time_listened_percentage_increase",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 3,
+        "name": "artist_listened",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "track_listened",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "time_listened",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "400b92ce38445eeb7c2e4c765d5c635a7155647202b848a44ae209ac44ceb7e2"
+}

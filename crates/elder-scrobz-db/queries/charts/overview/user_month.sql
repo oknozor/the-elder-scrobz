@@ -39,6 +39,9 @@ FROM scrobbles AS s
             AND r.listened_at::date >= current_date - interval '60 days'
             AND r.listened_at::date < current_date - interval '30 days'
     ) AS last_30_days ON TRUE
-WHERE s.user_id = $1 AND r.listened_at::date >= current_date - interval '30 days'
+WHERE
+    s.user_id = $1 AND r.listened_at::date >= current_date - interval '30 days'
 GROUP BY
-    last_30_days.artist_listened, last_30_days.track_listened, last_30_days.time_listened;
+    last_30_days.artist_listened,
+    last_30_days.track_listened,
+    last_30_days.time_listened;
