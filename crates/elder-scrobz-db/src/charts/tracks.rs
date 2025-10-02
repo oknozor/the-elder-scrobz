@@ -51,7 +51,11 @@ pub async fn get_most_listened_tracks(
                     .fetch_all(pool)
                     .await?
             }
-            Period::All => todo!(),
+            Period::All => {
+                sqlx::query_file_as!(TopTrack, "queries/charts/track/all_time.sql", limit, offset)
+                    .fetch_all(pool)
+                    .await?
+            }
         },
         Some(user) => match period {
             Period::Week => {
@@ -98,7 +102,17 @@ pub async fn get_most_listened_tracks(
                 .fetch_all(pool)
                 .await?
             }
-            Period::All => todo!(),
+            Period::All => {
+                sqlx::query_file_as!(
+                    TopTrack,
+                    "queries/charts/track/user_all_time.sql",
+                    user,
+                    limit,
+                    offset,
+                )
+                .fetch_all(pool)
+                .await?
+            }
         },
     };
 
