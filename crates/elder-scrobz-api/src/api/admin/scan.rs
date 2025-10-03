@@ -1,4 +1,5 @@
 use crate::error::AppResult;
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
 use axum::Extension;
@@ -7,7 +8,6 @@ use elder_scrobz_crawler::{
     process_scrobble, try_update_all_artists, try_update_all_releases, MetadataClient,
 };
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
-use elder_scrobz_db::PgPool;
 use tokio::spawn;
 use tracing::info;
 use tracing::log::error;
@@ -50,11 +50,11 @@ impl Default for ScanQuery {
 #[autometrics]
 pub async fn scan_db(
     Query(query): Query<ScanQuery>,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
     Extension(client): Extension<MetadataClient>,
 ) -> AppResult<()> {
     if query.releases {
-        let db = db.clone();
+        let db = state.db.clone();
         let client = client.clone();
         spawn(async move {
             if let Err(err) = try_update_all_releases(&client, &db, query.force).await {
@@ -64,7 +64,7 @@ pub async fn scan_db(
     }
 
     if query.artists {
-        let db = db.clone();
+        let db = state.db.clone();
         let client = client.clone();
         spawn(async move {
             if let Err(err) = try_update_all_artists(&client, &db, query.force).await {
@@ -75,9 +75,9 @@ pub async fn scan_db(
 
     if query.scrobbles {
         let scrobbles = if query.force {
-            RawScrobble::all(&db).await?
+            RawScrobble::all(&state.db).await?
         } else {
-            RawScrobble::get_unprocessed(&db).await?
+            RawScrobble::get_unprocessed(&state.db).await?
         };
 
         info!("Rescanning database for unprocessed scrobbles");
@@ -87,7 +87,7 @@ pub async fn scan_db(
                 let id = scrobble.id.clone();
 
                 info!("Resolving scrobble {id}",);
-                match process_scrobble(scrobble, &client, &db).await {
+                match process_scrobble(scrobble, &client, &state.db).await {
                     Ok(id) => info!("Processed scrobble {id}"),
                     Err(err) => error!("Failed to process scrobble {id}: {err}"),
                 };

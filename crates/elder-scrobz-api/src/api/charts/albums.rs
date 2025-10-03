@@ -1,12 +1,12 @@
 use crate::api::charts::ChartQuery;
 use crate::api::pagination::{PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::album::get_most_listened_albums;
-use elder_scrobz_db::PgPool;
 use elder_scrobz_model::album::ChartAlbum;
 
 #[debug_handler]
@@ -23,7 +23,7 @@ use elder_scrobz_model::album::ChartAlbum;
 )]
 #[autometrics]
 pub async fn album_charts(
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
     Query(query): Query<ChartQuery>,
 ) -> AppResult<Json<PaginatedResponse<ChartAlbum>>> {
     let offset = query.to_offset();
@@ -32,7 +32,7 @@ pub async fn album_charts(
         query.username.as_ref(),
         query.page_size,
         offset,
-        &db,
+        &state.db,
     )
     .await?;
 

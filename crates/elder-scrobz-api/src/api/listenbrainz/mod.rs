@@ -2,15 +2,16 @@ use api_key::*;
 use axum::http::header::ToStrError;
 use axum::http::HeaderValue;
 use axum_extra::headers::authorization::Credentials;
-use elder_scrobz_db::PgPool;
 use listens::*;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
+use crate::state::AppState;
+
 mod api_key;
 mod listens;
 
-pub fn router() -> OpenApiRouter<PgPool> {
+pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(submit_listens))
         .routes(routes!(create_api_key))

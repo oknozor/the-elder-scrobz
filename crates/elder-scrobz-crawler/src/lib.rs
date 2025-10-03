@@ -5,6 +5,7 @@ use anyhow::Result;
 use anyhow::anyhow;
 use artists::process_artist;
 use elder_scrobz_db::PgPool;
+use elder_scrobz_db::cover_art;
 use elder_scrobz_db::listens::artists::ArtistCredited;
 use elder_scrobz_db::listens::raw::listenbrainz::raw::SubmitListensPayload;
 use elder_scrobz_db::listens::raw::listenbrainz::typed;
@@ -317,6 +318,7 @@ pub async fn process_scrobble(
 pub async fn get_now_playing(
     user: &str,
     client: &MetadataClient,
+    db: &PgPool,
     scrobble: SubmitListensPayload,
 ) -> Result<ScrobzEvent> {
     let user = user.to_string();
@@ -328,7 +330,10 @@ pub async fn get_now_playing(
 
     debug!("Fetching cover art for now playing : {track_name} - {artist} ({user})",);
     let cover_art_url = match scrobble.release_mbid() {
-        Some(mbid) => client.get_release_cover_art(mbid).await?,
+        Some(mbid) => match cover_art::get(mbid, db).await? {
+            Some(ca) => Some(ca),
+            None => client.get_release_cover_art(mbid).await?,
+        },
         None => None,
     };
 

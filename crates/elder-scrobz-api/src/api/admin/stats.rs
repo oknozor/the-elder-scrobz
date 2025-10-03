@@ -1,10 +1,10 @@
 use crate::error::AppResult;
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::State;
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::stats::Stats;
-use elder_scrobz_db::PgPool;
 
 #[debug_handler]
 #[utoipa::path(
@@ -18,6 +18,6 @@ use elder_scrobz_db::PgPool;
     tag = crate::api::ADMIN_TAG
 )]
 #[autometrics]
-pub async fn stats(State(db): State<PgPool>) -> AppResult<Json<Stats>> {
-    Ok(Json(Stats::get(&db).await?))
+pub async fn stats(State(state): State<AppState>) -> AppResult<Json<Stats>> {
+    Ok(Json(Stats::get(&state.db).await?))
 }
