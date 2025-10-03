@@ -2,32 +2,33 @@ use std::convert::Infallible;
 
 use autometrics::autometrics;
 use axum::{
+    extract::State,
     response::{
         sse::{Event, KeepAlive},
         Sse,
     },
-    Extension,
 };
 use axum_extra::{headers::UserAgent, TypedHeader};
 use axum_macros::debug_handler;
-use elder_scrobz_db::PgPool;
-use elder_scrobz_model::events::ScrobzEvent;
 use futures_util::Stream;
 use futures_util::StreamExt;
-use tokio::sync::broadcast;
 use tokio_stream::wrappers::BroadcastStream;
 use tracing::info;
 use utoipa_axum::{router::OpenApiRouter, routes};
+
+use crate::state::AppState;
 
 #[debug_handler]
 #[utoipa::path(get, path = "/", summary = "Listen to elder scrobz events")]
 #[autometrics]
 async fn sse_handler(
     TypedHeader(user_agent): TypedHeader<UserAgent>,
-    Extension(tx): Extension<broadcast::Sender<ScrobzEvent>>,
+    State(state): State<AppState>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
     info!("SSE handler connected - {}", user_agent.as_str());
-    let rx = tx.subscribe();
+    let mut event_manager = state.event_manager.lock().unwrap();
+    let rx = event_manager.sse_sender().subscribe();
+    event_manager.handle_connect();
     let stream = BroadcastStream::new(rx).filter_map(|msg| async move {
         match msg {
             Ok(m) => {
@@ -41,6 +42,6 @@ async fn sse_handler(
     Sse::new(stream).keep_alive(KeepAlive::default())
 }
 
-pub fn router() -> OpenApiRouter<PgPool> {
+pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(sse_handler))
 }

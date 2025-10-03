@@ -1,12 +1,12 @@
 use crate::api::charts::ChartQuery;
 use crate::api::pagination::{PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::artists::get_most_listened_artists;
-use elder_scrobz_db::PgPool;
 use elder_scrobz_model::artist::ChartArtist;
 
 #[debug_handler]
@@ -24,7 +24,7 @@ use elder_scrobz_model::artist::ChartArtist;
 #[autometrics]
 pub async fn artist_charts(
     Query(query): Query<ChartQuery>,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<PaginatedResponse<ChartArtist>>> {
     let offset = query.to_offset();
     let (total, artists) = get_most_listened_artists(
@@ -32,7 +32,7 @@ pub async fn artist_charts(
         query.username.as_ref(),
         query.page_size,
         offset,
-        &db,
+        &state.db,
     )
     .await?;
     let artists: Vec<_> = artists.into_iter().map(ChartArtist::from).collect();

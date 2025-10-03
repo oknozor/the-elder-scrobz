@@ -1,10 +1,10 @@
 use crate::error::{AppError, AppResult};
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Path, State};
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::releases::AlbumDetails as AlbumDetailsEntity;
-use elder_scrobz_db::PgPool;
 use elder_scrobz_model::album::AlbumDetails;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
@@ -23,12 +23,12 @@ use utoipa_axum::routes;
 #[autometrics]
 pub async fn by_id(
     Path(id): Path<String>,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<AlbumDetails>> {
-    let album = AlbumDetailsEntity::by_id(&id, &db).await?;
+    let album = AlbumDetailsEntity::by_id(&id, &state.db).await?;
     Ok(Json(AlbumDetails::from(album)))
 }
 
-pub(crate) fn router() -> OpenApiRouter<PgPool> {
+pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(by_id))
 }

@@ -1,5 +1,6 @@
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::State;
 use axum_extra::extract::JsonLines;
@@ -25,7 +26,7 @@ use utoipa_axum::routes;
 #[autometrics]
 pub async fn import_listens(
     user: AuthenticatedUser,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
     mut stream: JsonLines<serde_json::value::Value>,
 ) -> AppResult<()> {
     const CHUNK_SIZE: usize = 50;
@@ -37,13 +38,13 @@ pub async fn import_listens(
         buffer.push(value);
 
         if buffer.len() == CHUNK_SIZE {
-            save_listens(&db, &user.name, buffer).await?;
+            save_listens(&state.db, &user.name, buffer).await?;
             buffer = Vec::with_capacity(CHUNK_SIZE);
         }
     }
 
     if !buffer.is_empty() {
-        save_listens(&db, &user.name, buffer).await?;
+        save_listens(&state.db, &user.name, buffer).await?;
     }
 
     Ok(())
@@ -64,6 +65,6 @@ async fn save_listens(
     Ok(())
 }
 
-pub fn router() -> OpenApiRouter<PgPool> {
+pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(import_listens))
 }

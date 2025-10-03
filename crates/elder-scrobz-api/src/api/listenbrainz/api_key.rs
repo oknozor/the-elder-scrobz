@@ -1,6 +1,7 @@
 use crate::api::listenbrainz::Token;
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::State;
 use axum::Json;
@@ -9,7 +10,6 @@ use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
 use elder_scrobz_db::api_key::{generate_api_key, CreateApiKey};
 use elder_scrobz_db::user::{ApiKey, User};
-use elder_scrobz_db::PgPool;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -40,10 +40,10 @@ pub struct CreateApiKeyRequest {
 #[autometrics]
 pub async fn create_api_key(
     user: AuthenticatedUser,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
     Json(payload): Json<CreateApiKeyRequest>,
 ) -> AppResult<Json<ApiKeyCreated>> {
-    let Some(user) = User::get_by_username(&db, &user.name).await? else {
+    let Some(user) = User::get_by_username(&state.db, &user.name).await? else {
         return Err(AppError::UserNotFound { id: user.name });
     };
 
@@ -54,7 +54,7 @@ pub async fn create_api_key(
         username: user.username,
         label: payload.label,
     }
-    .insert(&db)
+    .insert(&state.db)
     .await?;
 
     Ok(Json(ApiKeyCreated { api_key: key.key }))
@@ -77,13 +77,13 @@ pub async fn create_api_key(
 #[autometrics]
 pub async fn get_api_keys(
     user: AuthenticatedUser,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> Result<Json<Vec<ApiKey>>, AppError> {
-    let Some(user) = User::get_by_username(&db, &user.name).await? else {
+    let Some(user) = User::get_by_username(&state.db, &user.name).await? else {
         return Err(AppError::UserNotFound { id: user.name });
     };
 
-    Ok(Json(user.get_api_keys(&db).await?))
+    Ok(Json(user.get_api_keys(&state.db).await?))
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -108,27 +108,29 @@ pub struct TokenValidation {
     tag = crate::api::API_KEYS_TAG
 )]
 pub async fn validate_token(
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
 ) -> AppResult<Json<TokenValidation>> {
     let Some(token) = auth.0.token()? else {
         return Err(AppError::Unauthorized("Missing token".to_string()));
     };
 
-    Ok(match User::get_user_id_by_api_key(&db, token).await? {
-        None => Json(TokenValidation {
-            valid: false,
-            code: 1,
-            user_name: None,
-            message: "invalid token".to_string(),
-        }),
-        Some(user) => Json(TokenValidation {
-            valid: true,
-            code: 0,
-            user_name: Some(user.username),
-            message: "token is valid".to_string(),
-        }),
-    })
+    Ok(
+        match User::get_user_id_by_api_key(&state.db, token).await? {
+            None => Json(TokenValidation {
+                valid: false,
+                code: 1,
+                user_name: None,
+                message: "invalid token".to_string(),
+            }),
+            Some(user) => Json(TokenValidation {
+                valid: true,
+                code: 0,
+                user_name: Some(user.username),
+                message: "token is valid".to_string(),
+            }),
+        },
+    )
 }
 
 #[derive(Serialize, Deserialize, ToSchema)]
@@ -156,14 +158,14 @@ pub struct DeleteApiKeyResponse {
 #[autometrics]
 pub async fn delete_api_key(
     user: AuthenticatedUser,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> AppResult<Json<DeleteApiKeyResponse>> {
-    let Some(user) = User::get_by_username(&db, &user.name).await? else {
+    let Some(user) = User::get_by_username(&state.db, &user.name).await? else {
         return Err(AppError::UserNotFound { id: user.name });
     };
 
-    let success = user.delete_api_key(&db, id).await?;
+    let success = user.delete_api_key(&state.db, id).await?;
 
     if !success {
         return Err(AppError::Internal(format!(

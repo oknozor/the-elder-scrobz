@@ -1,6 +1,6 @@
 use crate::oauth::AuthenticatedUser;
+use crate::state::AppState;
 use axum::middleware::from_extractor_with_state;
-use elder_scrobz_db::PgPool;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
@@ -62,7 +62,7 @@ impl Modify for SecurityAddon {
     }
 }
 
-pub fn router(no_oauth: bool, pool: PgPool) -> OpenApiRouter<PgPool> {
+pub fn router(no_oauth: bool, state: AppState) -> OpenApiRouter<AppState> {
     let mut router = OpenApiRouter::new()
         .nest("/users", users::router())
         .nest("/charts", charts::router())
@@ -73,7 +73,9 @@ pub fn router(no_oauth: bool, pool: PgPool) -> OpenApiRouter<PgPool> {
         .nest("/artists", artists::router());
 
     if !no_oauth {
-        router = router.layer(from_extractor_with_state::<AuthenticatedUser, PgPool>(pool))
+        router = router.layer(from_extractor_with_state::<AuthenticatedUser, AppState>(
+            state,
+        ))
     }
 
     router

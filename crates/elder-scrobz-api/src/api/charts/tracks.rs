@@ -1,12 +1,12 @@
 use crate::api::charts::ChartQuery;
 use crate::api::pagination::{PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::charts::tracks::get_most_listened_tracks;
-use elder_scrobz_db::PgPool;
 use elder_scrobz_model::track::ChartTrack;
 
 #[debug_handler]
@@ -24,7 +24,7 @@ use elder_scrobz_model::track::ChartTrack;
 #[autometrics]
 pub async fn track_charts(
     Query(query): Query<ChartQuery>,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<PaginatedResponse<ChartTrack>>> {
     let offset = query.to_offset();
     let (total, tracks) = get_most_listened_tracks(
@@ -32,7 +32,7 @@ pub async fn track_charts(
         query.username.as_ref(),
         query.page_size,
         offset,
-        &db,
+        &state.db,
     )
     .await?;
 

@@ -1,12 +1,12 @@
 use crate::error::{AppError, AppResult};
 use crate::oauth::AuthenticatedUser;
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::body::Body;
 use axum::extract::State;
 use axum::response::Response;
 use axum_macros::debug_handler;
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
-use elder_scrobz_db::PgPool;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -15,13 +15,14 @@ use utoipa_axum::routes;
 #[autometrics]
 pub async fn export_listens(
     user: AuthenticatedUser,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> AppResult<axum::response::Response> {
     let mut all_json_lines = String::new();
     let mut offset = 0;
     let limit = 100;
 
-    while let Ok(scrobbles) = RawScrobble::by_user_id(&db, &user.name, (limit, offset)).await {
+    while let Ok(scrobbles) = RawScrobble::by_user_id(&state.db, &user.name, (limit, offset)).await
+    {
         if scrobbles.is_empty() {
             break;
         }
@@ -55,6 +56,6 @@ pub async fn export_listens(
     Ok(response)
 }
 
-pub fn router() -> OpenApiRouter<PgPool> {
+pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new().routes(routes!(export_listens))
 }

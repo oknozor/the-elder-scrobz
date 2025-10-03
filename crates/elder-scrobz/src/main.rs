@@ -3,6 +3,7 @@ use axum::Extension;
 use axum::routing::get;
 use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
+use elder_scrobz_api::state::AppState;
 use elder_scrobz_crawler::{DiscogsConfig, MetadataClient, NavidromeConfig, ScrobbleCrawler};
 use elder_scrobz_db::build_pg_pool;
 use elder_scrobz_model::events::ScrobzEvent;
@@ -33,7 +34,8 @@ async fn main() -> anyhow::Result<()> {
 
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG").unwrap_or_else(|_| "tower_http=debug,scrobz=info".into()),
+            std::env::var("RUST_LOG")
+                .unwrap_or_else(|_| "tower_http=debug,elder_scrobz_api=debug,scrobz=info".into()),
         ))
         .with(tracing_subscriber::fmt::layer())
         .init();
@@ -51,7 +53,9 @@ async fn main() -> anyhow::Result<()> {
     let oauth_client = get_oauth2_client(&settings).await?;
     let (sse_sender, _sse_receiver) = broadcast::channel::<ScrobzEvent>(100);
 
-    let app = router(settings.debug, pool.clone())
+    let state = AppState::new(pool.clone(), sse_sender.clone());
+
+    let app = router(settings.debug, state.clone())
         .layer(TraceLayer::new_for_http())
         .layer(Extension(MetadataClient::new(
             settings.discogs_key.clone(),
@@ -62,8 +66,7 @@ async fn main() -> anyhow::Result<()> {
         )))
         .layer(Extension(oauth_client))
         .layer(Extension(settings.clone()))
-        .layer(Extension(sse_sender))
-        .with_state(pool.clone());
+        .with_state(state);
 
     #[cfg(debug_assertions)]
     let app = {

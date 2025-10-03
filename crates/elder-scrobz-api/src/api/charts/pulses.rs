@@ -1,10 +1,11 @@
 use crate::error::{AppError, AppResult};
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::pulses::Pulse;
-use elder_scrobz_db::{Period, PgPool};
+use elder_scrobz_db::Period;
 use serde::Deserialize;
 use utoipa::IntoParams;
 
@@ -29,9 +30,9 @@ pub struct PulseQuery {
 #[autometrics]
 pub async fn pulses(
     Query(query): Query<PulseQuery>,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<Vec<Pulse>>> {
     Ok(Json(
-        Pulse::for_period(query.period, query.username, &db).await?,
+        Pulse::for_period(query.period, query.username, &state.db).await?,
     ))
 }

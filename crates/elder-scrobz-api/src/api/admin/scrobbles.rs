@@ -1,12 +1,12 @@
 use crate::api::pagination::{PageQuery, PaginatedResponse, ToOffset};
 use crate::error::{AppError, AppResult};
+use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Path, Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::dlc::ErroredScrobble;
 use elder_scrobz_db::listens::raw::scrobble::RawScrobble;
-use elder_scrobz_db::PgPool;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -23,9 +23,9 @@ use utoipa_axum::routes;
 #[autometrics]
 pub async fn get_by_id(
     Path(id): Path<String>,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<RawScrobble>> {
-    match RawScrobble::get_by_id(&db, &id).await? {
+    match RawScrobble::get_by_id(&state.db, &id).await? {
         None => Err(AppError::ScrobbleNotFound { id }),
         Some(scrobble) => Ok(Json(scrobble)),
     }
@@ -44,14 +44,15 @@ pub async fn get_by_id(
 #[autometrics]
 pub async fn get_all_errored(
     Query(page): Query<PageQuery>,
-    State(db): State<PgPool>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<PaginatedResponse<ErroredScrobble>>> {
-    let (scrobbles, total) = ErroredScrobble::all(&db, page.per_page(), page.to_offset()).await?;
+    let (scrobbles, total) =
+        ErroredScrobble::all(&state.db, page.per_page(), page.to_offset()).await?;
     let pagination = PaginatedResponse::from_query(scrobbles, total, page);
     Ok(Json(pagination))
 }
 
-pub(crate) fn router() -> OpenApiRouter<PgPool> {
+pub(crate) fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(get_by_id))
         .routes(routes!(get_all_errored))
