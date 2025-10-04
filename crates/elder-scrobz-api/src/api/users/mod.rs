@@ -1,5 +1,6 @@
 use crate::api::pagination::{PageQuery, PaginatedResponse, ToOffset};
 use crate::error::AppResult;
+use crate::oauth::AdminUser;
 use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
@@ -16,6 +17,7 @@ pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(create_user))
         .routes(routes!(get_users))
+        .routes(routes!(admin_get_all_users))
         .merge(imports::router())
         .merge(exports::router())
 }
@@ -52,6 +54,33 @@ pub async fn create_user(
 #[autometrics]
 pub async fn get_users(
     State(state): State<AppState>,
+    Query(query): Query<PageQuery>,
+) -> AppResult<Json<PaginatedResponse<User>>> {
+    let (total, users) = DbUser::all(&state.db, query.per_page(), query.to_offset()).await?;
+    let response = PaginatedResponse::from_query(users, total, query);
+
+    Ok(Json(response))
+}
+
+#[debug_handler]
+#[utoipa::path(
+    get,
+    path = "/admin",
+    summary = "Get all users (Admin only)",
+    params(PageQuery),
+    responses(
+        (status = 200, description = "All users for admin", body = PaginatedResponse<User>, content_type = "application/json"),
+        (status = 401, description = "Unauthorized - Admin role required"),
+    ),
+    tag = crate::api::USERS_TAG,
+    security(
+        ("bearer_token" = [])
+    )
+)]
+#[autometrics]
+pub async fn admin_get_all_users(
+    State(state): State<AppState>,
+    _admin: AdminUser,
     Query(query): Query<PageQuery>,
 ) -> AppResult<Json<PaginatedResponse<User>>> {
     let (total, users) = DbUser::all(&state.db, query.per_page(), query.to_offset()).await?;

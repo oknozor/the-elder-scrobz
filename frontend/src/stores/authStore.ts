@@ -12,6 +12,8 @@ export const useAuthStore = defineStore("auth", {
     getters: {
         userName: (state) => state.user?.profile?.name || "",
         userEmail: (state) => state.user?.profile?.email || "",
+        userRole: (state) => state.user?.profile?.scrobz_role || null,
+        isAdmin: (state) => state.user?.profile?.scrobz_role === "admin",
     },
 
     actions: {
@@ -73,6 +75,15 @@ export const useAuthStore = defineStore("auth", {
             } catch (error) {
                 console.error("Logout failed:", error);
                 throw error;
+            }
+        },
+
+        async checkIsAdmin(): Promise<boolean> {
+            try {
+                return await authService.isAdmin();
+            } catch (error) {
+                console.error("Failed to check admin status:", error);
+                return false;
             }
         },
     },

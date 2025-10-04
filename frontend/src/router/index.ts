@@ -91,13 +91,16 @@ const router = createRouter({
             path: "/admin",
             name: "admin",
             component: AdminView,
-            meta: { requiresAuth: true },
+            meta: { requiresAuth: true, requiresAdmin: true },
         },
     ],
 });
 
 router.beforeEach(async (to, _, next) => {
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+    const requiresAdmin = to.matched.some(
+        (record) => record.meta.requiresAdmin,
+    );
 
     if (!requiresAuth) {
         return next();
@@ -113,6 +116,13 @@ router.beforeEach(async (to, _, next) => {
 
     if (requiresAuth && !isAuthenticated) {
         await authStore.login();
+        return;
+    }
+
+    // Check admin role if required
+    if (requiresAdmin && !authStore.isAdmin) {
+        // Redirect to main page or show error - user doesn't have admin rights
+        next({ name: "stats" });
         return;
     }
 
