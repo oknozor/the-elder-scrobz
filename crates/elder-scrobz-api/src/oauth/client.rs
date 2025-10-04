@@ -1,45 +1,23 @@
 use elder_scrobz_settings::Settings;
 use oauth2::basic::{
-    BasicClient, BasicErrorResponse, BasicRevocationErrorResponse, BasicTokenIntrospectionResponse,
-    BasicTokenResponse,
+    BasicErrorResponse, BasicRevocationErrorResponse, BasicTokenResponse, BasicTokenType,
 };
 use oauth2::{
     AccessToken, ClientId, ClientSecret, EndpointNotSet, EndpointSet, IntrospectionUrl,
-    StandardRevocableToken,
+    StandardRevocableToken, StandardTokenIntrospectionResponse,
 };
 use reqwest::Client;
 use serde::Deserialize;
 use tracing::info;
 
-#[derive(Clone, Debug)]
-pub struct Oauth2Client {
-    client: Client,
-    oauth2_client: Oauth2IntrospectClient,
-}
+use crate::oauth::ExtraClaim;
 
-impl Oauth2Client {
-    pub(crate) async fn introspect(
-        &self,
-        token: String,
-    ) -> anyhow::Result<BasicTokenIntrospectionResponse> {
-        let token = AccessToken::new(token);
-        self.oauth2_client
-            .introspect(&token)
-            .request_async(&self.client)
-            .await
-            .map_err(Into::into)
-    }
-}
-
-#[derive(Debug, Deserialize)]
-struct OAuthMetadata {
-    introspection_endpoint: String,
-}
+type IntrospectionResponse = StandardTokenIntrospectionResponse<ExtraClaim, BasicTokenType>;
 
 type Oauth2IntrospectClient = oauth2::Client<
     BasicErrorResponse,
     BasicTokenResponse,
-    BasicTokenIntrospectionResponse,
+    IntrospectionResponse,
     StandardRevocableToken,
     BasicRevocationErrorResponse,
     EndpointNotSet,
@@ -48,6 +26,47 @@ type Oauth2IntrospectClient = oauth2::Client<
     EndpointNotSet,
     EndpointNotSet,
 >;
+
+pub type ScrobzOauth2Client<
+    HasAuthUrl = EndpointNotSet,
+    HasDeviceAuthUrl = EndpointNotSet,
+    HasIntrospectionUrl = EndpointNotSet,
+    HasRevocationUrl = EndpointNotSet,
+    HasTokenUrl = EndpointNotSet,
+> = oauth2::Client<
+    BasicErrorResponse,
+    BasicTokenResponse,
+    IntrospectionResponse,
+    StandardRevocableToken,
+    BasicRevocationErrorResponse,
+    HasAuthUrl,
+    HasDeviceAuthUrl,
+    HasIntrospectionUrl,
+    HasRevocationUrl,
+    HasTokenUrl,
+>;
+
+#[derive(Debug, Deserialize)]
+struct OAuthMetadata {
+    introspection_endpoint: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct Oauth2Client {
+    client: Client,
+    oauth2_client: Oauth2IntrospectClient,
+}
+
+impl Oauth2Client {
+    pub(crate) async fn introspect(&self, token: String) -> anyhow::Result<IntrospectionResponse> {
+        let token = AccessToken::new(token);
+        self.oauth2_client
+            .introspect(&token)
+            .request_async(&self.client)
+            .await
+            .map_err(Into::into)
+    }
+}
 
 pub async fn get_oauth2_client(settings: &Settings) -> anyhow::Result<Oauth2Client> {
     info!("Fetching oauth2 provider metadata");
@@ -63,7 +82,7 @@ pub async fn get_oauth2_client(settings: &Settings) -> anyhow::Result<Oauth2Clie
     let client_secret = ClientSecret::new(settings.oauth_client_secret.clone());
     let introspection = IntrospectionUrl::new(metadata.introspection_endpoint)?;
 
-    let oauth2_client = BasicClient::new(client_id)
+    let oauth2_client = ScrobzOauth2Client::new(client_id)
         .set_client_secret(client_secret)
         .set_introspection_url(introspection);
 
