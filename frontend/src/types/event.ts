@@ -1,3 +1,5 @@
+export type ScrobzEvent = PlayingNow;
+
 export type PlayingNow = {
     type: "PlayingNow";
     user: string;
@@ -7,5 +9,3 @@ export type PlayingNow = {
     cover_art_url?: string;
     track_duration: number;
 };
-
-export type ScrobzEvent = PlayingNow;

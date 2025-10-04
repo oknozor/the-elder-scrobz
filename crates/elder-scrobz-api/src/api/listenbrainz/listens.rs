@@ -3,11 +3,11 @@ use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::State;
-use axum::{Extension, Json};
+use axum::Json;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use axum_macros::debug_handler;
-use elder_scrobz_crawler::{get_now_playing, MetadataClient};
+use elder_scrobz_crawler::get_now_playing;
 use elder_scrobz_db::dlc::CreateErroredScrobble;
 use elder_scrobz_db::listens::raw::create::CreateRawScrobble;
 use elder_scrobz_db::listens::raw::listenbrainz::{raw, typed, ListenType};
@@ -37,7 +37,6 @@ pub struct Empty {}
 pub async fn submit_listens(
     State(state): State<AppState>,
     TypedHeader(auth): TypedHeader<Authorization<Token>>,
-    Extension(metadata_client): Extension<MetadataClient>,
     Json(payload): Json<Value>,
 ) -> AppResult<Json<Empty>> {
     let Some(token) = auth.0.token()? else {
@@ -57,8 +56,7 @@ pub async fn submit_listens(
                 tokio::spawn(async move {
                     for scrobble in listens.payload {
                         let now_playing =
-                            get_now_playing(&user.username, &metadata_client, &state.db, scrobble)
-                                .await?;
+                            get_now_playing(&user.username, &state.db, scrobble).await?;
                         let mut event_manager = state.event_manager.lock().unwrap();
                         event_manager.push(now_playing.clone());
                     }

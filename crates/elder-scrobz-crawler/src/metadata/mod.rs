@@ -5,9 +5,10 @@ use musicbrainz_rs::entity::CoverartResponse;
 use musicbrainz_rs::entity::artist::Artist;
 use musicbrainz_rs::entity::relations::{Relation, RelationContent};
 use musicbrainz_rs::entity::release::Release;
-use musicbrainz_rs::{Fetch, FetchCoverart};
+use musicbrainz_rs::entity::release_group::ReleaseGroup;
+use musicbrainz_rs::{Browse, Fetch, FetchCoverart};
 use once_cell::sync::Lazy;
-use tracing::error;
+use tracing::{debug, error};
 
 mod discogs;
 mod wiki;
@@ -189,21 +190,7 @@ impl MetadataClient {
             })
             .collect();
 
-        let coverart_url: Option<String> = release
-            .get_coverart()
-            .front()
-            .res_250()
-            .execute_with_client(&MB_CLIENT)
-            .await
-            .ok()
-            .and_then(is_valid_coverart);
-
-        let coverart_url = match coverart_url {
-            Some(coverart_url) => Some(coverart_url),
-            None => get_release_group_coverart(&release)
-                .await
-                .and_then(is_valid_coverart),
-        };
+        let coverart_url: Option<String> = get_release_cover_art(release_mbid).await?;
 
         let mut relations = release.relations.unwrap_or_default();
         let group_relations = release
@@ -276,44 +263,37 @@ impl MetadataClient {
 
         Ok(metadata)
     }
+}
 
-    pub async fn get_release_cover_art(
-        &self,
-        release_mbid: &str,
-    ) -> anyhow::Result<Option<String>> {
-        let release = Release::fetch()
-            .id(release_mbid)
-            .with_annotations()
-            .with_release_group_level_relations()
-            .with_genres()
-            .with_artist_credits()
-            .with_artists()
-            .with_recordings()
-            .with_release_groups()
-            .with_release_group_relations()
-            .with_release_group_level_relations()
-            .with_url_relations()
-            .execute_with_client(&MB_CLIENT)
-            .await?;
+pub async fn get_release_cover_art(release_mbid: &str) -> anyhow::Result<Option<String>> {
+    debug!(
+        "Fetching musicbrainz release cover art for {}",
+        release_mbid
+    );
+    let coverart_url = Release::fetch_coverart()
+        .id(release_mbid)
+        .front()
+        .res_250()
+        .execute_with_client(&MB_CLIENT)
+        .await
+        .ok()
+        .and_then(is_valid_coverart);
 
-        let coverart_url: Option<String> = release
-            .get_coverart()
-            .front()
-            .res_250()
-            .execute_with_client(&MB_CLIENT)
-            .await
-            .ok()
-            .and_then(is_valid_coverart);
+    let coverart_url = match coverart_url {
+        Some(coverart_url) => Some(coverart_url),
+        None => {
+            debug!(
+                "No cover art found, falling back to musicbrainz release group cover art for {}",
+                release_mbid
+            );
 
-        let coverart_url = match coverart_url {
-            Some(coverart_url) => Some(coverart_url),
-            None => get_release_group_coverart(&release)
-                .await
-                .and_then(is_valid_coverart),
-        };
+            get_release_group_coverart(release_mbid)
+                .await?
+                .and_then(is_valid_coverart)
+        }
+    };
 
-        Ok(coverart_url)
-    }
+    Ok(coverart_url)
 }
 
 fn is_valid_coverart(coverart_url: CoverartResponse) -> Option<String> {
@@ -327,17 +307,25 @@ fn is_valid_coverart(coverart_url: CoverartResponse) -> Option<String> {
     .filter(|coverart| coverart.ends_with(".jpg") || coverart.ends_with(".jpeg"))
 }
 
-async fn get_release_group_coverart(release: &Release) -> Option<CoverartResponse> {
-    match &release.release_group {
-        None => None,
-        Some(group) => group
-            .get_coverart()
-            .front()
-            .res_250()
-            .execute_with_client(&MB_CLIENT)
-            .await
-            .ok(),
-    }
+async fn get_release_group_coverart(release_id: &str) -> anyhow::Result<Option<CoverartResponse>> {
+    let groups = ReleaseGroup::browse()
+        .by_release(release_id)
+        .execute_with_client(&MB_CLIENT)
+        .await?;
+
+    let release_group = match groups.entities.first() {
+        Some(release_group) => release_group,
+        None => return Ok(None),
+    };
+
+    let coverart_response = release_group
+        .get_coverart()
+        .front()
+        .res_250()
+        .execute_with_client(&MB_CLIENT)
+        .await?;
+
+    Ok(Some(coverart_response))
 }
 
 fn extract_relation_id(rels: &[Relation], relation_type: &str) -> Option<String> {

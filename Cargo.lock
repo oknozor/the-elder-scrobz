@@ -936,6 +936,7 @@ dependencies = [
  "tokio-stream",
  "tower",
  "tracing",
+ "url",
  "utoipa",
  "utoipa-axum",
  "zip",

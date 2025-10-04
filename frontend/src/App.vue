@@ -26,17 +26,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import PageHeader from "@/components/PageHeader.vue";
 import UsernameSelector from "@/components/UsernameSelector.vue";
 import { type AppUser, useAuthStore, useUsersStore } from "@/stores";
-import { startSse } from "./services/sseService";
+import { startSse, stopSse } from "./services/sseService";
 
 const route = useRoute();
 const usersStore = useUsersStore();
 const authStore = useAuthStore();
-startSse();
 
 const showBackButton = computed(() => {
     return route.name !== "stats";
@@ -81,6 +80,14 @@ const handleUserChange = (user: AppUser | null) => {
     selectedUser.value = user;
     usersStore.updateSelectedUser(user);
 };
+
+onMounted(() => {
+    startSse();
+});
+
+onBeforeUnmount(() => {
+    stopSse();
+});
 </script>
 
 <style>

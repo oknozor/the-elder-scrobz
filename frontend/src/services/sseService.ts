@@ -1,14 +1,30 @@
 import { useSseStore } from "@/stores";
 import type { ScrobzEvent } from "@/types/event";
+import auth from "./auth";
 
 let eventSource: EventSource | null = null;
+let isUnloading = false;
 
-export const startSse = () => {
+if (typeof window !== "undefined") {
+    window.addEventListener("beforeunload", () => {
+        isUnloading = true;
+        stopSse();
+    });
+}
+
+export const startSse = async () => {
     const sseStore = useSseStore();
 
     if (eventSource) return;
 
-    eventSource = new EventSource("/api/v1/events");
+    const token = await auth.getAccessToken();
+    if (!token) {
+        console.error("No access token available for SSE connection");
+        return;
+    }
+
+    const url = `/api/v1/events?token=${encodeURIComponent(token)}`;
+    eventSource = new EventSource(url);
 
     eventSource.onmessage = (event) => {
         try {
@@ -20,9 +36,15 @@ export const startSse = () => {
     };
 
     eventSource.onerror = (err) => {
+        // prevent sse error to be logged twice during page reload
+        if (isUnloading) {
+            return;
+        }
+
         console.error("SSE error:", err);
-        eventSource?.close();
-        eventSource = null;
+        if (eventSource && eventSource.readyState === EventSource.CLOSED) {
+            eventSource = null;
+        }
     };
 };
 
