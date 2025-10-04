@@ -47,6 +47,8 @@ pub async fn submit_listens(
         return Err(AppError::Unauthorized("Invalid token".to_string()));
     };
 
+    println!("{}", serde_json::to_string(&payload).unwrap());
+
     match serde_json::from_value::<raw::SubmitListens>(payload.clone()) {
         Ok(listens) => match listens.listen_type {
             ListenType::Single | ListenType::Import => {
