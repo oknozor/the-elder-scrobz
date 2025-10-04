@@ -1,4 +1,4 @@
-use std::convert::Infallible;
+use std::{convert::Infallible, time::Duration};
 
 use autometrics::autometrics;
 use axum::{
@@ -39,7 +39,8 @@ async fn sse_handler(
         }
     });
 
-    Sse::new(stream).keep_alive(KeepAlive::default())
+    let keep_alive = KeepAlive::new().interval(Duration::from_secs(1));
+    Sse::new(stream).keep_alive(keep_alive)
 }
 
 pub fn router() -> OpenApiRouter<AppState> {

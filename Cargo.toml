@@ -34,6 +34,7 @@ rand = "0.9.0"
 argon2 = { version = "0.5.3" }
 base64 = "0.22.1"
 sha2 = "0.10.8"
+url = "2"
 
 elder-scrobz-api = { path = "crates/elder-scrobz-api", version = "0.1.0" }
 elder-scrobz-db = { path = "crates/elder-scrobz-db", version = "0.1.0" }

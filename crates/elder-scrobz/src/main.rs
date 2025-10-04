@@ -1,5 +1,7 @@
 use autometrics::prometheus_exporter;
 use axum::Extension;
+use axum::body::Body;
+use axum::extract::Request;
 use axum::routing::get;
 use elder_scrobz_api::api::{ApiDoc, router};
 use elder_scrobz_api::oauth::client::get_oauth2_client;
@@ -15,7 +17,7 @@ use tokio::sync::broadcast;
 use tokio_util::sync::CancellationToken;
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
-use tracing::{info, warn};
+use tracing::{info, info_span, warn};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use utoipa::OpenApi;
@@ -40,6 +42,11 @@ async fn main() -> anyhow::Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let trace_layer = TraceLayer::new_for_http().make_span_with(|request: &Request<Body>| {
+        let safe_path = mask_token_in_uri(request.uri());
+        info_span!("http-request", method = %request.method(), path = %safe_path)
+    });
+
     let settings = Settings::get()?;
     let settings = Arc::new(settings);
     let pool = build_pg_pool(&settings.database_url).await;
@@ -56,7 +63,7 @@ async fn main() -> anyhow::Result<()> {
     let state = AppState::new(pool.clone(), sse_sender.clone());
 
     let app = router(settings.debug, state.clone())
-        .layer(TraceLayer::new_for_http())
+        .layer(trace_layer)
         .layer(Extension(MetadataClient::new(
             settings.discogs_key.clone(),
             settings.discogs_secret.clone(),
@@ -150,4 +157,24 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+fn mask_token_in_uri(uri: &axum::http::Uri) -> String {
+    let path = uri.path();
+    if let Some(query) = uri.query() {
+        // Replace token=... with token=<user-token>
+        let safe_query = query
+            .split('&')
+            .map(|param| {
+                if param.starts_with("token=") {
+                    "token=<user-token>"
+                } else {
+                    param
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("&");
+        return format!("{}?{}", path, safe_query);
+    }
+    path.to_string()
 }

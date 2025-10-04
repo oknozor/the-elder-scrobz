@@ -36,8 +36,14 @@ impl FromRequestParts<AppState> for AuthenticatedUser {
             .extensions
             .get::<Oauth2Client>()
             .expect("Missing Oauth2Client extension");
-        match extract_bearer_token(&parts.headers) {
-            Some(auth_value) => match oauth2_client.introspect(auth_value).await {
+
+        let auth_value = bearer_from_headers(&parts.headers).or_else(|| match parts.uri.query() {
+            Some(query) => bearer_from_query_params(query),
+            None => None,
+        });
+
+        match auth_value {
+            Some(token) => match oauth2_client.introspect(token).await {
                 Ok(response) => match AuthenticatedUser::from_introspection(response) {
                     None => Err(AppError::Unauthorized(
                         "Token is invalid or inactive".to_string(),
@@ -61,7 +67,16 @@ impl FromRequestParts<AppState> for AuthenticatedUser {
     }
 }
 
-fn extract_bearer_token(headers: &HeaderMap) -> Option<String> {
+fn bearer_from_query_params(query: &str) -> Option<String> {
+    let params: std::collections::HashMap<String, String> =
+        url::form_urlencoded::parse(query.as_bytes())
+            .into_owned()
+            .collect();
+
+    params.get("token").cloned()
+}
+
+fn bearer_from_headers(headers: &HeaderMap) -> Option<String> {
     let header = headers.get("authorization")?;
     let bytes = header.as_bytes();
     match String::from_utf8(bytes.to_vec()) {

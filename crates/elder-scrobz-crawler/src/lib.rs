@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::metadata::get_release_cover_art;
 use crate::releases::process_release;
 use anyhow::Result;
 use anyhow::anyhow;
@@ -317,7 +318,6 @@ pub async fn process_scrobble(
 
 pub async fn get_now_playing(
     user: &str,
-    client: &MetadataClient,
     db: &PgPool,
     scrobble: SubmitListensPayload,
 ) -> Result<ScrobzEvent> {
@@ -328,11 +328,11 @@ pub async fn get_now_playing(
     let album = scrobble.release_name().to_string();
     let track_duration = scrobble.track_duration().unwrap_or(0);
 
-    debug!("Fetching cover art for now playing : {track_name} - {artist} ({user})",);
+    debug!("Getting cover art for now playing : {track_name} - {artist} ({user})",);
     let cover_art_url = match scrobble.release_mbid() {
         Some(mbid) => match cover_art::get(mbid, db).await? {
             Some(ca) => Some(ca),
-            None => client.get_release_cover_art(mbid).await?,
+            None => get_release_cover_art(mbid).await?,
         },
         None => None,
     };

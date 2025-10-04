@@ -70,7 +70,8 @@ pub fn router(no_oauth: bool, state: AppState) -> OpenApiRouter<AppState> {
         .nest("/listens", listens::router())
         .nest("/tracks", tracks::router())
         .nest("/albums", albums::router())
-        .nest("/artists", artists::router());
+        .nest("/artists", artists::router())
+        .nest("/events", events::router());
 
     if !no_oauth {
         router = router.layer(from_extractor_with_state::<AuthenticatedUser, AppState>(
@@ -78,7 +79,5 @@ pub fn router(no_oauth: bool, state: AppState) -> OpenApiRouter<AppState> {
         ))
     }
 
-    router
-        .merge(listenbrainz::router())
-        .nest("/events", events::router())
+    router.merge(listenbrainz::router())
 }
