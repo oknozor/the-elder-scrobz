@@ -106,7 +106,6 @@ impl MetadataClient {
                     artist_metadata.thumbnail_url = artist_metadata.thumbnail_url.or_else(|| {
                         artist
                             .images
-                            .unwrap_or_default()
                             .into_iter()
                             .filter(|image| image.r#type == "primary")
                             .filter(|image| !image.resource_url.is_empty())
@@ -116,7 +115,9 @@ impl MetadataClient {
                     artist_metadata.description = Some(artist.profile);
                 }
                 Err(err) => {
-                    error!("Failed to fetch Discogs artist: {}", err);
+                    error!(
+                        "Failed to fetch Discogs artist( mbid = {artist_mbid}, discogs_id = {discogs_id}): {err}",
+                    );
                 }
             }
         }
@@ -221,7 +222,6 @@ impl MetadataClient {
                         metadata.thumbnail_url.or(release.thumb).or_else(|| {
                             release
                                 .images
-                                .unwrap_or_default()
                                 .into_iter()
                                 .filter(|image| image.r#type == "primary")
                                 .filter(|image| !image.resource_url.is_empty())
@@ -229,7 +229,10 @@ impl MetadataClient {
                                 .next()
                         });
                 }
-                Err(err) => error!("Failed to fetch Discogs release: {}", err),
+                Err(err) => error!(
+                    "Failed to fetch Discogs release (mbid = {release_mbid}, discogs_id = {discogs_id}): {}",
+                    err
+                ),
             }
         }
 

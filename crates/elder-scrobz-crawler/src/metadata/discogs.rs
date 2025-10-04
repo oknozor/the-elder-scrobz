@@ -56,8 +56,10 @@ pub struct DiscogsArtist {
     pub name: String,
     pub realname: Option<String>,
     pub profile: String,
+    #[serde(default)]
     pub urls: Vec<String>,
-    pub images: Option<Vec<DiscogsImage>>,
+    #[serde(default)]
+    pub images: Vec<DiscogsImage>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -65,7 +67,8 @@ pub struct DiscogsRelease {
     pub id: i64,
     pub title: String,
     pub thumb: Option<String>,
-    pub images: Option<Vec<DiscogsImage>>,
+    #[serde(default)]
+    pub images: Vec<DiscogsImage>,
     pub year: u32,
 }
 
