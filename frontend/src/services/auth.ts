@@ -19,7 +19,7 @@ const oidcSettings: UserManagerSettings = {
     redirect_uri: `${window.location.origin}/callback`,
     post_logout_redirect_uri: window.location.origin,
     response_type: "code",
-    scope: "openid profile email offline_access",
+    scope: "openid profile email offline_access scrobz_role",
     automaticSilentRenew: true,
     silent_redirect_uri: `${window.location.origin}/silent-renew.html`,
 };
@@ -82,5 +82,19 @@ export default {
         }
 
         return user?.access_token || null;
+    },
+
+    async getUserRole(): Promise<string | null> {
+        const user = await userManager.getUser();
+        if (!user || user.expired) {
+            return null;
+        }
+
+        return (user.profile?.scrobz_role as string) || null;
+    },
+
+    async isAdmin(): Promise<boolean> {
+        const role = await this.getUserRole();
+        return role === "admin";
     },
 };
