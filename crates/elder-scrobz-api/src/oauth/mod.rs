@@ -5,24 +5,78 @@ use axum::extract::FromRequestParts;
 use axum::http::request::Parts;
 use axum::http::HeaderMap;
 use elder_scrobz_db::user::{CreateUser, User};
-use oauth2::basic::BasicTokenIntrospectionResponse;
-use oauth2::TokenIntrospectionResponse;
+use oauth2::basic::BasicTokenType;
+use oauth2::StandardTokenIntrospectionResponse;
+use oauth2::{ExtraTokenFields, TokenIntrospectionResponse};
+use serde::{Deserialize, Serialize};
 
 pub mod client;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthenticatedUser {
     pub name: String,
+    pub role: UserRole,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ExtraClaim {
+    scrobz_role: UserRole,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum UserRole {
+    Admin,
+    #[default]
+    User,
+}
+
+impl ExtraTokenFields for ExtraClaim {}
+
 impl AuthenticatedUser {
-    fn from_introspection(value: BasicTokenIntrospectionResponse) -> Option<AuthenticatedUser> {
-        value.active().then(|| AuthenticatedUser {
-            name: value
+    fn from_introspection(
+        value: StandardTokenIntrospectionResponse<ExtraClaim, BasicTokenType>,
+    ) -> Option<AuthenticatedUser> {
+        value.active().then(|| {
+            let name = value
                 .sub()
                 .expect("no sub claim in token introspection")
-                .to_string(),
+                .to_string();
+
+            let role = value.extra_fields().scrobz_role.clone();
+
+            AuthenticatedUser { name, role }
         })
+    }
+
+    pub fn is_admin(&self) -> bool {
+        self.role == UserRole::Admin
+    }
+
+    pub fn has_role(&self, role: &UserRole) -> bool {
+        &self.role == role
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct AdminUser {
+    pub user: AuthenticatedUser,
+}
+
+impl FromRequestParts<AppState> for AdminUser {
+    type Rejection = AppError;
+
+    async fn from_request_parts(
+        parts: &mut Parts,
+        state: &AppState,
+    ) -> Result<Self, Self::Rejection> {
+        let user = AuthenticatedUser::from_request_parts(parts, state).await?;
+
+        if !user.is_admin() {
+            return Err(AppError::Unauthorized("Admin role required".to_string()));
+        }
+
+        Ok(AdminUser { user })
     }
 }
 
@@ -43,12 +97,21 @@ impl FromRequestParts<AppState> for AuthenticatedUser {
         });
 
         match auth_value {
-            Some(token) => match oauth2_client.introspect(token).await {
-                Ok(response) => match AuthenticatedUser::from_introspection(response) {
-                    None => Err(AppError::Unauthorized(
-                        "Token is invalid or inactive".to_string(),
-                    )),
-                    Some(user) => {
+            Some(token) => {
+                match oauth2_client.introspect(token.clone()).await {
+                    Ok(response) => {
+                        if !response.active() {
+                            return Err(AppError::Unauthorized(
+                                "Token is invalid or inactive".to_string(),
+                            ));
+                        }
+
+                        let user =
+                            AuthenticatedUser::from_introspection(response).ok_or_else(|| {
+                                AppError::Unauthorized("Token is invalid or inactive".to_string())
+                            })?;
+
+                        // Ensure user exists in database
                         let existing_user = User::get_by_username(&state.db, &user.name).await?;
                         if existing_user.is_none() {
                             CreateUser {
@@ -59,9 +122,9 @@ impl FromRequestParts<AppState> for AuthenticatedUser {
                         }
                         Ok(user)
                     }
-                },
-                Err(err) => Err(AppError::Unauthorized(err.to_string())),
-            },
+                    Err(err) => Err(AppError::Unauthorized(err.to_string())),
+                }
+            }
             None => Err(AppError::Unauthorized("Missing Bearer Token".to_string())),
         }
     }

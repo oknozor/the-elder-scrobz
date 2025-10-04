@@ -279,7 +279,6 @@ const visiblePages = computed(() => {
     const totalPages = adminStore.erroredScrobbles.total_pages;
     const current = currentPage.value;
 
-    // Always show first page
     if (current > 3) {
         pages.push(1);
         if (current > 4) {
@@ -287,7 +286,6 @@ const visiblePages = computed(() => {
         }
     }
 
-    // Show pages around current
     for (
         let i = Math.max(1, current - 1);
         i <= Math.min(totalPages, current + 1);
@@ -296,7 +294,6 @@ const visiblePages = computed(() => {
         pages.push(i);
     }
 
-    // Show last pages
     if (current < totalPages - 2) {
         if (current < totalPages - 3) {
             pages.push("...");
