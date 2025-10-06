@@ -77,7 +77,11 @@ function isArtist(item: Item): item is Artist {
 }
 
 const imageUrl = computed(() => {
-    return loadImage(props.item.thumbnail_url);
+    const url = loadImage(props.item.thumbnail_url);
+    if (url?.startsWith("http:")) {
+        return url.replace("http:", "https:");
+    }
+    return url;
 });
 
 const artist = computed(() => {
