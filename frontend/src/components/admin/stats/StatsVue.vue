@@ -98,427 +98,26 @@
             <div class="issues-section">
                 <h3>Data Issues</h3>
                 <div class="issues-grid">
-                    <div
-                        v-if="stats.releases_without_coverart.count > 0"
-                        class="issue-card"
-                        @click="toggleExpansion('releases_coverart')"
-                    >
-                        <div class="issue-header">
-                            <div class="issue-info">
-                                <div class="issue-icon warning">
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <path
-                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-                                        />
-                                        <line x1="12" y1="9" x2="12" y2="13" />
-                                        <line
-                                            x1="12"
-                                            y1="17"
-                                            x2="12.01"
-                                            y2="17"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h4>Releases Missing Cover Art</h4>
-                                    <p>
-                                        {{
-                                            stats.releases_without_coverart
-                                                .count
-                                        }}
-                                        releases
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                class="expand-icon"
-                                :class="{
-                                    expanded:
-                                        expandedSections.releases_coverart,
-                                }"
-                            >
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div
-                            v-if="expandedSections.releases_coverart"
-                            class="issue-details"
-                        >
-                            <div class="ids-list">
-                                <div
-                                    v-for="id in stats.releases_without_coverart.ids.slice(
-                                        0,
-                                        10,
-                                    )"
-                                    :key="id"
-                                    class="id-item"
-                                >
-                                    {{ id }}
-                                </div>
-                                <div
-                                    v-if="
-                                        stats.releases_without_coverart.ids
-                                            .length > 10
-                                    "
-                                    class="more-items"
-                                >
-                                    +{{
-                                        stats.releases_without_coverart.ids
-                                            .length - 10
-                                    }}
-                                    more...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <DataIssueCard
+                        title="Releases Missing Cover Art"
+                        description="releases"
+                        :issue-data="stats.releases_without_coverart"
+                        icon-type="warning"
+                    />
 
-                    <div
-                        v-if="stats.artists_without_thumbnail.count > 0"
-                        class="issue-card"
-                        @click="toggleExpansion('artists_thumbnails')"
-                    >
-                        <div class="issue-header">
-                            <div class="issue-info">
-                                <div class="issue-icon warning">
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <path
-                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-                                        />
-                                        <line x1="12" y1="9" x2="12" y2="13" />
-                                        <line
-                                            x1="12"
-                                            y1="17"
-                                            x2="12.01"
-                                            y2="17"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h4>Artists Missing Thumbnails</h4>
-                                    <p>
-                                        {{
-                                            stats.artists_without_thumbnail
-                                                .count
-                                        }}
-                                        artists
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                class="expand-icon"
-                                :class="{
-                                    expanded:
-                                        expandedSections.artists_thumbnails,
-                                }"
-                            >
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div
-                            v-if="expandedSections.artists_thumbnails"
-                            class="issue-details"
-                        >
-                            <div class="ids-list">
-                                <div
-                                    v-for="id in stats.artists_without_thumbnail.ids.slice(
-                                        0,
-                                        10,
-                                    )"
-                                    :key="id"
-                                    class="id-item"
-                                >
-                                    {{ id }}
-                                </div>
-                                <div
-                                    v-if="
-                                        stats.artists_without_thumbnail.ids
-                                            .length > 10
-                                    "
-                                    class="more-items"
-                                >
-                                    +{{
-                                        stats.artists_without_thumbnail.ids
-                                            .length - 10
-                                    }}
-                                    more...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <DataIssueCard
+                        title="Releases Missing Subsonic ID"
+                        description="releases"
+                        :issue-data="stats.releases_without_subsonic_id"
+                        icon-type="info"
+                    />
 
-                    <div
-                        v-if="stats.releases_without_subsonic_id.count > 0"
-                        class="issue-card"
-                        @click="toggleExpansion('releases_subsonic')"
-                    >
-                        <div class="issue-header">
-                            <div class="issue-info">
-                                <div class="issue-icon info">
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <circle cx="12" cy="12" r="10" />
-                                        <line x1="12" y1="16" x2="12" y2="12" />
-                                        <line
-                                            x1="12"
-                                            y1="8"
-                                            x2="12.01"
-                                            y2="8"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h4>Releases Missing Subsonic ID</h4>
-                                    <p>
-                                        {{
-                                            stats.releases_without_subsonic_id
-                                                .count
-                                        }}
-                                        releases
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                class="expand-icon"
-                                :class="{
-                                    expanded:
-                                        expandedSections.releases_subsonic,
-                                }"
-                            >
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div
-                            v-if="expandedSections.releases_subsonic"
-                            class="issue-details"
-                        >
-                            <div class="ids-list">
-                                <div
-                                    v-for="id in stats.releases_without_subsonic_id.ids.slice(
-                                        0,
-                                        10,
-                                    )"
-                                    :key="id"
-                                    class="id-item"
-                                >
-                                    {{ id }}
-                                </div>
-                                <div
-                                    v-if="
-                                        stats.releases_without_subsonic_id.ids
-                                            .length > 10
-                                    "
-                                    class="more-items"
-                                >
-                                    +{{
-                                        stats.releases_without_subsonic_id.ids
-                                            .length - 10
-                                    }}
-                                    more...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        v-if="stats.artists_without_subsonic_id.count > 0"
-                        class="issue-card"
-                        @click="toggleExpansion('artists_subsonic')"
-                    >
-                        <div class="issue-header">
-                            <div class="issue-info">
-                                <div class="issue-icon info">
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <circle cx="12" cy="12" r="10" />
-                                        <line x1="12" y1="16" x2="12" y2="12" />
-                                        <line
-                                            x1="12"
-                                            y1="8"
-                                            x2="12.01"
-                                            y2="8"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h4>Artists Missing Subsonic ID</h4>
-                                    <p>
-                                        {{
-                                            stats.artists_without_subsonic_id
-                                                .count
-                                        }}
-                                        artists
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                class="expand-icon"
-                                :class="{
-                                    expanded: expandedSections.artists_subsonic,
-                                }"
-                            >
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div
-                            v-if="expandedSections.artists_subsonic"
-                            class="issue-details"
-                        >
-                            <div class="ids-list">
-                                <div
-                                    v-for="id in stats.artists_without_subsonic_id.ids.slice(
-                                        0,
-                                        10,
-                                    )"
-                                    :key="id"
-                                    class="id-item"
-                                >
-                                    {{ id }}
-                                </div>
-                                <div
-                                    v-if="
-                                        stats.artists_without_subsonic_id.ids
-                                            .length > 10
-                                    "
-                                    class="more-items"
-                                >
-                                    +{{
-                                        stats.artists_without_subsonic_id.ids
-                                            .length - 10
-                                    }}
-                                    more...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        v-if="stats.tracks_without_subsonic_id.count > 0"
-                        class="issue-card"
-                        @click="toggleExpansion('tracks_subsonic')"
-                    >
-                        <div class="issue-header">
-                            <div class="issue-info">
-                                <div class="issue-icon info">
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <circle cx="12" cy="12" r="10" />
-                                        <line x1="12" y1="16" x2="12" y2="12" />
-                                        <line
-                                            x1="12"
-                                            y1="8"
-                                            x2="12.01"
-                                            y2="8"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h4>Tracks Missing Subsonic ID</h4>
-                                    <p>
-                                        {{
-                                            stats.tracks_without_subsonic_id
-                                                .count
-                                        }}
-                                        tracks
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                class="expand-icon"
-                                :class="{
-                                    expanded: expandedSections.tracks_subsonic,
-                                }"
-                            >
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div
-                            v-if="expandedSections.tracks_subsonic"
-                            class="issue-details"
-                        >
-                            <div class="ids-list">
-                                <div
-                                    v-for="id in stats.tracks_without_subsonic_id.ids.slice(
-                                        0,
-                                        10,
-                                    )"
-                                    :key="id"
-                                    class="id-item"
-                                >
-                                    {{ id }}
-                                </div>
-                                <div
-                                    v-if="
-                                        stats.tracks_without_subsonic_id.ids
-                                            .length > 10
-                                    "
-                                    class="more-items"
-                                >
-                                    +{{
-                                        stats.tracks_without_subsonic_id.ids
-                                            .length - 10
-                                    }}
-                                    more...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <DataIssueCard
+                        title="Artists Missing Subsonic ID"
+                        description="artists"
+                        :issue-data="stats.artists_without_subsonic_id"
+                        icon-type="info"
+                    />
                 </div>
             </div>
         </div>
@@ -527,21 +126,21 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import AlbumIcon from "@/assets/icons/album.svg?raw";
+import ArtistIcon from "@/assets/icons/artist.svg?raw";
+import ErrorIcon from "@/assets/icons/error.svg?raw";
+import MusicIcon from "@/assets/icons/music.svg?raw";
+import RefreshIcon from "@/assets/icons/refresh.svg?raw";
+import ScrobbleIcon from "@/assets/icons/scrobble.svg?raw";
 import { useAdminStore } from "@/stores/adminStore";
 import type { Stats } from "@/types/admin/stats";
+import DataIssueCard from "./DataIssueCard.vue";
 import StatsCard from "./StatCard.vue";
-import MusicIcon from "@/assets/icons/music.svg?raw";
-import ArtistIcon from "@/assets/icons/artist.svg?raw";
-import AlbumIcon from "@/assets/icons/album.svg?raw";
-import ScrobbleIcon from "@/assets/icons/scrobble.svg?raw";
-import RefreshIcon from "@/assets/icons/refresh.svg?raw";
-import ErrorIcon from "@/assets/icons/error.svg?raw";
 
 const adminStore = useAdminStore();
 
 const isLoading = ref(true);
 const error = ref<string | null>(null);
-const expandedSections = ref<Record<string, boolean>>({});
 
 const stats = computed<Stats | null>(() => adminStore.stats);
 
@@ -576,10 +175,6 @@ const refreshStats = async () => {
 const formatNumber = (num: number | undefined | null): string => {
     if (num === undefined || num === null || Number.isNaN(num)) return "0";
     return num.toLocaleString();
-};
-
-const toggleExpansion = (section: string) => {
-    expandedSections.value[section] = !expandedSections.value[section];
 };
 
 onMounted(() => {
@@ -806,109 +401,6 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     gap: 12px;
-}
-
-.issue-card {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.issue-card:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.issue-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-}
-
-.issue-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.issue-icon {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.issue-icon.warning {
-    color: #f59e0b;
-}
-
-.issue-icon.info {
-    color: #3b82f6;
-}
-
-.issue-icon svg {
-    width: 16px;
-    height: 16px;
-}
-
-.issue-info h4 {
-    margin: 0 0 2px 0;
-    color: var(--text-color);
-    font-size: 0.95em;
-}
-
-.issue-info p {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.85em;
-}
-
-.expand-icon {
-    width: 20px;
-    height: 20px;
-    color: var(--text-secondary);
-    transition: transform 0.2s;
-}
-
-.expand-icon.expanded {
-    transform: rotate(180deg);
-}
-
-.expand-icon svg {
-    width: 100%;
-    height: 100%;
-}
-
-.issue-details {
-    border-top: 1px solid var(--border-color);
-    padding: 16px;
-}
-
-.ids-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.id-item {
-    padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 0.8em;
-    color: var(--text-secondary);
-}
-
-.more-items {
-    padding: 4px 8px;
-    color: var(--text-secondary);
-    font-style: italic;
-    font-size: 0.85em;
 }
 
 @media (max-width: 768px) {
