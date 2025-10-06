@@ -48,7 +48,7 @@ import AdminOnly from "@/components/AdminOnly.vue";
 import ErroredScrobblesViewer from "@/components/admin/ErroredScrobblesViewer.vue";
 import ScanForm from "@/components/admin/ScanForm.vue";
 import ScrobbleJsonViewer from "@/components/admin/ScrobbleJsonViewer.vue";
-import StatsVue from "@/components/admin/StatsVue.vue";
+import StatsVue from "@/components/admin/stats/StatsVue.vue";
 import { useAuthStore } from "@/stores/authStore";
 
 const authStore = useAuthStore();
