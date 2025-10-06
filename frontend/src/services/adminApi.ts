@@ -1,8 +1,3 @@
-import { isAxiosError } from "axios";
-import type { PaginatedResponse } from "@/types";
-import type { User } from "@/types/user";
-import apiClient from "./api";
-
 export interface AdminUser {
     username: string;
     email: string;
