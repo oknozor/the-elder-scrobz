@@ -35,13 +35,13 @@ export const startSse = async () => {
         }
     };
 
-    eventSource.onerror = (err) => {
+    eventSource.onerror = (_) => {
         // prevent sse error to be logged twice during page reload
         if (isUnloading) {
             return;
         }
 
-        console.error("SSE error:", err);
+        console.log("SSE error, attempting to reconnect...");
         if (eventSource && eventSource.readyState === EventSource.CLOSED) {
             eventSource = null;
         }
