@@ -82,17 +82,7 @@
                     </div>
                 </div>
 
-                <div
-                    v-if="stats.unparsable_scrobbles.count > 0"
-                    class="processing-issues"
-                >
-                    <div class="issue-item error">
-                        <span class="issue-count">{{
-                            stats.unparsable_scrobbles.count
-                        }}</span>
-                        <span class="issue-label">Unparseable Scrobbles</span>
-                    </div>
-                </div>
+
             </div>
 
             <div class="issues-section">
@@ -117,6 +107,27 @@
                         description="artists"
                         :issue-data="stats.artists_without_subsonic_id"
                         icon-type="info"
+                    />
+
+                    <DataIssueCard
+                        title="Artists Missing Thumbnail"
+                        description="artists"
+                        :issue-data="stats.artists_without_thumbnail"
+                        icon-type="warning"
+                    />
+
+                    <DataIssueCard
+                        title="Tracks Missing Subsonic ID"
+                        description="tracks"
+                        :issue-data="stats.tracks_without_subsonic_id"
+                        icon-type="info"
+                    />
+
+                    <DataIssueCard
+                        title="Unparseable Scrobbles"
+                        description="scrobbles"
+                        :issue-data="stats.unparsable_scrobbles"
+                        icon-type="warning"
                     />
                 </div>
             </div>
