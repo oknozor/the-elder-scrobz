@@ -8,22 +8,7 @@
                 :disabled="isLoading"
                 :class="{ spinning: isLoading }"
             >
-                <svg
-                    class="refresh-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <path
-                        d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
-                    />
-                    <path d="M21 3v5h-5" />
-                    <path
-                        d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
-                    />
-                    <path d="M3 21v-5h5" />
-                </svg>
+                <div class="refresh-icon" v-html="RefreshIcon"></div>
                 Refresh
             </button>
         </div>
@@ -34,18 +19,7 @@
         </div>
 
         <div v-else-if="error" class="error-container">
-            <div class="error-icon">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="15" y1="9" x2="9" y2="15" />
-                    <line x1="9" y1="9" x2="15" y2="15" />
-                </svg>
-            </div>
+            <div class="error-icon" v-html="ErrorIcon" />
             <h3>Error Loading Stats</h3>
             <p>{{ error }}</p>
             <button class="retry-button" @click="refreshStats">
@@ -54,92 +28,37 @@
         </div>
 
         <div v-else-if="stats" class="stats-content">
-            <!-- Overview Cards -->
             <div class="stats-overview">
-                <div class="stat-card">
-                    <div class="stat-icon music">
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path d="M9 18V5l12-2v13" />
-                            <circle cx="6" cy="18" r="3" />
-                            <circle cx="18" cy="16" r="3" />
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <h3>Total Tracks</h3>
-                        <p class="stat-number">
-                            {{ formatNumber(stats.total_track_count) }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon album">
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <circle cx="12" cy="12" r="10" />
-                            <circle cx="12" cy="12" r="3" />
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <h3>Total Releases</h3>
-                        <p class="stat-number">
-                            {{ formatNumber(stats.total_releases_count) }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon artist">
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                            />
-                            <circle cx="12" cy="7" r="4" />
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <h3>Total Artists</h3>
-                        <p class="stat-number">
-                            {{ formatNumber(stats.total_artists_count) }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon scrobbles">
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <polygon points="5,3 19,12 5,21 5,3" />
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <h3>Total Scrobbles</h3>
-                        <p class="stat-number">
-                            {{ formatNumber(stats.total_scrobble_count) }}
-                        </p>
-                    </div>
-                </div>
+                <StatsCard
+                    title="Total Tracks"
+                    :icon="MusicIcon"
+                    :value="stats.total_track_count"
+                    :color="'var(--primary-color)'"
+                    :background="'rgba(66, 185, 131, 0.2)'"
+                />
+                <StatsCard
+                    title="Total Releases"
+                    :icon="AlbumIcon"
+                    :value="stats.total_releases_count"
+                    :color="'#3b82f6'"
+                    :background="'rgba(59, 130, 246, 0.2)'"
+                />
+                <StatsCard
+                    title="Total Artists"
+                    :icon="ArtistIcon"
+                    :value="stats.total_releases_count"
+                    :color="'#f59e0b'"
+                    :background="'rgba(245, 158, 11, 0.2)'"
+                />
+                <StatsCard
+                    title="Total Scrobbles"
+                    :icon="ScrobbleIcon"
+                    :value="stats.total_scrobble_count"
+                    :color="'#8b45c1'"
+                    :background="'rgba(139, 69, 193, 0.2)'"
+                />
             </div>
 
-            <!-- Scrobble Processing Stats -->
             <div class="processing-stats">
                 <h3>Scrobble Processing</h3>
                 <div class="processing-grid">
@@ -176,7 +95,6 @@
                 </div>
             </div>
 
-            <!-- Missing Data Issues -->
             <div class="issues-section">
                 <h3>Data Issues</h3>
                 <div class="issues-grid">
@@ -611,6 +529,13 @@
 import { computed, onMounted, ref } from "vue";
 import { useAdminStore } from "@/stores/adminStore";
 import type { Stats } from "@/types/admin/stats";
+import StatsCard from "./StatCard.vue";
+import MusicIcon from "@/assets/icons/music.svg?raw";
+import ArtistIcon from "@/assets/icons/artist.svg?raw";
+import AlbumIcon from "@/assets/icons/album.svg?raw";
+import ScrobbleIcon from "@/assets/icons/scrobble.svg?raw";
+import RefreshIcon from "@/assets/icons/refresh.svg?raw";
+import ErrorIcon from "@/assets/icons/error.svg?raw";
 
 const adminStore = useAdminStore();
 
@@ -792,69 +717,6 @@ onMounted(() => {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
-}
-
-.stat-card {
-    background: var(--card-background);
-    border-radius: 8px;
-    padding: 24px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: all 0.2s;
-}
-
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
-
-.stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.stat-icon.music {
-    background: rgba(66, 185, 131, 0.2);
-    color: var(--primary-color);
-}
-.stat-icon.album {
-    background: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-}
-.stat-icon.artist {
-    background: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
-}
-.stat-icon.scrobbles {
-    background: rgba(139, 69, 193, 0.2);
-    color: #8b45c1;
-}
-
-.stat-icon svg {
-    width: 24px;
-    height: 24px;
-}
-
-.stat-content h3 {
-    margin: 0 0 4px 0;
-    color: var(--text-secondary);
-    font-size: 0.9em;
-    font-weight: 500;
-}
-
-.stat-number {
-    margin: 0;
-    color: var(--text-color);
-    font-size: 1.8em;
-    font-weight: bold;
 }
 
 .processing-stats {
