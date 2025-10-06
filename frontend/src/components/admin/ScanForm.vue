@@ -286,16 +286,13 @@ const handleSubmit = async () => {
     try {
         clearResult();
 
-        const result = await adminStore.scanDatabase(scanParams.value);
+        await adminStore.scanDatabase(scanParams.value);
 
         scanResult.value = {
             type: "success",
             title: "Scan Started Successfully",
             message: `Database scan initiated with the selected options. The process is running in the background.`,
         };
-
-        // Log the result for debugging
-        console.log("Scan result:", result);
     } catch (error) {
         console.error("Scan failed:", error);
 

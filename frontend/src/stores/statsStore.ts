@@ -46,7 +46,6 @@ export const useStatsStore = defineStore("stats", {
             }
         },
 
-        /** Fetch all users */
         async fetchUsers() {
             try {
                 this.isLoading = true;
