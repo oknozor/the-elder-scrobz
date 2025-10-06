@@ -1,0 +1,18 @@
+[package]
+name = "fake-scrobble-gen"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "fake-scrobble-gen"
+path = "src/main.rs"
+
+[dependencies]
+musicbrainz_rs.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+tokio.workspace = true
+anyhow.workspace = true
+uuid.workspace = true
+clap = { version = "4.4", features = ["derive"] }
