@@ -105,7 +105,6 @@ const loadMoreItems = async (page: number) => {
 };
 
 watch(sharedTimeRange, () => {
-    console.log("Time range changed");
     updateChart();
 });
 

@@ -30,7 +30,6 @@ userManager.events.addAccessTokenExpired(async () => {
     console.warn("Access token expired, trying silent renew...");
     try {
         await userManager.signinSilent();
-        console.log("Silent renew succeeded");
     } catch (err) {
         console.error("Silent renew failed", err);
     }
@@ -54,10 +53,7 @@ export default {
 
     async handleLoginCallback(): Promise<User> {
         try {
-            console.log("Handling login callback in auth service");
-            const user = await userManager.signinRedirectCallback();
-            console.log("Login callback processed successfully");
-            return user;
+            return await userManager.signinRedirectCallback();
         } catch (error) {
             console.error("Error in signinRedirectCallback:", error);
             throw error;
@@ -72,7 +68,6 @@ export default {
         let user = await userManager.getUser();
 
         if (!user || user.expired) {
-            console.log("Access token expired, trying silent renew...");
             try {
                 user = await userManager.signinSilent();
             } catch (err) {

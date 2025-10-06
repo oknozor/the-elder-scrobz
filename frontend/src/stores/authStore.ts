@@ -51,9 +51,7 @@ export const useAuthStore = defineStore("auth", {
         async handleLoginCallback() {
             this.isLoading = true;
             try {
-                console.log("Processing login callback in auth store");
                 const user = await authService.handleLoginCallback();
-                console.log("Login callback successful, user:", user);
                 this.user = user;
                 this.isAuthenticated = true;
                 return user;

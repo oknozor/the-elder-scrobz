@@ -22,7 +22,6 @@ const error = ref<string | null>(null);
 
 onMounted(async () => {
     try {
-        console.log("Processing authentication callback");
         await authStore.handleLoginCallback();
         await router.push("/");
     } catch (err) {

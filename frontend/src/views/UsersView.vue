@@ -1,112 +1,103 @@
 <template>
-    <div>
-        <div class="users-page">
-            <div class="users-section">
-                <h1>Users</h1>
+    <div class="users-page">
+        <div class="users-section">
+            <h1>Users</h1>
 
-                <div class="table-container">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Last Login</th>
-                                <th>Play Count</th>
-                                <th>Play Duration</th>
-                                <th>Is Admin ?</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="user in users" :key="user.id">
-                                <td>
-                                    <div class="user-cell">
-                                        <img
-                                            :src="user.imageUrl"
-                                            :alt="user.name"
-                                            class="user-avatar"
-                                        />
-                                        <span>{{ user.name }}</span>
-                                    </div>
-                                </td>
-                                <td>{{ formatDate(user.lastActive) }}</td>
-                                <td>
-                                    {{ formatNumber(user.stats.totalPlays) }}
-                                </td>
-                                <td>
-                                    {{
-                                        formatDuration(user.stats.totalDuration)
-                                    }}
-                                </td>
-                                <td>
-                                    <div class="toggle-container">
-                                        <input
-                                            type="checkbox"
-                                            :id="'admin-toggle-' + user.id"
-                                            class="toggle-input"
-                                            :checked="user.isAdmin"
-                                            @change="toggleAdmin(user)"
-                                        />
-                                        <label
-                                            :for="'admin-toggle-' + user.id"
-                                            class="toggle-label"
-                                        ></label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button
-                                        class="delete-btn"
-                                        @click="handleDeleteUser(user.id)"
+            <div class="table-container">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Last Login</th>
+                            <th>Play Count</th>
+                            <th>Play Duration</th>
+                            <th>Is Admin ?</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="user in users" :key="user.id">
+                            <td>
+                                <div class="user-cell">
+                                    <img
+                                        :src="user.imageUrl"
+                                        :alt="user.name"
+                                        class="user-avatar"
+                                    />
+                                    <span>{{ user.name }}</span>
+                                </div>
+                            </td>
+                            <td>{{ formatDate(user.lastActive) }}</td>
+                            <td>{{ formatNumber(user.stats.totalPlays) }}</td>
+                            <td>
+                                {{ formatDuration(user.stats.totalDuration) }}
+                            </td>
+                            <td>
+                                <div class="toggle-container">
+                                    <input
+                                        type="checkbox"
+                                        :id="'admin-toggle-' + user.id"
+                                        class="toggle-input"
+                                        :checked="user.isAdmin"
+                                        @change="toggleAdmin(user)"
+                                    />
+                                    <label
+                                        :for="'admin-toggle-' + user.id"
+                                        class="toggle-label"
+                                    ></label>
+                                </div>
+                            </td>
+                            <td>
+                                <button
+                                    class="delete-btn"
+                                    @click="handleDeleteUser(user.id)"
+                                >
+                                    <svg
+                                        class="trash-icon"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
                                     >
-                                        <svg
-                                            class="trash-icon"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <path d="M3 6h18" />
-                                            <path
-                                                d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                                            />
-                                            <path
-                                                d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                                            />
-                                        </svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                        <path d="M3 6h18" />
+                                        <path
+                                            d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
+                                        />
+                                        <path
+                                            d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
+                                        />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <!-- Delete Confirmation Modal -->
-        <div
-            v-if="showDeleteConfirmation"
-            class="modal-overlay"
-            @click="showDeleteConfirmation = false"
-        >
-            <div class="modal-content" @click.stop>
-                <h3>Confirm Deletion</h3>
-                <p>
-                    Are you sure you want to delete this user? This action
-                    cannot be undone.
-                </p>
-                <div class="modal-actions">
-                    <button
-                        class="cancel-btn"
-                        @click="showDeleteConfirmation = false"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        class="delete-confirm-btn"
-                        @click="confirmDeleteUser"
-                    >
-                        Delete
-                    </button>
-                </div>
+    <!-- Delete Confirmation Modal -->
+    <div
+        v-if="showDeleteConfirmation"
+        class="modal-overlay"
+        @click="showDeleteConfirmation = false"
+    >
+        <div class="modal-content" @click.stop>
+            <h3>Confirm Deletion</h3>
+            <p>
+                Are you sure you want to delete this user? This action cannot be
+                undone.
+            </p>
+            <div class="modal-actions">
+                <button
+                    class="cancel-btn"
+                    @click="showDeleteConfirmation = false"
+                >
+                    Cancel
+                </button>
+                <button class="delete-confirm-btn" @click="confirmDeleteUser">
+                    Delete
+                </button>
             </div>
         </div>
     </div>
