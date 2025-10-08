@@ -1,14 +1,14 @@
 <template>
     <div class="page-header">
         <div class="header-left">
-            <button
-                v-if="showBackButton"
+            <Button
                 class="back-button"
+                v-if="showBackButton"
                 @click="handleBack"
             >
                 <span class="back-icon">←</span>
                 Back
-            </button>
+            </Button>
             <slot name="left"></slot>
         </div>
         <div class="header-right">
@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import Button from "@/base/Button.vue";
 import UserButton from "@/components/UserButton.vue";
 import type { AppUser } from "@/stores";
 
@@ -65,23 +66,8 @@ const handleBack = () => {
 }
 
 .back-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     padding: 8px 16px;
-    background: var(--card-background);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    color: var(--text-color);
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: all 0.2s;
     height: 40px;
-}
-
-.back-button:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateX(-2px);
 }
 
 .back-icon {

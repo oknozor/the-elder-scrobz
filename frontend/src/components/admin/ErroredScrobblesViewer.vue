@@ -31,10 +31,9 @@
                         <option value="50">50</option>
                         <option value="100">100</option>
                     </select>
-                    <button
+                    <Button
                         @click="refreshData"
                         :disabled="isLoading"
-                        class="refresh-button"
                     >
                         <svg
                             class="refresh-icon"
@@ -49,7 +48,7 @@
                             />
                         </svg>
                         Refresh
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -67,13 +66,13 @@
                     <h4>Error</h4>
                     <p>{{ error }}</p>
                 </div>
-                <button @click="clearError" class="error-close">
+                <Button @click="clearError" class="error-close">
                     <svg viewBox="0 0 20 20" fill="currentColor">
                         <path
                             d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
                         />
                     </svg>
-                </button>
+                </Button>
             </div>
 
             <div class="scrobbles-container">
@@ -197,10 +196,9 @@
                 "
                 class="pagination-footer"
             >
-                <button
+                <Button
                     @click="previousPage"
                     :disabled="currentPage === 1 || isLoading"
-                    class="pagination-button"
                 >
                     <svg
                         class="pagination-icon"
@@ -214,30 +212,28 @@
                         />
                     </svg>
                     Previous
-                </button>
+                </Button>
 
                 <div class="pagination-pages">
-                    <button
+                    <Button
                         v-for="page in visiblePages"
                         :key="page"
                         @click="goToPage(page)"
                         :disabled="isLoading"
-                        class="page-button"
+                        :active="page === currentPage"
                         :class="{
-                            active: page === currentPage,
                             ellipsis: page === '...',
                         }"
                     >
                         {{ page }}
-                    </button>
+                    </Button>
                 </div>
 
-                <button
+                <Button
                     @click="nextPage"
                     :disabled="
                         erroredScrobbles.length < itemsPerPage || isLoading
                     "
-                    class="pagination-button"
                 >
                     Next
                     <svg
@@ -251,7 +247,7 @@
                             clip-rule="evenodd"
                         />
                     </svg>
-                </button>
+                </Button>
             </div>
         </div>
     </div>
@@ -260,6 +256,7 @@
 <script setup lang="ts">
 import { isAxiosError } from "axios";
 import { computed, onMounted, reactive, ref } from "vue";
+import Button from "@/base/Button.vue";
 import { type ErroredScrobble, useAdminStore } from "@/stores/adminStore";
 import JsonNode from "./JsonNode.vue";
 
@@ -454,31 +451,6 @@ onMounted(() => {
     background: var(--input-background, var(--card-background));
     color: var(--text-color);
     font-size: 0.9em;
-}
-
-.refresh-button {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: var(--button-background, rgba(59, 130, 246, 0.1));
-    color: var(--primary-color, #3b82f6);
-    border: 1px solid var(--primary-color, #3b82f6);
-    border-radius: 6px;
-    font-size: 0.85em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.refresh-button:hover:not(:disabled) {
-    background: var(--primary-color, #3b82f6);
-    color: white;
-}
-
-.refresh-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 .refresh-icon {
@@ -690,29 +662,6 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 16px 0;
-}
-
-.pagination-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: var(--card-background);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.pagination-button:hover:not(:disabled) {
-    background: var(--background-secondary, rgba(0, 0, 0, 0.05));
-}
-
-.pagination-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .pagination-icon {
