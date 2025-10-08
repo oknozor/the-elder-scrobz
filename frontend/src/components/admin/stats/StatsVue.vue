@@ -22,9 +22,9 @@
             <div class="error-icon" v-html="ErrorIcon" />
             <h3>Error Loading Stats</h3>
             <p>{{ error }}</p>
-            <button class="retry-button" @click="refreshStats">
+            <Button variant="confirm" @click="refreshStats">
                 Try Again
-            </button>
+            </Button>
         </div>
 
         <div v-else-if="stats" class="stats-content">
@@ -143,6 +143,7 @@ import ErrorIcon from "@/assets/icons/error.svg?raw";
 import MusicIcon from "@/assets/icons/music.svg?raw";
 import RefreshIcon from "@/assets/icons/refresh.svg?raw";
 import ScrobbleIcon from "@/assets/icons/scrobble.svg?raw";
+import Button from "@/base/Button.vue";
 import { useAdminStore } from "@/stores/adminStore";
 import type { Stats } from "@/types/admin/stats";
 import DataIssueCard from "./DataIssueCard.vue";
@@ -297,20 +298,6 @@ onMounted(() => {
 .error-container p {
     margin: 0 0 16px 0;
     color: var(--text-secondary);
-}
-
-.retry-button {
-    padding: 8px 16px;
-    background: var(--primary-color);
-    color: var(--background-color);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.retry-button:hover {
-    opacity: 0.9;
 }
 
 .stats-content {

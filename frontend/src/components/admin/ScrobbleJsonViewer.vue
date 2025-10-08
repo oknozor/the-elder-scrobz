@@ -153,6 +153,7 @@ const toggleAll = () => {
 };
 
 const onToggle = (path: string[]) => {
+    console.log("???");
     const pathStr = path.join(".");
     if (expandedPaths.has(pathStr)) {
         expandedPaths.delete(pathStr);
