@@ -2,15 +2,13 @@
     <div class="admin-stats">
         <div class="stats-header">
             <h2>Database Statistics</h2>
-            <button
-                class="refresh-button"
+            <Button
                 @click="refreshStats"
                 :disabled="isLoading"
-                :class="{ spinning: isLoading }"
             >
                 <div class="refresh-icon" v-html="RefreshIcon"></div>
                 Refresh
-            </button>
+            </Button>
         </div>
 
         <div v-if="isLoading" class="loading-container">
@@ -59,31 +57,29 @@
                 />
             </div>
 
-            <div class="processing-stats">
+            <FlexVertical>
                 <h3>Scrobble Processing</h3>
                 <div class="processing-grid">
-                    <div class="processing-item">
+                    <FlexVertical class="processing-item">
                         <div class="processing-label">Raw Scrobbles</div>
                         <div class="processing-value">
                             {{ formatNumber(stats.total_raw_scrobble_count) }}
                         </div>
-                    </div>
-                    <div class="processing-item">
+                    </FlexVertical>
+                    <FlexVertical class="processing-item">
                         <div class="processing-label">Processed Scrobbles</div>
                         <div class="processing-value">
                             {{ formatNumber(stats.total_scrobble_count) }}
                         </div>
-                    </div>
-                    <div class="processing-item">
+                    </FlexVertical>
+                    <FlexVertical class="processing-item">
                         <div class="processing-label">Processing Rate</div>
                         <div class="processing-value">
                             {{ processingRate }}%
                         </div>
-                    </div>
+                    </FlexVertical>
                 </div>
-
-
-            </div>
+            </FlexVertical>
 
             <div class="issues-section">
                 <h3>Data Issues</h3>
@@ -144,6 +140,7 @@ import MusicIcon from "@/assets/icons/music.svg?raw";
 import RefreshIcon from "@/assets/icons/refresh.svg?raw";
 import ScrobbleIcon from "@/assets/icons/scrobble.svg?raw";
 import Button from "@/base/Button.vue";
+import FlexVertical from "@/base/FlexVertical.vue";
 import { useAdminStore } from "@/stores/adminStore";
 import type { Stats } from "@/types/admin/stats";
 import DataIssueCard from "./DataIssueCard.vue";
@@ -213,47 +210,10 @@ onMounted(() => {
     font-size: 1.8em;
 }
 
-.refresh-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: var(--card-background);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.2s;
-}
-
-.refresh-button:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
-}
-
-.refresh-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
 .refresh-icon {
     width: 16px;
     height: 16px;
     transition: transform 0.2s;
-}
-
-.refresh-button.spinning .refresh-icon {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
 }
 
 .loading-container,
