@@ -97,7 +97,7 @@ pub struct TokenValidation {
 #[debug_handler]
 #[utoipa::path(
     get,
-    path = "/validate-token",
+    path = "/1/validate-token",
     summary = "Validate token",
     params(
         ("Authorization" = String, Header, description = "Token to validate. Format: `Token <token>`")
