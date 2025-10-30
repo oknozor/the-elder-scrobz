@@ -22,7 +22,7 @@ pub struct Empty {}
 #[debug_handler]
 #[utoipa::path(
     post,
-    path = "/submit-listens",
+    path = "/1/submit-listens",
     summary = "Submit listens",
     params(
         ("Authorization" = String, Header, description = "Token to validate. Format: `Token <token>`")
