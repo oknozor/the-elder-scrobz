@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 serde.workspace = true
 reqwest.workspace = true
-subsonic-types.workspace = true
+submarine.workspace = true
 anyhow.workspace = true
 
 [dev-dependencies]
