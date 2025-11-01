@@ -1,6 +1,9 @@
-use crate::oauth::AuthenticatedUser;
+use crate::error::{AppError, AppResult};
+use crate::oauth::router::Session;
+use crate::oauth::user::AuthenticatedUser;
 use crate::state::AppState;
-use axum::middleware::from_extractor_with_state;
+use axum::middleware::from_extractor;
+use tracing::{info, warn};
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 use utoipa_axum::router::OpenApiRouter;
@@ -62,7 +65,7 @@ impl Modify for SecurityAddon {
     }
 }
 
-pub fn router(no_oauth: bool, state: AppState) -> OpenApiRouter<AppState> {
+pub fn router(no_auth: bool) -> OpenApiRouter<AppState> {
     let mut router = OpenApiRouter::new()
         .nest("/users", users::router())
         .nest("/charts", charts::router())
@@ -73,11 +76,18 @@ pub fn router(no_oauth: bool, state: AppState) -> OpenApiRouter<AppState> {
         .nest("/artists", artists::router())
         .nest("/events", events::router());
 
-    if !no_oauth {
-        router = router.layer(from_extractor_with_state::<AuthenticatedUser, AppState>(
-            state,
-        ))
+    if !no_auth {
+        info!("Enabling authentication layer");
+        router = router.layer(from_extractor::<AuthenticatedUser>())
+    } else {
+        warn!("Authentication disabled for development");
     }
 
     router.merge(listenbrainz::router())
+}
+
+fn user_from_session(session: Session) -> AppResult<AuthenticatedUser> {
+    session
+        .current_user
+        .ok_or_else(|| AppError::Unauthorized("Need to be logged in".to_string()))
 }

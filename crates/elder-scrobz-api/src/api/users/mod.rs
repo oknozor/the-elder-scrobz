@@ -5,7 +5,7 @@ use autometrics::autometrics;
 use axum::extract::{Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
-use elder_scrobz_db::user::{CreateUser, User as DbUser, User};
+use elder_scrobz_db::user::{CreateUser, User as DbUser, User, UserWithRole};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -34,7 +34,7 @@ pub fn router() -> OpenApiRouter<AppState> {
 pub async fn create_user(
     State(state): State<AppState>,
     Json(user): Json<CreateUser>,
-) -> AppResult<Json<User>> {
+) -> AppResult<Json<UserWithRole>> {
     Ok(Json(user.insert(&state.db).await?))
 }
 

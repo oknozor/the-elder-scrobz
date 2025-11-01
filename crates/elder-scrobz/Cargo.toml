@@ -9,19 +9,26 @@ path = "src/main.rs"
 
 [dependencies]
 axum.workspace = true
-elder-scrobz-api.workspace = true
-elder-scrobz-db.workspace = true
-elder-scrobz-crawler.workspace = true
-elder-scrobz-settings.workspace = true
-elder-scrobz-model.workspace = true
-dotenv.workspace = true
-anyhow.workspace = true
+axum_session.workspace = true
+axum_session_sqlx.workspace = true
+axum_session_auth.workspace = true
+
 tokio.workspace = true
 tokio-util.workspace = true
 tower-http.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 autometrics.workspace = true
+
 utoipa.workspace = true
 utoipa-axum.workspace = true
 utoipa-swagger-ui.workspace = true
+
+elder-scrobz-api.workspace = true
+elder-scrobz-db.workspace = true
+elder-scrobz-crawler.workspace = true
+elder-scrobz-settings.workspace = true
+elder-scrobz-model.workspace = true
+
+dotenv.workspace = true
+anyhow.workspace = true

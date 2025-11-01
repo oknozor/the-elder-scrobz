@@ -1,5 +1,6 @@
+use crate::api::user_from_session;
 use crate::error::{AppError, AppResult};
-use crate::oauth::AuthenticatedUser;
+use crate::oauth::router::Session;
 use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::State;
@@ -25,10 +26,11 @@ use utoipa_axum::routes;
 )]
 #[autometrics]
 pub async fn import_listens(
-    user: AuthenticatedUser,
+    session: Session,
     State(state): State<AppState>,
     mut stream: JsonLines<serde_json::value::Value>,
 ) -> AppResult<()> {
+    let user = user_from_session(session)?;
     const CHUNK_SIZE: usize = 50;
     let mut buffer = Vec::with_capacity(CHUNK_SIZE);
 
@@ -38,13 +40,13 @@ pub async fn import_listens(
         buffer.push(value);
 
         if buffer.len() == CHUNK_SIZE {
-            save_listens(&state.db, &user.name, buffer).await?;
+            save_listens(&state.db, &user.username, buffer).await?;
             buffer = Vec::with_capacity(CHUNK_SIZE);
         }
     }
 
     if !buffer.is_empty() {
-        save_listens(&state.db, &user.name, buffer).await?;
+        save_listens(&state.db, &user.username, buffer).await?;
     }
 
     Ok(())

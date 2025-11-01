@@ -258,7 +258,7 @@ impl MetadataClient {
                 if let Some(release) = subsonic_data.album.first() {
                     metadata.subsonic_id = Some(release.id.clone());
                     metadata.thumbnail_url = metadata.thumbnail_url.or(release.cover_art.clone());
-                    metadata.year = metadata.year.or(release.year.map(|year| year as i32));
+                    metadata.year = metadata.year.or(release.year);
                 }
             }
             Err(err) => error!("Failed to fetch Subsonic album: {}", err),

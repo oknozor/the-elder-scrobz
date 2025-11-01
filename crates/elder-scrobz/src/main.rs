@@ -3,11 +3,16 @@ use axum::Extension;
 use axum::body::Body;
 use axum::extract::Request;
 use axum::routing::get;
+use axum_session::{SessionConfig, SessionLayer, SessionStore};
+use axum_session_auth::{AuthConfig, AuthSessionLayer};
+use axum_session_sqlx::SessionPgPool;
 use elder_scrobz_api::api::{ApiDoc, router};
-use elder_scrobz_api::oauth::client::get_oauth2_client;
+use elder_scrobz_api::oauth;
+use elder_scrobz_api::oauth::client::OauthClient;
+use elder_scrobz_api::oauth::user::AuthenticatedUser;
 use elder_scrobz_api::state::AppState;
 use elder_scrobz_crawler::{DiscogsConfig, MetadataClient, NavidromeConfig, ScrobbleCrawler};
-use elder_scrobz_db::build_pg_pool;
+use elder_scrobz_db::{PgPool, build_pg_pool};
 use elder_scrobz_model::events::ScrobzEvent;
 use elder_scrobz_settings::Settings;
 use std::net::SocketAddr;
@@ -15,9 +20,10 @@ use std::sync::Arc;
 use tokio::signal::unix::{SignalKind, signal};
 use tokio::sync::broadcast;
 use tokio_util::sync::CancellationToken;
+use tower_http::classify::{ServerErrorsAsFailures, SharedClassifier};
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
-use tracing::{info, info_span, warn};
+use tracing::{Span, info, info_span, warn};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use utoipa::OpenApi;
@@ -34,46 +40,26 @@ async fn main() -> anyhow::Result<()> {
         dotenv::from_filename(".secret.env").ok();
     }
 
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG")
-                .unwrap_or_else(|_| "tower_http=debug,elder_scrobz_api=debug,scrobz=info".into()),
-        ))
-        .with(tracing_subscriber::fmt::layer())
-        .init();
-
-    let trace_layer = TraceLayer::new_for_http().make_span_with(|request: &Request<Body>| {
-        let safe_path = mask_token_in_uri(request.uri());
-        info_span!("http-request", method = %request.method(), path = %safe_path)
-    });
-
-    let settings = Settings::get()?;
-    let settings = Arc::new(settings);
+    let settings = Arc::new(Settings::get()?);
     let pool = build_pg_pool(&settings.database_url).await;
 
     elder_scrobz_db::migrate_db(&pool).await?;
 
+    let session_config = SessionConfig::default().with_table_name("sessions_table");
+    let session_store =
+        SessionStore::<SessionPgPool>::new(Some(pool.clone().into()), session_config).await?;
+
+    let auth_config = AuthConfig::<String>::default();
     let addr = SocketAddr::from(([0, 0, 0, 0], settings.port));
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
     info!("listening on {}", listener.local_addr()?);
-    let oauth_client = get_oauth2_client(&settings).await?;
+    let oauth_client = OauthClient::build(&settings.oidc).await?;
     let (sse_sender, _sse_receiver) = broadcast::channel::<ScrobzEvent>(100);
 
     let state = AppState::new(pool.clone(), sse_sender.clone());
 
-    let app = router(settings.debug, state.clone())
-        .layer(trace_layer)
-        .layer(Extension(MetadataClient::new(
-            settings.discogs_key.clone(),
-            settings.discogs_secret.clone(),
-            settings.navidrome_username.clone(),
-            settings.navidrome_password.clone(),
-            settings.navidrome_server_url.clone(),
-        )))
-        .layer(Extension(oauth_client))
-        .layer(Extension(settings.clone()))
-        .with_state(state);
+    let app = router(settings.debug);
 
     #[cfg(debug_assertions)]
     let app = {
@@ -106,8 +92,27 @@ async fn main() -> anyhow::Result<()> {
 
     let router = router
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
+        .merge(oauth::router::router())
         .nest_service("/coverarts", ServeDir::new(&settings.coverart_path))
-        .fallback_service(serve_frontend);
+        .fallback_service(serve_frontend)
+        .layer(Extension(MetadataClient::new(
+            settings.discogs_key.clone(),
+            settings.discogs_secret.clone(),
+            settings.navidrome_username.clone(),
+            settings.navidrome_password.clone(),
+            settings.navidrome_server_url.clone(),
+        )))
+        .layer(Extension(settings.clone()))
+        .layer(
+            AuthSessionLayer::<AuthenticatedUser, String, SessionPgPool, PgPool>::new(Some(
+                pool.clone(),
+            ))
+            .with_config(auth_config),
+        )
+        .layer(SessionLayer::new(session_store.clone()))
+        .layer(Extension(oauth_client))
+        .layer(build_trace_layer())
+        .with_state(state);
 
     let token = CancellationToken::new();
     let token_clone = token.clone();
@@ -157,6 +162,22 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+fn build_trace_layer()
+-> TraceLayer<SharedClassifier<ServerErrorsAsFailures>, impl Fn(&Request<Body>) -> Span + Clone> {
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::new(
+            std::env::var("RUST_LOG")
+                .unwrap_or_else(|_| "tower_http=debug,elder_scrobz_api=debug,scrobz=info".into()),
+        ))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    TraceLayer::new_for_http().make_span_with(|request: &Request<Body>| {
+        let safe_path = mask_token_in_uri(request.uri());
+        info_span!("http-request", method = %request.method(), path = %safe_path)
+    })
 }
 
 fn mask_token_in_uri(uri: &axum::http::Uri) -> String {
