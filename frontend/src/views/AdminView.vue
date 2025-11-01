@@ -54,7 +54,7 @@ import { useAuthStore } from "@/stores/authStore";
 const authStore = useAuthStore();
 
 const userName = computed(() => authStore.userName);
-const userRole = computed(() => authStore.userRole);
+const userRole = computed(() => authStore.isAdmin);
 </script>
 
 <style scoped>

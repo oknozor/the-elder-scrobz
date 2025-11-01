@@ -53,6 +53,25 @@ pub struct UserWithTotal {
 }
 
 impl User {
+    pub async fn get_by_username_with_permission(
+        pool: &PgPool,
+        username: &str,
+    ) -> Result<Option<UserWithRole>, Error> {
+        let user = sqlx::query_as!(
+            UserWithRole,
+            r#"
+              SELECT username, admin
+              FROM users
+              WHERE username = $1
+              "#,
+            username
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(user)
+    }
+
     pub async fn get_by_username(pool: &PgPool, username: &str) -> Result<Option<Self>, Error> {
         let user = sqlx::query_as!(
             User,
