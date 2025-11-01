@@ -1,6 +1,7 @@
 use crate::api::listenbrainz::Token;
+use crate::api::user_from_session;
 use crate::error::{AppError, AppResult};
-use crate::oauth::AuthenticatedUser;
+use crate::oauth::router::Session;
 use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::State;
@@ -39,12 +40,13 @@ pub struct CreateApiKeyRequest {
 )]
 #[autometrics]
 pub async fn create_api_key(
-    user: AuthenticatedUser,
+    session: Session,
     State(state): State<AppState>,
     Json(payload): Json<CreateApiKeyRequest>,
 ) -> AppResult<Json<ApiKeyCreated>> {
-    let Some(user) = User::get_by_username(&state.db, &user.name).await? else {
-        return Err(AppError::UserNotFound { id: user.name });
+    let user = user_from_session(session)?;
+    let Some(user) = User::get_by_username(&state.db, &user.username).await? else {
+        return Err(AppError::UserNotFound { id: user.username });
     };
 
     let key = generate_api_key();
@@ -76,11 +78,12 @@ pub async fn create_api_key(
 )]
 #[autometrics]
 pub async fn get_api_keys(
-    user: AuthenticatedUser,
+    session: Session,
     State(state): State<AppState>,
 ) -> Result<Json<Vec<ApiKey>>, AppError> {
-    let Some(user) = User::get_by_username(&state.db, &user.name).await? else {
-        return Err(AppError::UserNotFound { id: user.name });
+    let user = user_from_session(session)?;
+    let Some(user) = User::get_by_username(&state.db, &user.username).await? else {
+        return Err(AppError::UserNotFound { id: user.username });
     };
 
     Ok(Json(user.get_api_keys(&state.db).await?))
@@ -157,12 +160,13 @@ pub struct DeleteApiKeyResponse {
 )]
 #[autometrics]
 pub async fn delete_api_key(
-    user: AuthenticatedUser,
+    session: Session,
     State(state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> AppResult<Json<DeleteApiKeyResponse>> {
-    let Some(user) = User::get_by_username(&state.db, &user.name).await? else {
-        return Err(AppError::UserNotFound { id: user.name });
+    let user = user_from_session(session)?;
+    let Some(user) = User::get_by_username(&state.db, &user.username).await? else {
+        return Err(AppError::UserNotFound { id: user.username });
     };
 
     let success = user.delete_api_key(&state.db, id).await?;

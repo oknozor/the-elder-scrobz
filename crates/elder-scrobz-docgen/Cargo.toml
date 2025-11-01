@@ -5,8 +5,6 @@ edition = "2024"
 
 [dependencies]
 elder-scrobz-api.workspace = true
-elder-scrobz-db.workspace = true
-elder-scrobz-settings.workspace = true
 utoipa-axum.workspace = true
 utoipa.workspace = true
 anyhow.workspace = true

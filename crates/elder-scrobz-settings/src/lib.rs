@@ -17,6 +17,17 @@ pub struct Settings {
     pub navidrome_password: String,
     pub navidrome_server_url: String,
     pub navidrome_frontend_url: String,
+    pub oidc: OidcConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default)]
+pub struct OidcConfig {
+    pub client_id: String,
+    pub client_secret: String,
+    pub provider_url: String,
+    #[serde(default)]
+    pub force_http: bool,
+    pub domain: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]

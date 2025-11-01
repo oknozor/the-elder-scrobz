@@ -6,17 +6,22 @@ edition = "2021"
 [dependencies]
 axum.workspace = true
 axum-extra.workspace = true
+axum-macros.workspace = true
+axum_session_sqlx.workspace = true
+axum_session_auth.workspace = true
+
 utoipa-axum.workspace = true
 utoipa.workspace = true
 tokio.workspace = true
 tokio-stream.workspace = true
+async-trait.workspace = true
 autometrics.workspace = true
 
-axum-macros.workspace = true
 elder-scrobz-db.workspace = true
 elder-scrobz-model.workspace = true
 elder-scrobz-crawler.workspace = true
 elder-scrobz-settings.workspace = true
+
 anyhow.workspace = true
 serde_json.workspace = true
 tracing.workspace = true

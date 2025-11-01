@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": " SELECT COUNT(*) FROM users",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "4ffceba76fda084f4acb101f13fec56469c2aecc23b789998c0bcfa1427d8a44"
+}

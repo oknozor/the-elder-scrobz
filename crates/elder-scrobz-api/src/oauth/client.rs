@@ -1,42 +1,26 @@
-use elder_scrobz_settings::Settings;
+use elder_scrobz_settings::OidcConfig;
 use oauth2::basic::{
-    BasicErrorResponse, BasicRevocationErrorResponse, BasicTokenResponse, BasicTokenType,
+    BasicErrorResponse, BasicRevocationErrorResponse, BasicTokenIntrospectionResponse,
+    BasicTokenResponse,
 };
 use oauth2::{
-    AccessToken, ClientId, ClientSecret, EndpointNotSet, EndpointSet, IntrospectionUrl,
-    StandardRevocableToken, StandardTokenIntrospectionResponse,
+    AuthUrl, ClientSecret, EndpointNotSet, EndpointSet, IntrospectionUrl, RedirectUrl,
+    StandardRevocableToken, TokenIntrospectionResponse, TokenResponse, TokenUrl,
 };
+use oauth2::{AuthorizationCode, ClientId};
 use reqwest::Client;
 use serde::Deserialize;
-use tracing::info;
 
-use crate::oauth::ExtraClaim;
-
-type IntrospectionResponse = StandardTokenIntrospectionResponse<ExtraClaim, BasicTokenType>;
-
-type Oauth2IntrospectClient = oauth2::Client<
-    BasicErrorResponse,
-    BasicTokenResponse,
-    IntrospectionResponse,
-    StandardRevocableToken,
-    BasicRevocationErrorResponse,
-    EndpointNotSet,
-    EndpointNotSet,
-    EndpointSet,
-    EndpointNotSet,
-    EndpointNotSet,
->;
-
-pub type ScrobzOauth2Client<
-    HasAuthUrl = EndpointNotSet,
+pub type ScrobzOauth2Client2<
+    HasAuthUrl = EndpointSet,
     HasDeviceAuthUrl = EndpointNotSet,
-    HasIntrospectionUrl = EndpointNotSet,
+    HasIntrospectionUrl = EndpointSet,
     HasRevocationUrl = EndpointNotSet,
-    HasTokenUrl = EndpointNotSet,
+    HasTokenUrl = EndpointSet,
 > = oauth2::Client<
     BasicErrorResponse,
     BasicTokenResponse,
-    IntrospectionResponse,
+    BasicTokenIntrospectionResponse,
     StandardRevocableToken,
     BasicRevocationErrorResponse,
     HasAuthUrl,
@@ -46,49 +30,68 @@ pub type ScrobzOauth2Client<
     HasTokenUrl,
 >;
 
+#[derive(Debug, Clone)]
+pub struct OauthClient {
+    oauth: ScrobzOauth2Client2,
+    http: reqwest::Client,
+}
+
 #[derive(Debug, Deserialize)]
-struct OAuthMetadata {
-    introspection_endpoint: String,
+pub struct WellKnownConfiguration {
+    pub authorization_endpoint: String,
+    pub token_endpoint: String,
+    pub userinfo_endpoint: String,
+    pub introspection_endpoint: String,
 }
 
-#[derive(Clone, Debug)]
-pub struct Oauth2Client {
-    client: Client,
-    oauth2_client: Oauth2IntrospectClient,
-}
+impl OauthClient {
+    pub async fn build(config: &OidcConfig) -> anyhow::Result<Self> {
+        let client_id = config.client_id.to_string();
+        let client_secret = config.client_secret.to_string();
+        let redirect_url = format!(
+            "{}://{}/auth/authorized",
+            if config.force_http { "http" } else { "https" },
+            config.domain
+        );
 
-impl Oauth2Client {
-    pub(crate) async fn introspect(&self, token: String) -> anyhow::Result<IntrospectionResponse> {
-        let token = AccessToken::new(token);
-        self.oauth2_client
-            .introspect(&token)
-            .request_async(&self.client)
-            .await
-            .map_err(Into::into)
-    }
-}
-
-pub async fn get_oauth2_client(settings: &Settings) -> anyhow::Result<Oauth2Client> {
-    info!("Fetching oauth2 provider metadata");
-    let client = Client::new();
-    let metadata: OAuthMetadata = client
-        .get(&settings.oauth_provider_url)
-        .send()
+        let configuration: WellKnownConfiguration = reqwest::get(&format!(
+            "{}/.well-known/openid-configuration",
+            config.provider_url
+        ))
         .await?
         .json()
         .await?;
 
-    let client_id = ClientId::new(settings.oauth_client_id.clone());
-    let client_secret = ClientSecret::new(settings.oauth_client_secret.clone());
-    let introspection = IntrospectionUrl::new(metadata.introspection_endpoint)?;
+        let oauth = ScrobzOauth2Client2::new(ClientId::new(client_id))
+            .set_client_secret(ClientSecret::new(client_secret))
+            .set_auth_uri(AuthUrl::new(configuration.authorization_endpoint)?)
+            .set_token_uri(TokenUrl::new(configuration.token_endpoint)?)
+            .set_introspection_url(IntrospectionUrl::new(configuration.introspection_endpoint)?)
+            .set_redirect_uri(RedirectUrl::new(redirect_url)?);
 
-    let oauth2_client = ScrobzOauth2Client::new(client_id)
-        .set_client_secret(client_secret)
-        .set_introspection_url(introspection);
+        Ok(Self {
+            oauth,
+            http: Client::default(),
+        })
+    }
 
-    info!("Oauth2 client ready");
-    Ok(Oauth2Client {
-        client,
-        oauth2_client,
-    })
+    pub async fn authorize(&self, code: String) -> anyhow::Result<String> {
+        let token = self
+            .oauth
+            .exchange_code(AuthorizationCode::new(code))
+            .request_async(&self.http)
+            .await?;
+
+        let introspection = self
+            .oauth
+            .introspect(token.access_token())
+            .request_async(&self.http)
+            .await?;
+
+        introspection
+            .sub()
+            .or(introspection.username())
+            .map(ToString::to_string)
+            .ok_or_else(|| anyhow::anyhow!("failed to get username from introsection"))
+    }
 }

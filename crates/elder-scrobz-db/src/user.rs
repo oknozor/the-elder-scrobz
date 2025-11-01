@@ -8,14 +8,16 @@ use utoipa::ToSchema;
 #[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateUser {
     pub username: String,
+    pub admin: bool,
 }
 
 impl CreateUser {
-    pub async fn insert(self, pool: &PgPool) -> Result<User, Error> {
+    pub async fn insert(self, pool: &PgPool) -> Result<UserWithRole, Error> {
         let user = sqlx::query_as!(
-            User,
-            r#"INSERT INTO users (username) VALUES ($1) returning username"#,
+            UserWithRole,
+            r#"INSERT INTO users (username, admin) VALUES ($1, $2) returning username, admin"#,
             self.username,
+            self.admin,
         )
         .fetch_one(pool)
         .await?;
@@ -24,7 +26,13 @@ impl CreateUser {
     }
 }
 
-#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema)]
+#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema, Clone)]
+pub struct UserWithRole {
+    pub username: String,
+    pub admin: bool,
+}
+
+#[derive(sqlx::FromRow, sqlx::Type, Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct User {
     pub username: String,
 }
@@ -112,6 +120,13 @@ impl User {
         .await?;
 
         Ok(result.rows_affected() > 0)
+    }
+
+    pub async fn count(pool: &PgPool) -> Result<i64, Error> {
+        let count = sqlx::query_scalar!(r#" SELECT COUNT(*) FROM users"#)
+            .fetch_one(pool)
+            .await?;
+        Ok(count.unwrap_or_default())
     }
 
     pub async fn all(pool: &PgPool, limit: i64, offset: i64) -> Result<(i64, Vec<User>), Error> {
