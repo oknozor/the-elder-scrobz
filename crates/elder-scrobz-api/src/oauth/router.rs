@@ -14,7 +14,7 @@ use oauth2::{CsrfToken, Scope};
 use serde::Deserialize;
 
 use crate::error::AppResult;
-use crate::oauth::client::{OauthClient, ScrobzOauth2Client2};
+use crate::oauth::client::OauthClient;
 use crate::oauth::user;
 use crate::state::AppState;
 
@@ -33,8 +33,9 @@ pub struct AuthRequest {
 }
 
 #[debug_handler]
-pub async fn openid_auth(Extension(client): Extension<ScrobzOauth2Client2>) -> impl IntoResponse {
+pub async fn openid_auth(Extension(client): Extension<OauthClient>) -> impl IntoResponse {
     let (auth_url, _csrf_token) = client
+        .oauth
         .authorize_url(CsrfToken::new_random)
         .add_scope(Scope::new("profile".to_string()))
         .url();
@@ -49,7 +50,7 @@ pub async fn login_authorized(
     Extension(client): Extension<OauthClient>,
     State(state): State<AppState>,
 ) -> AppResult<Redirect> {
-    let authenticated_username = client.authorize(query.code).await?;
+    let authenticated_username = client.get_token(query.code).await?;
 
     if User::get_by_username(&state.db, &authenticated_username)
         .await?

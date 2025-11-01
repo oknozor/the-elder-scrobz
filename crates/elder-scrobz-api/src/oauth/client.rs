@@ -32,7 +32,7 @@ pub type ScrobzOauth2Client2<
 
 #[derive(Debug, Clone)]
 pub struct OauthClient {
-    oauth: ScrobzOauth2Client2,
+    pub oauth: ScrobzOauth2Client2,
     http: reqwest::Client,
 }
 
@@ -75,7 +75,7 @@ impl OauthClient {
         })
     }
 
-    pub async fn authorize(&self, code: String) -> anyhow::Result<String> {
+    pub async fn get_token(&self, code: String) -> anyhow::Result<String> {
         let token = self
             .oauth
             .exchange_code(AuthorizationCode::new(code))

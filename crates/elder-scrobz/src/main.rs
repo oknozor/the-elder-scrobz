@@ -92,7 +92,7 @@ async fn main() -> anyhow::Result<()> {
 
     let router = router
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
-        .merge(oauth::router::router())
+        .nest("/auth", oauth::router::router())
         .nest_service("/coverarts", ServeDir::new(&settings.coverart_path))
         .fallback_service(serve_frontend)
         .layer(Extension(MetadataClient::new(

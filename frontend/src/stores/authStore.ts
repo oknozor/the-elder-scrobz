@@ -1,19 +1,22 @@
-import type { User } from "oidc-client-ts";
+import axios from "axios";
 import { defineStore } from "pinia";
 import authService from "@/services/auth";
 
+interface CurrentUser {
+    username: string;
+    admin: boolean;
+}
+
 export const useAuthStore = defineStore("auth", {
     state: () => ({
-        user: null as User | null,
+        user: null as CurrentUser | null,
         isAuthenticated: false,
         isLoading: true,
     }),
 
     getters: {
-        userName: (state) => state.user?.profile?.name || "",
-        userEmail: (state) => state.user?.profile?.email || "",
-        userRole: (state) => state.user?.profile?.scrobz_role || null,
-        isAdmin: (state) => state.user?.profile?.scrobz_role === "admin",
+        userName: (state) => state.user?.username || "",
+        isAdmin: (state) => state.user?.admin || false,
     },
 
     actions: {
@@ -22,7 +25,8 @@ export const useAuthStore = defineStore("auth", {
             try {
                 await this.checkAuth();
             } catch (error) {
-                console.error("Failed to initialize auth store:", error);
+                this.user = null;
+                this.isAuthenticated = false;
             } finally {
                 this.isLoading = false;
             }
@@ -30,59 +34,23 @@ export const useAuthStore = defineStore("auth", {
 
         async checkAuth() {
             try {
-                this.user = await authService.getUser();
-                this.isAuthenticated = await authService.isAuthenticated();
-            } catch (error) {
-                console.error("Failed to check authentication:", error);
-                this.user = null;
-                this.isAuthenticated = false;
-            }
-        },
-
-        async login() {
-            try {
-                await authService.login();
-            } catch (error) {
-                console.error("Login failed:", error);
-                throw error;
-            }
-        },
-
-        async handleLoginCallback() {
-            this.isLoading = true;
-            try {
-                const user = await authService.handleLoginCallback();
-                this.user = user;
+                const response =
+                    await axios.get<CurrentUser>("/api/v1/users/me");
+                this.user = response.data;
                 this.isAuthenticated = true;
-                return user;
             } catch (error) {
-                console.error("Login callback failed:", error);
                 this.user = null;
                 this.isAuthenticated = false;
-                throw error;
-            } finally {
-                this.isLoading = false;
-            }
-        },
-
-        async logout() {
-            try {
-                await authService.logout();
-                this.user = null;
-                this.isAuthenticated = false;
-            } catch (error) {
-                console.error("Logout failed:", error);
                 throw error;
             }
         },
 
-        async checkIsAdmin(): Promise<boolean> {
-            try {
-                return await authService.isAdmin();
-            } catch (error) {
-                console.error("Failed to check admin status:", error);
-                return false;
-            }
+        login() {
+            authService.login();
+        },
+
+        logout() {
+            authService.logout();
         },
     },
 });

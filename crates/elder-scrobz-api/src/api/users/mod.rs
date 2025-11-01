@@ -1,21 +1,31 @@
 use crate::api::pagination::{PageQuery, PaginatedResponse, ToOffset};
-use crate::error::AppResult;
+use crate::error::{AppError, AppResult};
+use crate::oauth::user::AuthenticatedUser;
 use crate::state::AppState;
 use autometrics::autometrics;
 use axum::extract::{Query, State};
 use axum::Json;
 use axum_macros::debug_handler;
 use elder_scrobz_db::user::{CreateUser, User as DbUser, User, UserWithRole};
+use serde::Serialize;
+use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
 pub mod exports;
 pub mod imports;
 
+#[derive(Debug, Serialize, ToSchema)]
+pub struct CurrentUserInfo {
+    pub username: String,
+    pub admin: bool,
+}
+
 pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::new()
         .routes(routes!(create_user))
         .routes(routes!(get_users))
+        .routes(routes!(get_current_user))
         .merge(imports::router())
         .merge(exports::router())
 }
@@ -58,4 +68,32 @@ pub async fn get_users(
     let response = PaginatedResponse::from_query(users, total, query);
 
     Ok(Json(response))
+}
+
+#[debug_handler]
+#[utoipa::path(
+    get,
+    path = "/me",
+    summary = "Get current user",
+    responses(
+        (status = 200, description = "Current user info", body = CurrentUserInfo, content_type = "application/json"),
+        (status = 401, description = "Not authenticated"),
+    ),
+    tag = crate::api::USERS_TAG
+)]
+#[autometrics]
+pub async fn get_current_user(
+    authenticated_user: AuthenticatedUser,
+    State(state): State<AppState>,
+) -> AppResult<Json<CurrentUserInfo>> {
+    let user = DbUser::get_by_username_with_permission(&state.db, &authenticated_user.username)
+        .await?
+        .ok_or(AppError::UserNotFound {
+            id: authenticated_user.username,
+        })?;
+
+    Ok(Json(CurrentUserInfo {
+        username: user.username,
+        admin: user.admin,
+    }))
 }

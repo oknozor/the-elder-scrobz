@@ -4,7 +4,6 @@ import AdminView from "@/views/AdminView.vue";
 import AlbumView from "@/views/AlbumView.vue";
 import ApiKeysView from "@/views/ApiKeysView.vue";
 import ArtistView from "@/views/ArtistView.vue";
-import CallbackView from "@/views/CallbackView.vue";
 import ExportView from "@/views/ExportView.vue";
 import ImportView from "@/views/ImportView.vue";
 import StatsView from "@/views/StatsView.vue";
@@ -81,12 +80,7 @@ const router = createRouter({
             component: ApiKeysView,
             meta: { requiresAuth: true },
         },
-        {
-            path: "/callback",
-            name: "callback",
-            component: CallbackView,
-            meta: { requiresAuth: false },
-        },
+
         {
             path: "/admin",
             name: "admin",
@@ -115,7 +109,7 @@ router.beforeEach(async (to, _, next) => {
     const isAuthenticated = authStore.isAuthenticated;
 
     if (requiresAuth && !isAuthenticated) {
-        await authStore.login();
+        authStore.login();
         return;
     }
 

@@ -1,6 +1,5 @@
 import { useSseStore } from "@/stores";
 import type { ScrobzEvent } from "@/types/event";
-import auth from "./auth";
 
 let eventSource: EventSource | null = null;
 let isUnloading = false;
@@ -17,13 +16,7 @@ export const startSse = async () => {
 
     if (eventSource) return;
 
-    const token = await auth.getAccessToken();
-    if (!token) {
-        console.error("No access token available for SSE connection");
-        return;
-    }
-
-    const url = `/api/v1/events?token=${encodeURIComponent(token)}`;
+    const url = `/api/v1/events`;
     eventSource = new EventSource(url);
 
     eventSource.onmessage = (event) => {
