@@ -25,7 +25,7 @@ impl From<TopAlbum> for ChartAlbum {
             r#type: "Album",
             thumbnail_url: local_image(&album.id).or(album.thumbnail_url),
             subsonic_url: album.subsonic_id.map(|id| {
-                let frontend_url = &SETTINGS.navidrome_frontend_url;
+                let frontend_url = &SETTINGS.navidrome.frontend_url;
                 format!("{frontend_url}/app/#/album/{id}/show")
             }),
             id: album.id,
@@ -100,7 +100,7 @@ impl From<AlbumDetailsEntity> for AlbumDetails {
             r#type: "Album",
             thumbnail_url: local_image(&album.id).or(album.thumbnail_url),
             subsonic_url: album.subsonic_id.map(|id| {
-                let frontend_url = &SETTINGS.navidrome_frontend_url;
+                let frontend_url = &SETTINGS.navidrome.frontend_url;
                 format!("{frontend_url}/app/#/album/{id}/show")
             }),
             musicbrainz_url: format!("https://musicbrainz.org/release/{}", album.id),

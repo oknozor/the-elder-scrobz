@@ -23,7 +23,7 @@ impl From<TopArtist> for ChartArtist {
             r#type: "Artist",
             thumbnail_url: local_image(&artist.id).or(artist.thumbnail_url),
             subsonic_url: artist.subsonic_id.map(|id| {
-                let frontend_url = &SETTINGS.navidrome_frontend_url;
+                let frontend_url = &SETTINGS.navidrome.frontend_url;
                 format!("{frontend_url}/app/#/artist/{id}/show")
             }),
             id: artist.id,
@@ -53,7 +53,7 @@ impl From<ArtistEntity> for Artist {
             musicbrainz_url: format!("https://musicbrainz.org/artist/{}", artist.mbid),
             mbid: artist.mbid,
             subsonic_url: artist.subsonic_id.map(|id| {
-                let frontend_url = &SETTINGS.navidrome_frontend_url;
+                let frontend_url = &SETTINGS.navidrome.frontend_url;
                 format!("{frontend_url}/app/#/artist/{id}/show")
             }),
             name: artist.name,

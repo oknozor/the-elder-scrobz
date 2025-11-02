@@ -11,7 +11,7 @@ use elder_scrobz_api::oauth;
 use elder_scrobz_api::oauth::client::OauthClient;
 use elder_scrobz_api::oauth::user::AuthenticatedUser;
 use elder_scrobz_api::state::AppState;
-use elder_scrobz_crawler::{DiscogsConfig, MetadataClient, NavidromeConfig, ScrobbleCrawler};
+use elder_scrobz_crawler::{MetadataClient, ScrobbleCrawler};
 use elder_scrobz_db::{PgPool, build_pg_pool};
 use elder_scrobz_model::events::ScrobzEvent;
 use elder_scrobz_settings::Settings;
@@ -96,11 +96,11 @@ async fn main() -> anyhow::Result<()> {
         .nest_service("/coverarts", ServeDir::new(&settings.coverart_path))
         .fallback_service(serve_frontend)
         .layer(Extension(MetadataClient::new(
-            settings.discogs_key.clone(),
-            settings.discogs_secret.clone(),
-            settings.navidrome_username.clone(),
-            settings.navidrome_password.clone(),
-            settings.navidrome_server_url.clone(),
+            settings.discogs.key.clone(),
+            settings.discogs.secret.clone(),
+            settings.navidrome.username.clone(),
+            settings.navidrome.password.clone(),
+            settings.navidrome.server_url.clone(),
         )))
         .layer(Extension(settings.clone()))
         .layer(
@@ -128,15 +128,8 @@ async fn main() -> anyhow::Result<()> {
     let mut crawler = ScrobbleCrawler::create(
         pool.clone(),
         settings.coverart_path.clone(),
-        DiscogsConfig {
-            key: settings.discogs_key.clone(),
-            secret: settings.discogs_secret.clone(),
-        },
-        NavidromeConfig {
-            username: settings.navidrome_username.clone(),
-            password: settings.navidrome_password.clone(),
-            server_url: settings.navidrome_server_url.clone(),
-        },
+        settings.discogs.clone(),
+        settings.navidrome.clone(),
         token.clone(),
     )
     .await?;

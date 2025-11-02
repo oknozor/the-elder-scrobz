@@ -13,6 +13,8 @@ use elder_scrobz_db::listens::raw::listenbrainz::typed;
 use elder_scrobz_db::listens::raw::scrobble::{RawScrobble, TypedScrobble};
 use elder_scrobz_db::listens::scrobble::Scrobble;
 use elder_scrobz_model::events::ScrobzEvent;
+use elder_scrobz_settings::DiscogsConfig;
+use elder_scrobz_settings::NavidromeConfig;
 use sqlx::postgres::{PgListener, PgNotification};
 use tokio::select;
 use tokio_util::sync::CancellationToken;
@@ -38,17 +40,6 @@ pub struct ScrobbleCrawler {
     coverart_path: PathBuf,
     metadata_client: MetadataClient,
     cancellation_token: CancellationToken,
-}
-
-pub struct DiscogsConfig {
-    pub key: String,
-    pub secret: String,
-}
-
-pub struct NavidromeConfig {
-    pub username: String,
-    pub password: String,
-    pub server_url: String,
 }
 
 impl ScrobbleCrawler {
