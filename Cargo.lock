@@ -1058,6 +1058,7 @@ dependencies = [
  "anyhow",
  "elder-scrobz-db",
  "elder-scrobz-model",
+ "elder-scrobz-settings",
  "elder-scrobz-subsonic",
  "musicbrainz_rs",
  "once_cell",

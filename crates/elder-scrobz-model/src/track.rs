@@ -59,7 +59,7 @@ impl From<TopTrack> for ChartTrack {
             release_mbid: track.release_mbid,
             release_name: track.release_name,
             subsonic_url: track.release_subsonic_id.map(|id| {
-                let frontend_url = &SETTINGS.navidrome_frontend_url;
+                let frontend_url = &SETTINGS.navidrome.frontend_url;
                 format!("{frontend_url}/app/#/album/{id}/show")
             }),
             listens: track.listens,

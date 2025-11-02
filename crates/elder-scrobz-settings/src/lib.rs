@@ -8,16 +8,23 @@ pub struct Settings {
     pub port: u16,
     pub coverart_path: PathBuf,
     pub database_url: String,
-    pub oauth_client_id: String,
-    pub oauth_client_secret: String,
-    pub oauth_provider_url: String,
-    pub discogs_key: String,
-    pub discogs_secret: String,
-    pub navidrome_username: String,
-    pub navidrome_password: String,
-    pub navidrome_server_url: String,
-    pub navidrome_frontend_url: String,
+    pub discogs: DiscogsConfig,
+    pub navidrome: NavidromeConfig,
     pub oidc: OidcConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct DiscogsConfig {
+    pub key: String,
+    pub secret: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct NavidromeConfig {
+    pub username: String,
+    pub password: String,
+    pub server_url: String,
+    pub frontend_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
