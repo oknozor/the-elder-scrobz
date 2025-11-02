@@ -13,14 +13,20 @@ export default ({ mode }) => {
             },
         },
         server: {
+            port: 3000,
             proxy: {
+                "/auth": {
+                    target: process.env.VITE_API_BASE_URL || "/",
+                    secure: true,
+                    changeOrigin: true,
+                },
                 "/api/v1": {
                     target: process.env.VITE_API_BASE_URL || "/",
                     secure: true,
                     changeOrigin: true,
                 },
                 "/coverart": {
-                    target: "http://localhost:3000", // your backend
+                    target: "http://localhost:3001", // your backend
                     changeOrigin: true,
                 },
             },
