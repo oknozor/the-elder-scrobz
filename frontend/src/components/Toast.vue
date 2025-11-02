@@ -4,7 +4,7 @@
 			<div class="toast-content">
 				<slot></slot>
 			</div>
-			<button class="close-button" @click="close">
+			<Button variant="close" @click="close">
 				<svg
 					class="icon"
 					viewBox="0 0 24 24"
@@ -14,13 +14,14 @@
 				>
 					<path d="M18 6L6 18M6 6l12 12" />
 				</svg>
-			</button>
+			</Button>
 		</div>
 	</Transition>
 </template>
 
 <script setup lang="ts">
 import { watch } from "vue";
+import Button from "@/base/Button.vue";
 
 interface Props {
     modelValue: boolean;
@@ -84,19 +85,6 @@ watch(
 
 .toast-content {
 	flex: 1;
-}
-
-.close-button {
-	background: none;
-	border: none;
-	padding: 4px;
-	cursor: pointer;
-	color: var(--text-secondary);
-	transition: color 0.2s;
-}
-
-.close-button:hover {
-	color: var(--text-color);
 }
 
 .icon {

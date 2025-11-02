@@ -1,10 +1,9 @@
 <template>
     <div class="time-range-selector">
-        <button
+        <Button
             v-for="range in timeRanges"
             :key="range"
-            class="time-range-btn"
-            :class="{ active: sharedTimeRange === range }"
+            :active="sharedTimeRange === range"
             @click="setTimeRange(range)"
         >
             <TimeRangeIcon
@@ -15,12 +14,13 @@
             <span v-else>
                 {{ formatRange(range) }}
             </span>
-        </button>
+        </Button>
     </div>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
+import Button from "@/base/Button.vue";
 import { useWindowWidth } from "@/composables/useWindowWidth";
 import { useTimeRangeStore } from "@/stores";
 import type { TimeRange } from "@/types";
@@ -46,29 +46,6 @@ const formatRange = (range: TimeRange) => {
     flex-direction: column;
     gap: 8px;
     margin-bottom: 0;
-}
-
-.time-range-btn {
-    padding: 6px 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--card-background);
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.2s;
-    text-align: center;
-    width: 100%;
-}
-
-.time-range-btn:hover {
-    background: var(--background-color);
-}
-
-.time-range-btn.active {
-    background: var(--primary-color);
-    color: var(--background-color);
-    border-color: var(--primary-color);
 }
 
 @media screen and (max-width: 650px) {

@@ -125,7 +125,6 @@
             </div>
         </div>
 
-        <!-- Toast notification -->
         <div v-if="showToast" class="toast" :class="{ show: showToast }">
             {{ toastMessage }}
         </div>

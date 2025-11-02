@@ -3,12 +3,11 @@
         <div class="api-keys-section">
             <div class="section-header">
                 <h2>API Keys</h2>
-                <button
-                    class="create-key-btn"
+                <Button variant="confirm"
                     @click="showCreateKeyModal = true"
                 >
                     Create API Key
-                </button>
+                </Button>
             </div>
 
             <div class="api-keys-list">
@@ -88,16 +87,12 @@
                 />
             </div>
             <template #footer>
-                <button class="cancel-btn" @click="showCreateKeyModal = false">
+                <Button @click="showCreateKeyModal = false">
                     Cancel
-                </button>
-                <button
-                    class="create-btn"
-                    @click="createApiKey"
-                    :disabled="!newKeyLabel.trim()"
-                >
+                </Button>
+                <Button variant="confirm" @click="createApiKey" :disabled="!newKeyLabel.trim()">
                     Create
-                </button>
+                </Button>
             </template>
         </Modal>
 
@@ -110,12 +105,12 @@
                 This action cannot be undone.
             </p>
             <template #footer>
-                <button class="cancel-btn" @click="showDeleteKeyModal = false">
+                <Button @click="showDeleteKeyModal = false">
                     Cancel
-                </button>
-                <button class="delete-confirm-btn" @click="deleteApiKey">
+                </Button>
+                <Button @click="deleteApiKey">
                     Delete
-                </button>
+                </Button>
             </template>
         </Modal>
 
@@ -127,6 +122,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import Button from "@/base/Button.vue";
 import Modal from "@/components/Modal.vue";
 import Toast from "@/components/Toast.vue";
 import { apiKeyService } from "@/services/apiKeyService";
@@ -268,21 +264,6 @@ h3 {
     margin: 0 0 8px 0;
 }
 
-.create-key-btn {
-    padding: 8px 16px;
-    background: var(--primary-color);
-    color: var(--background-color);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.2s;
-}
-
-.create-key-btn:hover {
-    opacity: 0.9;
-}
-
 .api-keys-list {
     display: flex;
     flex-direction: column;
@@ -364,20 +345,6 @@ h3 {
     line-height: 1.5;
 }
 
-.delete-confirm-btn {
-    padding: 8px 16px;
-    background: #e74c3c; /* Red color for delete action */
-    border: none;
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.delete-confirm-btn:hover {
-    background: #c0392b; /* Darker red on hover */
-}
-
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -431,36 +398,4 @@ h3 {
     gap: 12px;
 }
 
-.cancel-btn {
-    padding: 8px 16px;
-    background: none;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    color: var(--text-color);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.cancel-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.create-btn {
-    padding: 8px 16px;
-    background: var(--primary-color);
-    border: none;
-    border-radius: 4px;
-    color: var(--background-color);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.create-btn:hover:not(:disabled) {
-    opacity: 0.9;
-}
-
-.create-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
 </style>

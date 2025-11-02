@@ -13,12 +13,12 @@
                     <polygon points="10,8 16,12 10,16 10,8" />
                 </svg>
                 <h2>Now Playing</h2>
-                <button
+                <Button
                     @click="notificationsEnabled = !notificationsEnabled"
                     :class="[
                         'notification-toggle',
-                        { active: notificationsEnabled },
                     ]"
+                    :active="notificationsEnabled"
                     :title="
                         notificationsEnabled
                             ? 'Disable notifications'
@@ -49,7 +49,7 @@
                         <path d="m1 1 22 22" />
                         <path d="M6.5 6.5C3 10 3 17 3 17h14" />
                     </svg>
-                </button>
+                </Button>
             </div>
             <TransitionGroup name="card" tag="div" class="now-playing-cards">
                 <PlayingNowCard
@@ -65,6 +65,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
+import Button from "@/base/Button.vue";
 import { useNotifications } from "@/composables/useNotifications";
 import { useSseStore } from "@/stores";
 import { PlayingNow } from "@/types";

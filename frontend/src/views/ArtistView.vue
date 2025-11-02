@@ -8,7 +8,7 @@
         <div v-else-if="error" class="error-container">
             <h2>Error Loading Artist</h2>
             <p>{{ error }}</p>
-            <button @click="fetchArtist" class="retry-button">Retry</button>
+            <Button @click="fetchArtist" variant="confirm">Retry</Button>
         </div>
 
         <div v-else-if="artist" class="artist-content">
@@ -34,6 +34,7 @@
 import { isAxiosError } from "axios";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import Button from "@/base/Button.vue";
 import apiClient from "@/services/api";
 import { useUsersStore } from "@/stores";
 import type { Artist } from "@/types";
@@ -141,22 +142,6 @@ onMounted(() => {
     100% {
         transform: rotate(360deg);
     }
-}
-
-.retry-button {
-    padding: 10px 20px;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-top: 10px;
-    transition: background 0.2s;
-}
-
-.retry-button:hover {
-    background: var(--primary-color-hover);
 }
 
 .artist-header {

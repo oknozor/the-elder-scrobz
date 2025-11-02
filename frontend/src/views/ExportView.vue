@@ -7,7 +7,7 @@
             </p>
 
             <div class="download-section">
-                <button class="download-btn" @click="handleDownload">
+                <Button variant="confirm" class="download-btn" @click="handleDownload">
                     <svg
                         class="download-icon"
                         viewBox="0 0 24 24"
@@ -20,13 +20,14 @@
                         <path d="M12 15V3" />
                     </svg>
                     Download Listening History
-                </button>
+                </Button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import Button from "@/base/Button.vue";
 import apiClient from "@/services/api";
 
 const handleDownload = async () => {
@@ -87,22 +88,9 @@ h1 {
 
 .download-btn {
     display: inline-flex;
-    align-items: center;
-    gap: 8px;
     padding: 12px 24px;
-    background: var(--primary-color);
-    color: var(--background-color);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
     font-size: 1em;
     font-weight: 500;
-    transition: all 0.2s;
-}
-
-.download-btn:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
 }
 
 .download-icon {
