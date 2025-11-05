@@ -1,7 +1,5 @@
 use autometrics::prometheus_exporter;
 use axum::Extension;
-use axum::body::Body;
-use axum::extract::Request;
 use axum::routing::get;
 use axum_session::{SessionConfig, SessionLayer, SessionStore};
 use axum_session_auth::{AuthConfig, AuthSessionLayer};
@@ -20,10 +18,9 @@ use std::sync::Arc;
 use tokio::signal::unix::{SignalKind, signal};
 use tokio::sync::broadcast;
 use tokio_util::sync::CancellationToken;
-use tower_http::classify::{ServerErrorsAsFailures, SharedClassifier};
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
-use tracing::{Span, info, info_span, warn};
+use tracing::{info, warn};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use utoipa::OpenApi;
@@ -32,13 +29,21 @@ use utoipa_swagger_ui::SwaggerUi;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    prometheus_exporter::init();
-
     #[cfg(debug_assertions)]
     {
         dotenv::dotenv().ok();
         dotenv::from_filename(".secret.env").ok();
     }
+
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::new(
+            std::env::var("RUST_LOG")
+                .unwrap_or_else(|_| "tower_http=debug,elder_scrobz_api=debug,scrobz=info".into()),
+        ))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    prometheus_exporter::init();
 
     let settings = Arc::new(Settings::get()?);
     let pool = build_pg_pool(&settings.database_url).await;
@@ -111,7 +116,7 @@ async fn main() -> anyhow::Result<()> {
         )
         .layer(SessionLayer::new(session_store.clone()))
         .layer(Extension(oauth_client))
-        .layer(build_trace_layer())
+        .layer(TraceLayer::new_for_http())
         .with_state(state);
 
     let token = CancellationToken::new();
@@ -155,40 +160,4 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
-}
-
-fn build_trace_layer()
--> TraceLayer<SharedClassifier<ServerErrorsAsFailures>, impl Fn(&Request<Body>) -> Span + Clone> {
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG")
-                .unwrap_or_else(|_| "tower_http=debug,elder_scrobz_api=debug,scrobz=info".into()),
-        ))
-        .with(tracing_subscriber::fmt::layer())
-        .init();
-
-    TraceLayer::new_for_http().make_span_with(|request: &Request<Body>| {
-        let safe_path = mask_token_in_uri(request.uri());
-        info_span!("http-request", method = %request.method(), path = %safe_path)
-    })
-}
-
-fn mask_token_in_uri(uri: &axum::http::Uri) -> String {
-    let path = uri.path();
-    if let Some(query) = uri.query() {
-        // Replace token=... with token=<user-token>
-        let safe_query = query
-            .split('&')
-            .map(|param| {
-                if param.starts_with("token=") {
-                    "token=<user-token>"
-                } else {
-                    param
-                }
-            })
-            .collect::<Vec<_>>()
-            .join("&");
-        return format!("{}?{}", path, safe_query);
-    }
-    path.to_string()
 }
