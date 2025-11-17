@@ -3,7 +3,8 @@
         <div class="form-header">
             <h2>User Configuration</h2>
             <p class="form-description">
-                Manage personal settings for playlist generation and preferences.
+                Manage personal settings for playlist generation and
+                preferences.
             </p>
         </div>
 
@@ -21,7 +22,8 @@
                         <span class="checkbox-label">
                             <strong>Enable Weekly Playlists</strong>
                             <span class="checkbox-description">
-                                Automatically generate weekly playlists based on your listening habits
+                                Automatically generate weekly playlists based on
+                                your listening habits
                             </span>
                         </span>
                     </label>
@@ -36,7 +38,8 @@
                         <span class="checkbox-label">
                             <strong>Enable Monthly Playlists</strong>
                             <span class="checkbox-description">
-                                Automatically generate monthly playlists based on your listening habits
+                                Automatically generate monthly playlists based
+                                on your listening habits
                             </span>
                         </span>
                     </label>
@@ -51,62 +54,8 @@
                         <span class="checkbox-label">
                             <strong>Enable Yearly Playlists</strong>
                             <span class="checkbox-description">
-                                Automatically generate yearly playlists based on your listening habits
-                            </span>
-                        </span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h3>Notification Settings</h3>
-                <div class="checkbox-group">
-                    <label class="checkbox-item">
-                        <input
-                            type="checkbox"
-                            v-model="config.email_notifications"
-                            :disabled="isSaving"
-                            class="checkbox-input"
-                        />
-                        <span class="checkbox-label">
-                            <strong>Email Notifications</strong>
-                            <span class="checkbox-description">
-                                Receive email updates about new playlists and statistics
-                            </span>
-                        </span>
-                    </label>
-
-                    <label class="checkbox-item">
-                        <input
-                            type="checkbox"
-                            v-model="config.public_profile"
-                            :disabled="isSaving"
-                            class="checkbox-input"
-                        />
-                        <span class="checkbox-label">
-                            <strong>Public Profile</strong>
-                            <span class="checkbox-description">
-                                Allow other users to view your listening statistics and playlists
-                            </span>
-                        </span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h3>Privacy Settings</h3>
-                <div class="checkbox-group">
-                    <label class="checkbox-item">
-                        <input
-                            type="checkbox"
-                            v-model="config.share_listening_data"
-                            :disabled="isSaving"
-                            class="checkbox-input"
-                        />
-                        <span class="checkbox-label">
-                            <strong>Share Listening Data</strong>
-                            <span class="checkbox-description">
-                                Contribute anonymous listening data to improve recommendations
+                                Automatically generate yearly playlists based on
+                                your listening habits
                             </span>
                         </span>
                     </label>
@@ -132,7 +81,9 @@
                             stroke="currentColor"
                             stroke-width="2"
                         >
-                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <path
+                                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                            />
                             <polyline points="17,21 17,13 7,13 7,21" />
                             <polyline points="7,3 7,8 15,8" />
                         </svg>
@@ -185,9 +136,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useUsersStore, type UserConfig } from "@/stores/usersStore";
+import { onMounted, ref } from "vue";
 import { useAuthStore } from "@/stores/authStore";
+import { useUsersStore } from "@/stores/usersStore";
+import { UserConfig } from "@/types/user/config";
 
 const usersStore = useUsersStore();
 const authStore = useAuthStore();
@@ -197,9 +149,6 @@ const config = ref<UserConfig>({
     enable_weekly_playlist: false,
     enable_monthly_playlist: false,
     enable_yearly_playlist: false,
-    email_notifications: true,
-    public_profile: false,
-    share_listening_data: false,
 });
 
 const isSaving = ref(false);
@@ -219,7 +168,8 @@ onMounted(async () => {
         console.error("Failed to load user config:", error);
         result.value = {
             type: "error",
-            message: "Failed to load configuration. Please try refreshing the page.",
+            message:
+                "Failed to load configuration. Please try refreshing the page.",
         };
     }
 });

@@ -12,10 +12,12 @@ use elder_scrobz_api::state::AppState;
 use elder_scrobz_crawler::{MetadataClient, ScrobbleCrawler};
 use elder_scrobz_db::{PgPool, build_pg_pool};
 use elder_scrobz_model::events::ScrobzEvent;
+use elder_scrobz_playlist_generator::PlaylistGenerator;
 use elder_scrobz_settings::Settings;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::signal::unix::{SignalKind, signal};
+use tokio::spawn;
 use tokio::sync::broadcast;
 use tokio_util::sync::CancellationToken;
 use tower_http::services::{ServeDir, ServeFile};
@@ -95,18 +97,22 @@ async fn main() -> anyhow::Result<()> {
     let serve_frontend = ServeDir::new("/app/frontend")
         .not_found_service(ServeFile::new("/app/frontend/index.html"));
 
+    let metadata_client = MetadataClient::new(
+        settings.discogs.key.clone(),
+        settings.discogs.secret.clone(),
+        settings.navidrome.username.clone(),
+        settings.navidrome.password.clone(),
+        settings.navidrome.server_url.clone(),
+    );
+
+    let subsonic_client = metadata_client.subsonic_client.clone();
+
     let router = router
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()))
         .nest("/auth", oauth::router::router())
         .nest_service("/coverarts", ServeDir::new(&settings.coverart_path))
         .fallback_service(serve_frontend)
-        .layer(Extension(MetadataClient::new(
-            settings.discogs.key.clone(),
-            settings.discogs.secret.clone(),
-            settings.navidrome.username.clone(),
-            settings.navidrome.password.clone(),
-            settings.navidrome.server_url.clone(),
-        )))
+        .layer(Extension(metadata_client))
         .layer(Extension(settings.clone()))
         .layer(
             AuthSessionLayer::<AuthenticatedUser, String, SessionPgPool, PgPool>::new(Some(
@@ -144,6 +150,12 @@ async fn main() -> anyhow::Result<()> {
         axum_token.cancelled().await;
     });
     let crawler_task = crawler.run();
+
+    spawn(async {
+        let mut playlist_generator = PlaylistGenerator::create(subsonic_client, pool).await?;
+        playlist_generator.run().await?;
+        anyhow::Ok(())
+    });
 
     tokio::select! {
         result = server => {

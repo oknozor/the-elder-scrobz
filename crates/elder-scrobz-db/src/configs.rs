@@ -36,6 +36,15 @@ impl UserConfig {
         Ok(user_config)
     }
 
+    pub async fn get_all(
+        pool: impl Executor<'_, Database = Postgres>,
+    ) -> Result<Vec<UserConfig>, sqlx::Error> {
+        let user_configs = sqlx::query_as!(UserConfig, "SELECT * FROM user_configs")
+            .fetch_all(pool)
+            .await?;
+        Ok(user_configs)
+    }
+
     pub async fn save(
         &self,
         pool: impl Executor<'_, Database = Postgres>,

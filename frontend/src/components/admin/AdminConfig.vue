@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useAdminStore } from "@/stores/adminStore";
 import type { GlobalConfig } from "@/types/admin/config";
 
@@ -160,7 +160,8 @@ onMounted(async () => {
         console.error("Failed to load config:", error);
         result.value = {
             type: "error",
-            message: "Failed to load configuration. Please try refreshing the page.",
+            message:
+                "Failed to load configuration. Please try refreshing the page.",
         };
     }
 });

@@ -67,7 +67,10 @@ export const useAuthStore = defineStore("auth", {
 
         async updateUserConfig(config: UserConfig) {
             try {
-                const response = await axios.post("/api/v1/users/config", config);
+                const response = await axios.post(
+                    "/api/v1/users/config",
+                    config,
+                );
                 this.config = response.data;
                 return response.data;
             } catch (error) {

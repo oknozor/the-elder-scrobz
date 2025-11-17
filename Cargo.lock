@@ -1092,6 +1092,7 @@ dependencies = [
  "elder-scrobz-crawler",
  "elder-scrobz-db",
  "elder-scrobz-model",
+ "elder-scrobz-playlist-generator",
  "elder-scrobz-settings",
  "tokio",
  "tokio-util",
