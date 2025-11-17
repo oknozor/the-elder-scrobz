@@ -10,115 +10,120 @@ import StatsView from "@/views/StatsView.vue";
 import TopDetailView from "@/views/TopDetailView.vue";
 import TrackView from "@/views/TrackView.vue";
 import UsersView from "@/views/UsersView.vue";
+import UserConfigView from "@/views/UserConfigView.vue";
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes: [
-        {
-            path: "/",
-            name: "stats",
-            component: StatsView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/artist/:id",
-            name: "artist",
-            component: ArtistView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/top-artists",
-            name: "topArtists",
-            component: TopDetailView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/album/:id",
-            name: "album",
-            component: AlbumView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/top-albums",
-            name: "topAlbums",
-            component: TopDetailView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/track/:id",
-            name: "track",
-            component: TrackView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/top-tracks",
-            name: "topTracks",
-            component: TopDetailView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/import",
-            name: "import",
-            component: ImportView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/export",
-            name: "export",
-            component: ExportView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/users",
-            name: "users",
-            component: UsersView,
-            meta: { requiresAuth: true },
-        },
-        {
-            path: "/api-keys",
-            name: "apiKeys",
-            component: ApiKeysView,
-            meta: { requiresAuth: true },
-        },
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: "/",
+      name: "stats",
+      component: StatsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/artist/:id",
+      name: "artist",
+      component: ArtistView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/top-artists",
+      name: "topArtists",
+      component: TopDetailView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/album/:id",
+      name: "album",
+      component: AlbumView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/top-albums",
+      name: "topAlbums",
+      component: TopDetailView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/track/:id",
+      name: "track",
+      component: TrackView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/top-tracks",
+      name: "topTracks",
+      component: TopDetailView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/import",
+      name: "import",
+      component: ImportView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/export",
+      name: "export",
+      component: ExportView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/users",
+      name: "users",
+      component: UsersView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/settings",
+      name: "settings",
+      component: UserConfigView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/api-keys",
+      name: "apiKeys",
+      component: ApiKeysView,
+      meta: { requiresAuth: true },
+    },
 
-        {
-            path: "/admin",
-            name: "admin",
-            component: AdminView,
-            meta: { requiresAuth: true, requiresAdmin: true },
-        },
-    ],
+    {
+      path: "/admin",
+      name: "admin",
+      component: AdminView,
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
+  ],
 });
 
 router.beforeEach(async (to, _, next) => {
-    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-    const requiresAdmin = to.matched.some(
-        (record) => record.meta.requiresAdmin,
-    );
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin);
 
-    if (!requiresAuth) {
-        return next();
-    }
+  if (!requiresAuth) {
+    return next();
+  }
 
-    const authStore = useAuthStore();
+  const authStore = useAuthStore();
 
-    if (authStore.isLoading) {
-        await authStore.initialize();
-    }
+  if (authStore.isLoading) {
+    await authStore.initialize();
+  }
 
-    const isAuthenticated = authStore.isAuthenticated;
+  const isAuthenticated = authStore.isAuthenticated;
 
-    if (requiresAuth && !isAuthenticated) {
-        authStore.login();
-        return;
-    }
+  if (requiresAuth && !isAuthenticated) {
+    authStore.login();
+    return;
+  }
 
-    if (requiresAdmin && !authStore.isAdmin) {
-        next({ name: "stats" });
-        return;
-    }
+  if (requiresAdmin && !authStore.isAdmin) {
+    next({ name: "stats" });
+    return;
+  }
 
-    next();
+  next();
 });
 
 export default router;

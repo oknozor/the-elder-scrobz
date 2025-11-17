@@ -35,6 +35,9 @@
                 <div class="user-option" @click="handleApiKeys">
                     <span class="option-text">API Keys</span>
                 </div>
+                <div v-if="isAdmin" class="user-option" @click="handleSettings">
+                    <span class="option-text"> Settings </span>
+                </div>
                 <div v-if="isAdmin" class="user-option" @click="handleAdmin">
                     <span class="option-text"> Administration </span>
                 </div>
@@ -96,6 +99,11 @@ const handleUsers = () => {
 
 const handleApiKeys = () => {
     router.push({ name: "apiKeys" });
+    isOpen.value = false;
+};
+
+const handleSettings = () => {
+    router.push({ name: "settings" });
     isOpen.value = false;
 };
 

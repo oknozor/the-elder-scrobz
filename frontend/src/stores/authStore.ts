@@ -1,6 +1,7 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import authService from "@/services/auth";
+import type { UserConfig } from "@/types/user/config";
 
 interface CurrentUser {
     username: string;
@@ -12,6 +13,7 @@ export const useAuthStore = defineStore("auth", {
         user: null as CurrentUser | null,
         isAuthenticated: false,
         isLoading: true,
+        config: {} as UserConfig,
     }),
 
     getters: {
@@ -51,6 +53,27 @@ export const useAuthStore = defineStore("auth", {
 
         logout() {
             authService.logout();
+        },
+
+        async fetchUserConfig() {
+            try {
+                const response = await axios.get("/api/v1/users/config");
+                this.config = response.data;
+            } catch (error) {
+                console.error("Error fetching user config:", error);
+                throw error;
+            }
+        },
+
+        async updateUserConfig(config: UserConfig) {
+            try {
+                const response = await axios.post("/api/v1/users/config", config);
+                this.config = response.data;
+                return response.data;
+            } catch (error) {
+                console.error("Error updating user config:", error);
+                throw error;
+            }
         },
     },
 });
