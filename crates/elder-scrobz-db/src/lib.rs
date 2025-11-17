@@ -1,5 +1,6 @@
 pub mod api_key;
 pub mod charts;
+pub mod configs;
 pub mod cover_art;
 pub mod dlc;
 pub mod listens;

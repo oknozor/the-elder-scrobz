@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM global_config WHERE id = 1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "enable_weekly_playlist",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "enable_monthly_playlist",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "enable_yearly_playlist",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "5ab6c233154703d4271a5a75fe19208368800548442e88f8a6b9dbb6fa3efcf9"
+}

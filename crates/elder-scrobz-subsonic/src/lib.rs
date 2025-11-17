@@ -31,4 +31,13 @@ impl SubsonicClient {
             .await
             .map_err(Into::into)
     }
+
+    pub async fn create_playlist(
+        &self,
+        name: &str,
+        tracks: Vec<String>,
+    ) -> Result<(), anyhow::Error> {
+        self.inner.create_playlist(name, tracks).await?;
+        Ok(())
+    }
 }

@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO global_config (id, enable_weekly_playlist, enable_monthly_playlist, enable_yearly_playlist) VALUES ($1, $2, $3, $4)\n             ON CONFLICT (id) DO UPDATE SET enable_weekly_playlist = $2, enable_monthly_playlist = $3, enable_yearly_playlist = $4",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9315d259c535232a29b423c9ae0e0969acc127a0f59d9275310d624e306e70d5"
+}
