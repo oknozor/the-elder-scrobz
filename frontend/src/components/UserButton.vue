@@ -1,6 +1,6 @@
 <template>
     <div class="user-button" ref="buttonRef">
-        <div class="user-info" @click="isOpen = !isOpen">
+        <Button class="user-info" @click="isOpen = !isOpen">
             <div class="user-icon-container">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +20,7 @@
                     <circle cx="12" cy="12" r="3"></circle>
                 </svg>
             </div>
-        </div>
+        </Button>
         <transition name="user-dropdown">
             <div v-if="isOpen" class="user-dropdown">
                 <div class="user-option" @click="handleImport">
@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import Button from "@/base/Button.vue";
 import { useAuthStore } from "@/stores/authStore";
 
 const router = useRouter();
@@ -111,16 +112,9 @@ const handleAdmin = () => {
 }
 
 .user-info {
-    display: flex;
-    align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: var(--card-background);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
 }
 
 .user-icon-container {

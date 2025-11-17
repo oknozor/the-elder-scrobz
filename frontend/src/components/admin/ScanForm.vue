@@ -75,11 +75,10 @@
             </div>
 
             <div class="form-actions">
-                <button
+                <Button
+                    variant="confirm"
                     type="submit"
-                    class="scan-button"
                     :disabled="isScanning || !hasSelectedOptions"
-                    :class="{ scanning: isScanning }"
                 >
                     <div v-if="isScanning" class="scanning-content">
                         <div class="spinner"></div>
@@ -100,16 +99,15 @@
                         </svg>
                         <span>Start Scan</span>
                     </div>
-                </button>
+                </Button>
 
-                <button
+                <Button
                     type="button"
-                    class="reset-button"
                     @click="resetForm"
                     :disabled="isScanning"
                 >
                     Reset
-                </button>
+                </Button>
             </div>
 
             <div v-if="scanResult" class="scan-result" :class="scanResult.type">
@@ -140,17 +138,17 @@
                     <h4>{{ scanResult.title }}</h4>
                     <p>{{ scanResult.message }}</p>
                 </div>
-                <button class="result-close" @click="clearResult">
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button>
+            <Button class="result-close" variant="close" @click="clearResult">
+				<svg
+					class="icon"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path d="M18 6L6 18M6 6l12 12" />
+				</svg>
+			</Button>
             </div>
         </form>
 
@@ -244,6 +242,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import Button from "@/base/Button.vue";
 import { type ScanParams, useAdminStore } from "@/stores/adminStore";
 
 const adminStore = useAdminStore();
@@ -422,39 +421,6 @@ const clearResult = () => {
     flex-wrap: wrap;
 }
 
-.scan-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: var(--primary-color);
-    color: var(--background-color);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: 500;
-    transition: all 0.2s;
-    min-width: 140px;
-    min-height: 48px;
-}
-
-.scan-button:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: translateY(-1px);
-}
-
-.scan-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.scan-button.scanning {
-    background: var(--text-secondary);
-}
-
 .button-content,
 .scanning-content {
     display: flex;
@@ -484,26 +450,6 @@ const clearResult = () => {
     100% {
         transform: rotate(360deg);
     }
-}
-
-.reset-button {
-    padding: 12px 24px;
-    background: none;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: all 0.2s;
-}
-
-.reset-button:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.reset-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .scan-result {
@@ -561,25 +507,6 @@ const clearResult = () => {
     color: var(--text-secondary);
     font-size: 0.9em;
     line-height: 1.4;
-}
-
-.result-close {
-    background: none;
-    border: none;
-    padding: 4px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: color 0.2s;
-    flex-shrink: 0;
-}
-
-.result-close:hover {
-    color: var(--text-color);
-}
-
-.result-close svg {
-    width: 16px;
-    height: 16px;
 }
 
 .scan-info {

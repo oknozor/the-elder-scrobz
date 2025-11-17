@@ -9,15 +9,14 @@
             <div class="format-selector">
                 <label class="format-label">Import Format:</label>
                 <div class="format-options">
-                    <button
+                    <Button
                         v-for="format in importFormats"
                         :key="format.id"
-                        class="format-option"
-                        :class="{ selected: selectedFormat === format.id }"
+                        :active="selectedFormat === format.id"
                         @click="selectedFormat = format.id"
                     >
                         {{ format.name }}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -63,15 +62,15 @@
                         formatFileSize(selectedFile.size)
                     }}</span>
                 </div>
-                <button
+                <Button
                     v-if="!isImportSuccessful"
-                    class="import-btn"
+                    variant="confirm"
                     @click="handleImport"
                     :disabled="isLoading"
                 >
                     <span v-if="!isLoading">Import</span>
                     <div v-else class="loader"></div>
-                </button>
+                </Button>
                 <div v-else class="success-container">
                     <div class="success-check">
                         <svg
@@ -114,6 +113,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import Button from "@/base/Button.vue";
 import apiClient from "@/services/api";
 
 interface ImportHistoryItem {
@@ -384,26 +384,6 @@ h1 {
 .file-size {
     color: var(--text-secondary);
     font-size: 0.8em;
-}
-
-.import-btn {
-    padding: 8px 16px;
-    background: var(--primary-color);
-    color: var(--background-color);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.2s;
-}
-
-.import-btn:hover {
-    opacity: 0.9;
-}
-
-.import-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
 }
 
 .loader {

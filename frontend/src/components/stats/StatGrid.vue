@@ -5,7 +5,7 @@
             ref="gridContainer"
             @scroll="checkScroll"
         >
-            <Card
+            <MusicCard
                 v-if="items.length > 0"
                 v-for="(item, index) in items.slice(0, step)"
                 :key="generateKey(item, index)"
@@ -31,7 +31,7 @@
             :style="{ height: bottomHeight }"
             ref="bottomItems"
         >
-            <Card
+            <MusicCard
                 v-for="(item, index) in items.slice(step, limit)"
                 :key="generateKey(item, index)"
                 :item="item"
@@ -50,7 +50,7 @@
 import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useWindowWidth } from "@/composables/useWindowWidth";
 import type { Album, Artist, Track } from "@/types";
-import Card from "../Card.vue";
+import MusicCard from "../MusicCard.vue";
 
 interface Props {
     items: Artist[] | Track[] | Album[];

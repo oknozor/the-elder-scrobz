@@ -3,9 +3,8 @@
 		<div class="modal-content" @click.stop>
 			<div class="modal-header">
 				<h3>{{ title }}</h3>
-				<button
+				<Button variant="close"
 					v-if="showCloseButton"
-					class="close-button"
 					@click="close"
 				>
 					<svg
@@ -17,7 +16,7 @@
 					>
 						<path d="M18 6L6 18M6 6l12 12" />
 					</svg>
-				</button>
+				</Button>
 			</div>
 			<div class="modal-body">
 				<slot></slot>
@@ -30,6 +29,8 @@
 </template>
 
 <script setup lang="ts">
+import Button from "@/base/Button.vue";
+
 interface Props {
     modelValue: boolean;
     title: string;
@@ -87,19 +88,6 @@ const handleOverlayClick = () => {
 
 .modal-header h3 {
 	margin: 0;
-	color: var(--text-color);
-}
-
-.close-button {
-	background: none;
-	border: none;
-	padding: 4px;
-	cursor: pointer;
-	color: var(--text-secondary);
-	transition: color 0.2s;
-}
-
-.close-button:hover {
 	color: var(--text-color);
 }
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="stat-card">
+   <FlexHorizontal>
         <div
             v-html="icon"
             class="stat-icon"
@@ -11,10 +11,12 @@
                 {{ formatNumber(props.value) }}
             </p>
         </div>
-    </div>
+   </FlexHorizontal>
 </template>
 
 <script setup lang="ts">
+import FlexHorizontal from "@/base/FlexHorizontal.vue";
+
 const props = defineProps<{
     title: string;
     icon: string;
@@ -37,22 +39,6 @@ const formatNumber = (num: number | undefined | null): string => {
 </style>
 
 <style scoped>
-.stat-card {
-    background: var(--card-background);
-    border-radius: 8px;
-    padding: 24px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: all 0.2s;
-}
-
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
 
 .stat-icon {
     width: 48px;

@@ -7,7 +7,7 @@
                 class="card-grid"
                 @before-enter="beforeEnter"
             >
-                <Card
+                <MusicCard
                     v-for="(item, index) in items"
                     :key="getItemKey(item, index)"
                     :item="item"
@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import type { Album, Artist, PaginatedResponse, Track } from "@/types";
-import Card from "./Card.vue";
+import MusicCard from "./MusicCard.vue";
 
 interface Props {
     items: PaginatedResponse<Artist | Track | Album>;

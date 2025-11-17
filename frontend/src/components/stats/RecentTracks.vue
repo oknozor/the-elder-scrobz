@@ -171,7 +171,6 @@ const beforeEnter = (el: Element) => {
         `${Math.min(index * 10, 300)}ms`;
 };
 
-// IntersectionObserver to detect when the last row enters the viewport
 const observeLastRow = () => {
     if (observer) observer.disconnect();
 
@@ -189,7 +188,6 @@ const observeLastRow = () => {
         },
     );
 
-    // Attach observer to the last row only
     if (trackRows.value.length > 0) {
         const lastRow = trackRows.value[trackRows.value.length - 1];
         if (lastRow) {
@@ -198,7 +196,6 @@ const observeLastRow = () => {
     }
 };
 
-// Watch for new tracks and append them smoothly
 watch(
     () => props.tracks,
     async (newTracks) => {
@@ -210,17 +207,14 @@ watch(
                 tableElements.value = [...tableElements.value, ...newTracks];
             });
         }
-        // Add a small delay before observing the new last row
         setTimeout(() => {
             observeLastRow();
         }, 100);
     },
 );
 
-// Also observe the last row when the component is mounted
 onMounted(() => {
     tableElements.value = props.tracks;
-    // Add a small delay before initial observation
     setTimeout(() => {
         observeLastRow();
     }, 100);

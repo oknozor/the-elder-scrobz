@@ -1,5 +1,5 @@
 <template>
-    <div class="overview-card">
+    <FlexVertical>
         <h3 class="card-title">{{ title }}</h3>
         <div class="card-value">{{ value }}</div>
         <div class="percentage-change-container">
@@ -17,10 +17,12 @@
             </div>
             <div v-else class="percentage-change-placeholder"></div>
         </div>
-    </div>
+    </FlexVertical>
 </template>
 
 <script setup lang="ts">
+import FlexVertical from "@/base/FlexVertical.vue";
+
 defineProps({
     title: {
         type: String,
@@ -43,21 +45,9 @@ defineProps({
 </script>
 
 <style scoped>
-.overview-card {
-    background: var(--card-background);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
 .card-title {
     color: var(--text-secondary);
     font-size: 1em;
-    margin: 0 0 8px 0;
     font-weight: 500;
 }
 
@@ -65,7 +55,6 @@ defineProps({
     color: var(--text-color);
     font-size: 1.8em;
     font-weight: bold;
-    margin-bottom: 8px;
 }
 
 .percentage-change-container {
@@ -95,13 +84,11 @@ defineProps({
     }
     .card-title {
         font-size: 0.8em;
-        margin-bottom: 4px;
         text-align: center;
     }
 
     .card-value {
         font-size: 1.2em;
-        margin-bottom: 4px;
         text-align: center;
         text-wrap: nowrap;
     }
