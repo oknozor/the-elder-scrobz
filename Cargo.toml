@@ -23,6 +23,7 @@ autometrics = { version = "2.0.0", features = ["prometheus-exporter"] }
 tokio = { version = "1", features = ["full"] }
 tokio-util = "0.7.14"
 tokio-stream = { version = "0.1.17", features = ["sync"] }
+tokio-cron-scheduler = "0.15"
 async-trait = "0.1.89"
 
 reqwest = { version = "0.12.15", features = ["native-tls-vendored"] }
@@ -49,6 +50,7 @@ elder-scrobz-crawler = { path = "crates/elder-scrobz-crawler", version = "0.1.0"
 elder-scrobz-subsonic = { path = "crates/elder-scrobz-subsonic", version = "0.1.0" }
 elder-scrobz-settings = { path = "crates/elder-scrobz-settings", version = "0.1.0" }
 elder-scrobz-model = { path = "crates/elder-scrobz-model", version = "0.1.0" }
+elder-scrobz-playlist-generator = { path = "crates/elder-scrobz-playlist-generator", version = "0.1.0" }
 
 http-body-util = "0.1.2"
 testcontainers-modules = { version = "0.11.6", features = ["postgres"] }

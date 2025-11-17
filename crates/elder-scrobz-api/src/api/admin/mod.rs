@@ -3,6 +3,7 @@ use utoipa_axum::routes;
 
 use crate::state::AppState;
 
+mod config;
 mod releases;
 mod scan;
 mod scrobbles;
@@ -13,5 +14,7 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(scan::scan_db))
         .routes(routes!(stats::stats))
         .routes(routes!(releases::remove_coverart))
+        .routes(routes!(config::get_config))
+        .routes(routes!(config::set_config))
         .merge(scrobbles::router())
 }

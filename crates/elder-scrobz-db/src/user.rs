@@ -1,5 +1,6 @@
 use crate::PgPool;
 use crate::api_key::{key_sha, verify_api_key};
+use crate::configs::UserConfig;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
@@ -13,14 +14,26 @@ pub struct CreateUser {
 
 impl CreateUser {
     pub async fn insert(self, pool: &PgPool) -> Result<UserWithRole, Error> {
+        let mut tx = pool.begin().await?;
+
         let user = sqlx::query_as!(
             UserWithRole,
-            r#"INSERT INTO users (username, admin) VALUES ($1, $2) returning username, admin"#,
+            r#"INSERT INTO users (username, admin) VALUES ($1, $2) RETURNING username, admin"#,
             self.username,
             self.admin,
         )
-        .fetch_one(pool)
+        .fetch_one(&mut *tx)
         .await?;
+
+        let default_user_config = UserConfig {
+            username: self.username.clone(),
+            enable_weekly_playlist: false,
+            enable_monthly_playlist: false,
+            enable_yearly_playlist: false,
+        };
+
+        default_user_config.save(&mut *tx).await?;
+        tx.commit().await?;
 
         Ok(user)
     }

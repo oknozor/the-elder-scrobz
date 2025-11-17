@@ -1,0 +1,12 @@
+[package]
+name = "elder-scrobz-playlist-generator"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+elder-scrobz-db.workspace = true
+elder-scrobz-subsonic.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+tokio-cron-scheduler.workspace = true
+tracing.workspace = true

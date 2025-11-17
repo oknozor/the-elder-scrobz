@@ -12,6 +12,7 @@ use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
+pub mod config;
 pub mod exports;
 pub mod imports;
 
@@ -26,6 +27,8 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(create_user))
         .routes(routes!(get_users))
         .routes(routes!(get_current_user))
+        .routes(routes!(config::get_user_config))
+        .routes(routes!(config::set_user_config))
         .merge(imports::router())
         .merge(exports::router())
 }
