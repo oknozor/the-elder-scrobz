@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import apiClient from "@/services/api";
 import type { PaginatedResponse, Stats, ValueType } from "@/types";
+import type { GlobalConfig } from "@/types/admin/config";
 
 export interface ErroredScrobble {
     id: number;
@@ -29,6 +30,7 @@ export const useAdminStore = defineStore("admin", {
         stats: {} as Stats,
         erroredScrobbles: {} as PaginatedResponse<ErroredScrobble>,
         isScanning: false,
+        config: {} as GlobalConfig,
     }),
 
     actions: {
@@ -110,6 +112,27 @@ export const useAdminStore = defineStore("admin", {
                 return response.data;
             } catch (error) {
                 console.error("Error fetching scrobble by ID:", error);
+                throw error;
+            }
+        },
+
+        async fetchConfig() {
+            try {
+                const response = await apiClient.get("/admin/config");
+                this.config = response.data;
+            } catch (error) {
+                console.error("Error fetching config:", error);
+                throw error;
+            }
+        },
+
+        async updateConfig(config: GlobalConfig) {
+            try {
+                const response = await apiClient.post("/admin/config", config);
+                this.config = response.data;
+                return response.data;
+            } catch (error) {
+                console.error("Error updating config:", error);
                 throw error;
             }
         },

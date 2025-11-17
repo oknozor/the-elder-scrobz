@@ -23,6 +23,10 @@
 
             <div class="admin-content">
                 <div class="admin-section">
+                    <AdminConfig />
+                </div>
+
+                <div class="admin-section">
                     <StatsVue />
                 </div>
 
@@ -45,6 +49,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import AdminOnly from "@/components/AdminOnly.vue";
+import AdminConfig from "@/components/admin/AdminConfig.vue";
 import ErroredScrobblesViewer from "@/components/admin/ErroredScrobblesViewer.vue";
 import ScanForm from "@/components/admin/ScanForm.vue";
 import ScrobbleJsonViewer from "@/components/admin/ScrobbleJsonViewer.vue";
