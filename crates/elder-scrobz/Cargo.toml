@@ -29,6 +29,7 @@ elder-scrobz-db.workspace = true
 elder-scrobz-crawler.workspace = true
 elder-scrobz-settings.workspace = true
 elder-scrobz-model.workspace = true
+elder-scrobz-playlist-generator.workspace = true
 
 dotenv.workspace = true
 anyhow.workspace = true

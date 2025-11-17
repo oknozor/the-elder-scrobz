@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM user_configs WHERE username = $1",
+  "query": "SELECT * FROM user_configs",
   "describe": {
     "columns": [
       {
@@ -25,9 +25,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Text"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -36,5 +34,5 @@
       false
     ]
   },
-  "hash": "705bd05ebc08158ad89bb50cb7ea7c2bc87ae58dd8d3d49ebeb78518331c3016"
+  "hash": "c48d7c044c774c76098f0cd43b5e1afb990e115e678982fcf864db3aebfe63ca"
 }
