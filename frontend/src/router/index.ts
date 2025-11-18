@@ -6,10 +6,10 @@ import ApiKeysView from "@/views/ApiKeysView.vue";
 import ArtistView from "@/views/ArtistView.vue";
 import ExportView from "@/views/ExportView.vue";
 import ImportView from "@/views/ImportView.vue";
+import PlaylistManagementView from "@/views/PlaylistManagementView.vue";
 import StatsView from "@/views/StatsView.vue";
 import TopDetailView from "@/views/TopDetailView.vue";
 import TrackView from "@/views/TrackView.vue";
-import UserConfigView from "@/views/UserConfigView.vue";
 import UsersView from "@/views/UsersView.vue";
 
 const router = createRouter({
@@ -78,7 +78,7 @@ const router = createRouter({
         {
             path: "/settings",
             name: "settings",
-            component: UserConfigView,
+            component: PlaylistManagementView,
             meta: { requiresAuth: true },
         },
         {
