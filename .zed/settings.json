@@ -1,4 +1,7 @@
 {
+  "file_scan_exclusions": [
+    ".sqlx/"
+  ],
   "lsp": {
     "biome": {
       "settings": {
