@@ -1,7 +1,7 @@
 <template>
     <div class="config-form">
         <div class="form-header">
-            <h2>User Configuration</h2>
+            <h2>Playlist Configuration</h2>
             <p class="form-description">
                 Manage personal settings for playlist generation and
                 preferences.
@@ -13,12 +13,8 @@
                 <h3>Playlist Preferences</h3>
                 <div class="checkbox-group">
                     <label class="checkbox-item">
-                        <input
-                            type="checkbox"
-                            v-model="config.enable_weekly_playlist"
-                            :disabled="isSaving"
-                            class="checkbox-input"
-                        />
+                        <input type="checkbox" v-model="config.enable_weekly_playlist" :disabled="isSaving"
+                            class="checkbox-input" />
                         <span class="checkbox-label">
                             <strong>Enable Weekly Playlists</strong>
                             <span class="checkbox-description">
@@ -29,12 +25,8 @@
                     </label>
 
                     <label class="checkbox-item">
-                        <input
-                            type="checkbox"
-                            v-model="config.enable_monthly_playlist"
-                            :disabled="isSaving"
-                            class="checkbox-input"
-                        />
+                        <input type="checkbox" v-model="config.enable_monthly_playlist" :disabled="isSaving"
+                            class="checkbox-input" />
                         <span class="checkbox-label">
                             <strong>Enable Monthly Playlists</strong>
                             <span class="checkbox-description">
@@ -45,12 +37,8 @@
                     </label>
 
                     <label class="checkbox-item">
-                        <input
-                            type="checkbox"
-                            v-model="config.enable_yearly_playlist"
-                            :disabled="isSaving"
-                            class="checkbox-input"
-                        />
+                        <input type="checkbox" v-model="config.enable_yearly_playlist" :disabled="isSaving"
+                            class="checkbox-input" />
                         <span class="checkbox-label">
                             <strong>Enable Yearly Playlists</strong>
                             <span class="checkbox-description">
@@ -63,27 +51,14 @@
             </div>
 
             <div class="form-actions">
-                <button
-                    type="submit"
-                    class="save-button"
-                    :disabled="isSaving"
-                    :class="{ saving: isSaving }"
-                >
+                <button type="submit" class="save-button" :disabled="isSaving" :class="{ saving: isSaving }">
                     <div v-if="isSaving" class="saving-content">
                         <div class="spinner"></div>
                         <span>Saving...</span>
                     </div>
                     <div v-else class="button-content">
-                        <svg
-                            class="save-icon"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
-                            />
+                        <svg class="save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
                             <polyline points="17,21 17,13 7,13 7,21" />
                             <polyline points="7,3 7,8 15,8" />
                         </svg>
@@ -94,23 +69,12 @@
 
             <div v-if="result" class="result" :class="result.type">
                 <div class="result-icon">
-                    <svg
-                        v-if="result.type === 'success'"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
+                    <svg v-if="result.type === 'success'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22,4 12,14.01 9,11.01" />
                     </svg>
-                    <svg
-                        v-else
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
+                    <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="15" y1="9" x2="9" y2="15" />
                         <line x1="9" y1="9" x2="15" y2="15" />
@@ -120,12 +84,7 @@
                     <p>{{ result.message }}</p>
                 </div>
                 <button class="result-close" @click="clearResult">
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
@@ -367,6 +326,7 @@ const clearResult = () => {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
